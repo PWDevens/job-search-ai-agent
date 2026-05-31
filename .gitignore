@@ -1,0 +1,46 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+*.egg
+*.egg-info/
+dist/
+build/
+.eggs/
+.venv/
+venv/
+env/
+
+# Environment / secrets — NEVER commit these
+.env
+*.env.local
+
+# Data / uploads (user-specific, potentially sensitive)
+data/uploads/
+data/job_pipeline.xlsx
+data/*.xlsx
+
+# ChromaDB local data (if running without Docker)
+chroma_data/
+
+# Ollama model cache (if running without Docker)
+.ollama/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# Test artifacts
+.pytest_cache/
+.coverage
+htmlcov/
+*.log
+
+# Jupyter (keep notebooks but ignore checkpoints)
+.ipynb_checkpoints/
