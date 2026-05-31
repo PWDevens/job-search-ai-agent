@@ -1,0 +1,39 @@
+# ── Core framework ─────────────────────────────────────────────────────────────
+flask>=3.1.0
+python-dotenv>=1.0.1
+werkzeug>=3.1.0
+
+# ── CrewAI + LLM ──────────────────────────────────────────────────────────────
+crewai>=0.80.0
+litellm>=1.40.0
+
+# ── ChromaDB ───────────────────────────────────────────────────────────────────
+chromadb>=0.5.20
+
+# ── Embeddings (local, no GPU required) ───────────────────────────────────────
+sentence-transformers>=3.1.0   # fallback when Ollama embed is unavailable
+# Note: torch CPU-only is pulled automatically by sentence-transformers
+# If you have a CUDA GPU: pip install torch --index-url https://download.pytorch.org/whl/cu121
+
+# ── Data / Excel ───────────────────────────────────────────────────────────────
+pandas>=2.2.0
+openpyxl>=3.1.5
+xlrd>=2.0.1          # XLS read support
+
+# ── PDF parsing ────────────────────────────────────────────────────────────────
+pdfplumber>=0.11.0
+PyPDF2>=3.0.1        # fallback PDF reader
+
+# ── HTTP / requests ────────────────────────────────────────────────────────────
+requests>=2.32.0
+httpx>=0.27.0
+
+# ── Scheduling ─────────────────────────────────────────────────────────────────
+APScheduler>=3.10.4
+
+# ── Testing ────────────────────────────────────────────────────────────────────
+pytest>=8.2.0
+pytest-mock>=3.14.0
+
+# ── Linting / formatting (dev only) ───────────────────────────────────────────
+ruff>=0.4.0

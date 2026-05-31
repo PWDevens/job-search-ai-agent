@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Results — Job-Search AI</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
+  <style>
+    /* Tight cell override for dense job table */
+    #tab-jobs .ms-table td { padding: 6px 10px; }
+    .title-cell  { font-weight: 600; max-width: 200px; }
+    .desc-cell   { font-size: 12px; color: var(--text-secondary);
+                   max-width: 260px; overflow: hidden;
+                   white-space: nowrap; text-overflow: ellipsis; }
+    /* Merged-file download banner */
+    .merge-banner {
+      display: flex; align-items: center; gap: 12px;
+      background: var(--ms-green-light); border: 1px solid var(--ms-green);
+      border-radius: var(--radius-md); padding: 12px 16px; margin-bottom: 20px;
+    }
+    .merge-banner__icon { font-size: 22px; flex-shrink: 0; }
+    .merge-banner__text { flex: 1; font-size: 13px; color: var(--ms-gray-100); }
+    .merge-banner__text strong { color: var(--ms-green); }
+    .merge-banner__btn {
+      flex-shrink: 0;
+      background: var(--ms-green); color: #fff;
+      border: none; border-radius: var(--radius-md);
+      padding: 8px 18px; font-size: 13px; font-weight: 600;
+      cursor: pointer; text-decoration: none;
+      transition: background var(--transition);
+      display: inline-flex; align-items: center; gap: 6px;
+    }
+    .merge-banner__btn:hover { background: #0b5e0b; color: #fff; text-decoration: none; }
+  </style>
+</head>
+<body>
+
+<!-- ── Navigation ──────────────────────────────────────────────────────────── -->
+<nav class="ms-nav">
+  <a href="/" class="ms-nav__brand" style="text-decoration:none;">
+    <span>🤖</span>
+    <span>Job-Search AI</span>
+  </a>
+  <span class="ms-nav__subtitle" style="margin-left:8px;">
+    Results — <strong style="color:#fff;">{{ role[:55] }}{% if role|length > 55 %}…{% endif %}</strong>
+    &nbsp;·&nbsp; {{ geo or 'All Locations' }}
+  </span>
+  <span class="ms-nav__spacer"></span>
+  <div class="ms-nav__actions">
+    <a href="/pipeline" class="ms-btn ms-btn--secondary ms-btn--sm">⬇ Pipeline XLSX</a>
+    <a href="/" class="ms-btn ms-btn--ghost ms-btn--sm" style="color:#fff;">← New Search</a>
+  </div>
+</nav>
+
+<div class="ms-container--wide">
+
+  <!-- Flash messages -->
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% for cat, msg in messages %}
+      <div class="ms-alert ms-alert--{{ 'error' if cat == 'danger' else cat }}" role="alert">
+        <span>{{ '⚠' if cat == 'warning' else ('✅' if cat == 'success' else ('ℹ' if cat == 'info' else '❌')) }}</span>
+        <span>{{ msg }}</span>
+      </div>
+    {% endfor %}
+  {% endwith %}
+
+  <!-- ── Merged file download banner (shown only when user uploaded a jobs file) -->
+  {% if has_merged_file %}
+  <div class="merge-banner">
+    <div class="merge-banner__icon">📥</div>
+    <div class="merge-banner__text">
+      <strong>{{ merged_count }} new job lead{% if merged_count != 1 %}s{% endif %}</strong>
+      found and appended to your uploaded file.
+      Your original data is preserved — new rows are added at the bottom.
+    </div>
+    <a href="/download-merged" class="merge-banner__btn">
+      ⬇ Download Updated File
+    </a>
+  </div>
+  {% endif %}
+
+  <!-- ── Summary stat cards ──────────────────────────────────────────────── -->
+  <div class="ms-stat-grid" style="margin-bottom:20px;">
+    <div class="ms-stat-card ms-stat-card--blue">
+      <div class="ms-stat-card__number">{{ top_jobs|length }}</div>
+      <div class="ms-stat-card__label">🏆 Top Job Matches</div>
+    </div>
+    <div class="ms-stat-card ms-stat-card--green">
+      <div class="ms-stat-card__number">{{ resume_recs|length }}</div>
+      <div class="ms-stat-card__label">📝 Resume Recommendations</div>
+    </div>
+    <div class="ms-stat-card ms-stat-card--orange">
+      <div class="ms-stat-card__number">{{ blind_spots|length }}</div>
+      <div class="ms-stat-card__label">🔦 Blind Spots Found</div>
+    </div>
+  </div>
+
+  <!-- ── Pivot Tabs ──────────────────────────────────────────────────────── -->
+  <div class="ms-pivot">
+    <button class="ms-pivot__btn ms-pivot__btn--active" data-target="tab-jobs">
+      🏆 Job Matches
+    </button>
+    <button class="ms-pivot__btn" data-target="tab-resume">
+      📝 Resume Coach
+    </button>
+    <button class="ms-pivot__btn" data-target="tab-blind">
+      🔦 Blind Spots
+    </button>
+  </div>
+
+  <!-- ── Tab: Job Matches ────────────────────────────────────────────────── -->
+  <div id="tab-jobs" class="ms-tab-panel ms-card" style="margin-top:0;border-top-left-radius:0;">
+
+    {% if top_jobs %}
+    <div class="ms-card__body" style="padding:0;">
+      <table class="ms-table">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Score</th>
+            <th>Title</th>
+            <th>Company</th>
+            <th>Location</th>
+            <th>Salary</th>
+            <th>Status</th>
+            <th>Posted</th>
+            <th>Source</th>
+            <th>Link</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for job in top_jobs %}
+          <tr>
+            <td>{{ loop.index }}</td>
+            <td>
+              <div style="display:flex;align-items:center;gap:6px;">
+                <div style="width:40px;height:6px;background:var(--ms-gray-30);border-radius:3px;overflow:hidden;">
+                  <div style="width:{{ (job.score * 100)|int }}%;height:100%;background:var(--ms-blue);border-radius:3px;"></div>
+                </div>
+                <span style="font-size:11px;color:var(--text-secondary);">
+                  {{ "%.0f"|format(job.score * 100) }}%
+                </span>
+              </div>
+            </td>
+            <td class="title-cell">{{ job.title or '—' }}</td>
+            <td>{{ job.company or '—' }}</td>
+            <td style="font-size:12px;">{{ job.location or '—' }}</td>
+            <td style="font-size:12px;">{{ job.salary or '—' }}</td>
+            <td>
+              {% set status = job.application_status or 'Have Not Applied' %}
+              {% if status == 'Offer Received' %}
+                <span class="ms-badge ms-badge--green">{{ status }}</span>
+              {% elif status == 'Interviewing' %}
+                <span class="ms-badge ms-badge--teal">{{ status }}</span>
+              {% elif status == 'Under Consideration' %}
+                <span class="ms-badge ms-badge--purple">{{ status }}</span>
+              {% elif status == 'Applied' %}
+                <span class="ms-badge ms-badge--blue">{{ status }}</span>
+              {% elif status == 'Rejected' %}
+                <span class="ms-badge ms-badge--red">{{ status }}</span>
+              {% elif status == 'Withdrawn' %}
+                <span class="ms-badge ms-badge--gray">{{ status }}</span>
+              {% else %}
+                <span class="ms-badge ms-badge--neutral">{{ status }}</span>
+              {% endif %}
+            </td>
+            <td style="font-size:12px;">{{ job.date_posted or '—' }}</td>
+            <td style="font-size:12px;">{{ job.source or '—' }}</td>
+            <td>
+              {% if job.url %}
+              <a href="{{ job.url }}" target="_blank" rel="noopener"
+                 class="ms-btn ms-btn--ghost ms-btn--sm" style="font-size:11px;">
+                Apply ↗
+              </a>
+              {% else %}—{% endif %}
+            </td>
+          </tr>
+          {% if job.document %}
+          <tr style="background:var(--ms-gray-10);">
+            <td colspan="10" class="desc-cell" style="max-width:none;padding:4px 10px 8px 48px;">
+              {{ job.document[:280] }}{% if job.document|length > 280 %}…{% endif %}
+            </td>
+          </tr>
+          {% endif %}
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <div class="ms-card__body">
+      <div class="ms-alert ms-alert--info">
+        No job matches found. Try ingesting more job postings or broadening your role description.
+      </div>
+    </div>
+    {% endif %}
+
+    <!-- Downloads row -->
+    <div class="ms-card__footer" style="display:flex;gap:10px;flex-wrap:wrap;padding:12px 16px;">
+      <a href="/pipeline" class="ms-btn ms-btn--primary ms-btn--sm">
+        ⬇ Download Pipeline XLSX
+      </a>
+      {% if has_merged_file %}
+      <a href="/download-merged" class="ms-btn ms-btn--secondary ms-btn--sm">
+        ⬇ Download My File + New Leads
+      </a>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- ── Tab: Resume Coach ───────────────────────────────────────────────── -->
+  <div id="tab-resume" class="ms-tab-panel ms-card" style="margin-top:0;border-top-left-radius:0;display:none;">
+    <div class="ms-card__header">
+      <div class="ms-card__title">📝 Resume Recommendations</div>
+      <div class="ms-card__subtitle">
+        AI-generated suggestions grounded in your top matching job postings.
+      </div>
+    </div>
+    <div class="ms-card__body">
+      {% if resume_recs %}
+        {% if resume_recs is string %}
+          <!-- Raw agent output (plain text / markdown) -->
+          <div style="white-space:pre-wrap;font-size:13px;line-height:1.6;">{{ resume_recs }}</div>
+        {% else %}
+          <!-- List of strings -->
+          <ol class="ms-list" style="padding-left:20px;">
+            {% for rec in resume_recs %}
+            <li style="margin-bottom:10px;line-height:1.5;">{{ rec }}</li>
+            {% endfor %}
+          </ol>
+        {% endif %}
+      {% else %}
+        <div class="ms-alert ms-alert--info">
+          No resume recommendations generated. Upload your resume on the search form for personalised suggestions.
+        </div>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- ── Tab: Blind Spots ────────────────────────────────────────────────── -->
+  <div id="tab-blind" class="ms-tab-panel ms-card" style="margin-top:0;border-top-left-radius:0;display:none;">
+    <div class="ms-card__header">
+      <div class="ms-card__title">🔦 Blind Spots</div>
+      <div class="ms-card__subtitle">
+        Skills and keywords that appear in your matched job postings but are absent from your resume.
+        Each comes with a free way to close the gap.
+      </div>
+    </div>
+    <div class="ms-card__body">
+      {% if blind_spots %}
+        {% if blind_spots is string %}
+          <div style="white-space:pre-wrap;font-size:13px;line-height:1.6;">{{ blind_spots }}</div>
+        {% else %}
+          <div style="display:grid;gap:10px;">
+            {% for spot in blind_spots %}
+            <div style="display:flex;align-items:flex-start;gap:10px;
+                        background:var(--ms-gray-10);border-radius:var(--radius-md);
+                        padding:10px 14px;border-left:3px solid var(--ms-yellow);">
+              <span style="font-size:18px;flex-shrink:0;">🔦</span>
+              <span style="font-size:13px;line-height:1.5;">{{ spot }}</span>
+            </div>
+            {% endfor %}
+          </div>
+        {% endif %}
+      {% else %}
+        <div class="ms-alert ms-alert--success">
+          No significant blind spots detected — your profile aligns well with the top job requirements.
+        </div>
+      {% endif %}
+    </div>
+  </div>
+
+</div><!-- /.ms-container--wide -->
+
+<!-- ── Tab switching JS ────────────────────────────────────────────────────── -->
+<script>
+  (function () {
+    const btns   = document.querySelectorAll('.ms-pivot__btn');
+    const panels = document.querySelectorAll('.ms-tab-panel');
+
+    btns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        const target = btn.dataset.target;
+        btns.forEach(b => b.classList.remove('ms-pivot__btn--active'));
+        btn.classList.add('ms-pivot__btn--active');
+        panels.forEach(p => {
+          p.style.display = (p.id === target) ? '' : 'none';
+        });
+      });
+    });
+  })();
+</script>
+
+</body>
+</html>

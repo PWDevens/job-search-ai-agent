@@ -1,0 +1,47 @@
+PATRICK W. DEVENS
+Washington, DC | p.w.devens@gmail.com | linkedin.com/in/pwdevens | github.com/pwdevens
+
+PROFESSIONAL SUMMARY
+Data and AI professional with experience building data pipelines, analytics dashboards,
+and AI-powered tools. Passionate about applying open-source LLMs, vector databases, and
+agent orchestration to solve real-world problems. Certified in Python and data science
+fundamentals. Actively building a public portfolio of AI agent projects on GitHub,
+including this Job-Search AI application.
+
+TECHNICAL SKILLS
+Languages:      Python, SQL, Bash
+AI/ML:          CrewAI, LangChain, ChromaDB, Ollama, HuggingFace, Sentence Transformers
+Data:           Pandas, NumPy, openpyxl, dbt (learning), Airflow (learning)
+Visualization:  Tableau, Power BI, Matplotlib, Seaborn
+Web:            Flask, HTML/CSS, Bootstrap, REST APIs
+DevOps:         Docker, Docker Compose, Git, GitHub Actions (learning)
+Cloud:          AWS (S3, Lambda basics), Azure (familiar), OneDrive
+Databases:      PostgreSQL, SQLite, ChromaDB (vector), Excel/XLSX
+
+PROJECTS
+Job-Search AI (github.com/pwdevens/job-search-ai)
+  Open-source, fully local job-search assistant built with ChromaDB, CrewAI, Flask,
+  and Ollama/Phi-4-mini. Three-agent pipeline: job matcher, resume coach, career
+  strategist. Ingests jobs from CSV/XLSX, embeds locally with nomic-embed-text,
+  ranks top 25 matches, generates 10 resume recommendations and 5 blind-spot analyses.
+  Weekly email scheduler with XLSX pipeline attachment. Docker-compose deployment.
+
+Personal Finance Dashboard (github.com/pwdevens/finance-dashboard)
+  Flask + Pandas + Plotly dashboard for tracking income, expenses, and savings goals.
+  Reads from CSV exports; generates weekly summary charts. Deployed via Docker.
+
+EDUCATION
+Bachelor of Arts, [Field of Study]
+[University Name], Washington DC
+
+CERTIFICATIONS
+Python 3 — Codecademy (2025)
+Data Science Fundamentals — Codecademy (2025)
+Introduction to AI — Codecademy (2025)
+
+PROFESSIONAL EXPERIENCE
+[Prior professional roles — update with your full work history]
+
+INTERESTS
+Open-source AI tooling, LLMOps, career tech equity, helping job seekers
+leverage free AI tools in a competitive market.

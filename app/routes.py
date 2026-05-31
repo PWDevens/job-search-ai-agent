@@ -1,0 +1,320 @@
+"""
+app/routes.py — Flask Routes
+=============================
+
+GET  /               → Search form (index.html)
+POST /search         → Run CrewAI pipeline, render results, merge into user file
+POST /ingest         → Upload and ingest jobs CSV/XLSX or resume PDF/TXT
+GET  /health         → Docker liveness probe
+GET  /pipeline       → Download internal pipeline XLSX
+GET  /download-merged → Download user's file with new leads appended
+"""
+from __future__ import annotations
+import logging
+import os
+from pathlib import Path
+from typing import Optional
+
+from flask import (
+    Blueprint, flash, jsonify, redirect,
+    render_template, request, send_file, session, url_for,
+)
+from werkzeug.utils import secure_filename
+
+from app.config import PIPELINE_XLSX, UPLOAD_FOLDER
+
+logger = logging.getLogger(__name__)
+bp     = Blueprint("main", __name__)
+
+ALLOWED_JOBS   = {".csv", ".xlsx", ".xls"}
+ALLOWED_RESUME = {".pdf", ".txt", ".docx"}
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Helpers
+# ─────────────────────────────────────────────────────────────────────────────
+
+def _allowed(filename: str, extensions: set) -> bool:
+    return Path(filename).suffix.lower() in extensions
+
+
+def _save_upload(file, extensions: set) -> Optional[Path]:
+    """Validate extension, secure the filename, and save to UPLOAD_FOLDER."""
+    if not file or not file.filename:
+        return None
+    if not _allowed(file.filename, extensions):
+        return None
+    fname = secure_filename(file.filename)
+    dest  = Path(UPLOAD_FOLDER) / fname
+    dest.parent.mkdir(parents=True, exist_ok=True)
+    file.save(dest)
+    return dest
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Routes
+# ─────────────────────────────────────────────────────────────────────────────
+
+@bp.route("/", methods=["GET"])
+def index():
+    return render_template("index.html")
+
+
+@bp.route("/search", methods=["POST"])
+def search():
+    role_description = request.form.get("role_description", "").strip()
+    geo_preference   = request.form.get("geo_preference",   "").strip() or None
+    extra_context    = request.form.get("extra_context",    "").strip() or None
+
+    if not role_description:
+        flash("Please enter a role description.", "warning")
+        return redirect(url_for("main.index"))
+
+    # ── 1. Optional resume upload ─────────────────────────────────────────────
+    resume_text: Optional[str] = None
+    resume_file = request.files.get("resume_file")
+    if resume_file and resume_file.filename:
+        saved_resume = _save_upload(resume_file, ALLOWED_RESUME)
+        if saved_resume:
+            try:
+                from app.pipeline.ingest import ingest_resume, _read_resume
+                ingest_resume(str(saved_resume))
+                resume_text = _read_resume(saved_resume)[:4000]
+                logger.info("Resume ingested: %s (%d chars)", saved_resume.name, len(resume_text or ""))
+            except Exception as exc:
+                logger.warning("Resume ingest failed: %s", exc)
+                flash(f"Resume could not be read ({exc}). Proceeding without it.", "warning")
+        else:
+            flash("Resume file type not supported (.pdf, .txt, .docx only).", "warning")
+
+    # ── 2. Optional jobs file upload ──────────────────────────────────────────
+    jobs_file_path: Optional[Path] = None
+    jobs_file = request.files.get("jobs_file")
+    if jobs_file and jobs_file.filename:
+        saved_jobs = _save_upload(jobs_file, ALLOWED_JOBS)
+        if saved_jobs:
+            jobs_file_path = saved_jobs
+            try:
+                from app.pipeline.ingest import ingest_jobs
+                n = ingest_jobs(str(saved_jobs), geo_filter=geo_preference)
+                logger.info("Jobs file ingested: %d rows from %s", n, saved_jobs.name)
+                flash(f"✅ Ingested {n} jobs from '{saved_jobs.name}' into the search index.", "info")
+            except Exception as exc:
+                logger.warning("Jobs file ingest failed: %s", exc)
+                flash(f"Jobs file could not be read ({exc}). Using existing index.", "warning")
+                jobs_file_path = None  # don't attempt merge if ingest failed
+        else:
+            flash("Jobs file type not supported (.csv, .xlsx, .xls only).", "warning")
+
+    # Store the jobs file path in the session so /download-merged can retrieve it
+    if jobs_file_path:
+        session["uploaded_jobs_path"] = str(jobs_file_path)
+    else:
+        session.pop("uploaded_jobs_path", None)
+
+    # ── 3. Run CrewAI pipeline ────────────────────────────────────────────────
+    top_jobs, resume_recs, blind_spots = [], [], []
+    merged_count = 0
+
+    try:
+        from app.agents.crew import SearchRequest, run_search_crew
+        req = SearchRequest(
+            role_description=role_description,
+            geo_preference=geo_preference,
+            resume_text=resume_text,
+            extra_context=extra_context,
+        )
+        result = run_search_crew(req)
+        top_jobs    = result.top_jobs
+        resume_recs = result.resume_recs
+        blind_spots = result.blind_spots
+
+    except Exception as exc:
+        logger.error("CrewAI pipeline failed: %s", exc, exc_info=True)
+        # Graceful degradation: fall back to matcher-only results
+        try:
+            from app.pipeline.matcher import (
+                find_top_jobs, find_resume_recommendations, find_blind_spots
+            )
+            top_jobs    = find_top_jobs(role_description, geo_preference, resume_text)
+            resume_recs_raw = find_resume_recommendations(role_description, resume_text)
+            resume_recs = [
+                f"{r.get('title','?')} at {r.get('company','?')}" for r in resume_recs_raw
+            ]
+            blind_spots = find_blind_spots(role_description, resume_text)
+            flash(
+                "AI agents encountered an issue — showing raw match results. "
+                f"({exc})",
+                "warning",
+            )
+        except Exception as exc2:
+            logger.error("Matcher fallback also failed: %s", exc2)
+            flash(f"Pipeline failed: {exc2}", "danger")
+
+    # ── 4. Write to internal pipeline XLSX ───────────────────────────────────
+    if top_jobs:
+        try:
+            from app.pipeline.excel_writer import append_jobs_to_pipeline
+            new_in_pipeline = append_jobs_to_pipeline(top_jobs)
+            logger.info("Pipeline XLSX: +%d new rows", new_in_pipeline)
+        except Exception as exc:
+            logger.warning("Failed to write pipeline XLSX: %s", exc)
+
+    # ── 5. Merge new leads back into user's uploaded file ────────────────────
+    if top_jobs and jobs_file_path and jobs_file_path.exists():
+        try:
+            from app.pipeline.excel_writer import merge_new_jobs_to_user_file
+            merged_count, out_path = merge_new_jobs_to_user_file(
+                user_file_path=jobs_file_path,
+                new_jobs=top_jobs,
+            )
+            if merged_count > 0:
+                session["merged_jobs_path"] = str(out_path)
+                flash(
+                    f"✅ Found {merged_count} new job lead(s) not in your uploaded file. "
+                    f"Download your updated file below.",
+                    "success",
+                )
+            else:
+                session.pop("merged_jobs_path", None)
+                flash(
+                    "No new leads found beyond what's already in your uploaded file.",
+                    "info",
+                )
+        except Exception as exc:
+            logger.warning("Merge into user file failed: %s", exc)
+            session.pop("merged_jobs_path", None)
+            flash(f"Could not merge results into your file ({exc}).", "warning")
+    else:
+        session.pop("merged_jobs_path", None)
+
+    return render_template(
+        "results.html",
+        role        = role_description,
+        geo         = geo_preference,
+        top_jobs    = top_jobs,
+        resume_recs = resume_recs,
+        blind_spots = blind_spots,
+        merged_count= merged_count,
+        has_merged_file = bool(session.get("merged_jobs_path")),
+    )
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# /ingest — manual ingestion endpoint (no pipeline run)
+# ─────────────────────────────────────────────────────────────────────────────
+
+@bp.route("/ingest", methods=["POST"])
+def ingest():
+    """
+    Standalone ingestion endpoint.
+    Accepts a jobs CSV/XLSX or resume file and loads it into ChromaDB without
+    running the full CrewAI pipeline. Useful for pre-loading data.
+    """
+    geo_filter = request.form.get("geo_filter", "").strip() or None
+    messages   = []
+    errors     = []
+
+    # Jobs file
+    jobs_file = request.files.get("jobs_file")
+    if jobs_file and jobs_file.filename:
+        saved = _save_upload(jobs_file, ALLOWED_JOBS)
+        if saved:
+            try:
+                from app.pipeline.ingest import ingest_jobs
+                n = ingest_jobs(str(saved), geo_filter=geo_filter)
+                messages.append(f"Ingested {n} jobs from '{saved.name}'.")
+            except Exception as exc:
+                errors.append(f"Jobs ingest failed: {exc}")
+        else:
+            errors.append("Jobs file format not supported.")
+
+    # Resume file
+    resume_file = request.files.get("resume_file")
+    if resume_file and resume_file.filename:
+        saved = _save_upload(resume_file, ALLOWED_RESUME)
+        if saved:
+            try:
+                from app.pipeline.ingest import ingest_resume
+                n = ingest_resume(str(saved))
+                messages.append(f"Ingested resume '{saved.name}' ({n} chunks).")
+            except Exception as exc:
+                errors.append(f"Resume ingest failed: {exc}")
+        else:
+            errors.append("Resume file format not supported.")
+
+    for msg in messages:
+        flash(msg, "success")
+    for err in errors:
+        flash(err, "danger")
+
+    return redirect(url_for("main.index"))
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# /pipeline — download internal pipeline XLSX
+# ─────────────────────────────────────────────────────────────────────────────
+
+@bp.route("/pipeline", methods=["GET"])
+def download_pipeline():
+    path = Path(PIPELINE_XLSX)
+    if not path.exists():
+        flash("Pipeline workbook not found. Run a search first.", "warning")
+        return redirect(url_for("main.index"))
+    return send_file(
+        path,
+        as_attachment=True,
+        download_name="job_pipeline.xlsx",
+        mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    )
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# /download-merged — download user file with new leads appended
+# ─────────────────────────────────────────────────────────────────────────────
+
+@bp.route("/download-merged", methods=["GET"])
+def download_merged():
+    """
+    Download the user's original uploaded file with new AI-found job leads
+    appended to it. File path is stored in the server-side session after a
+    successful /search run.
+    """
+    merged_path_str = session.get("merged_jobs_path")
+    if not merged_path_str:
+        flash(
+            "No merged file available. Upload a jobs file and run a search first.",
+            "warning",
+        )
+        return redirect(url_for("main.index"))
+
+    path = Path(merged_path_str)
+    if not path.exists():
+        flash("Merged file has expired. Please re-run the search.", "warning")
+        session.pop("merged_jobs_path", None)
+        return redirect(url_for("main.index"))
+
+    suffix   = path.suffix.lower()
+    mimetype = (
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        if suffix == ".xlsx"
+        else "text/csv"
+    )
+    stem         = path.stem
+    download_name = f"{stem}_with_new_leads{suffix}"
+
+    return send_file(
+        path,
+        as_attachment=True,
+        download_name=download_name,
+        mimetype=mimetype,
+    )
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# /health — Docker liveness probe
+# ─────────────────────────────────────────────────────────────────────────────
+
+@bp.route("/health", methods=["GET"])
+def health():
+    return jsonify({"status": "ok", "service": "job-search-ai"}), 200

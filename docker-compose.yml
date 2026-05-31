@@ -1,0 +1,100 @@
+version: "3.9"
+
+# ══════════════════════════════════════════════════════════════════════════════
+# Job-Search AI — Docker Compose
+# Starts: ChromaDB (vector store) + Ollama (local LLM) + Flask app
+#
+# Quick start:
+#   cp .env.example .env          # edit SMTP creds if you want email
+#   docker compose up --build -d
+#   docker compose exec ollama ollama pull phi4-mini   # first run only
+#   open http://localhost:5000
+# ══════════════════════════════════════════════════════════════════════════════
+
+services:
+
+  # ── ChromaDB ─────────────────────────────────────────────────────────────────
+  chromadb:
+    image: chromadb/chroma:0.5.20
+    container_name: jobsearch_chroma
+    ports:
+      - "8000:8000"
+    volumes:
+      - chroma_data:/chroma/chroma
+    environment:
+      - IS_PERSISTENT=TRUE
+      - ANONYMIZED_TELEMETRY=FALSE
+      - CHROMA_SERVER_AUTHN_CREDENTIALS=
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/v1/heartbeat"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  # ── Ollama (local LLM server) ─────────────────────────────────────────────
+  ollama:
+    image: ollama/ollama:latest
+    container_name: jobsearch_ollama
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_data:/root/.ollama
+    # GPU support (NVIDIA): uncomment the deploy block below and ensure
+    # nvidia-container-toolkit is installed on the host.
+    # deploy:
+    #   resources:
+    #     reservations:
+    #       devices:
+    #         - driver: nvidia
+    #           count: 1
+    #           capabilities: [gpu]
+    #
+    # CPU-only mode works out of the box (no changes needed).
+    environment:
+      - OLLAMA_NUM_PARALLEL=1
+      - OLLAMA_MAX_LOADED_MODELS=1
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:11434/api/version"]
+      interval: 15s
+      timeout: 10s
+      retries: 5
+    restart: unless-stopped
+
+  # ── Flask Application ─────────────────────────────────────────────────────
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: jobsearch_app
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./data:/app/data          # persist pipeline XLSX and uploads
+    env_file:
+      - .env
+    environment:
+      - CHROMA_HOST=chromadb
+      - CHROMA_PORT=8000
+      - OLLAMA_BASE_URL=http://ollama:11434
+      - FLASK_HOST=0.0.0.0
+      - FLASK_PORT=5000
+      - ENABLE_SCHEDULER=true
+    depends_on:
+      chromadb:
+        condition: service_healthy
+      ollama:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
+      interval: 20s
+      timeout: 10s
+      retries: 5
+    restart: unless-stopped
+
+# ── Volumes ───────────────────────────────────────────────────────────────────
+volumes:
+  chroma_data:
+    driver: local
+  ollama_data:
+    driver: local
