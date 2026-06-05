@@ -26,22 +26,23 @@ Job-Search AI (github.com/pwdevens/job-search-ai)
   ranks top 25 matches, generates 10 resume recommendations and 5 blind-spot analyses.
   Weekly email scheduler with XLSX pipeline attachment. Docker-compose deployment.
 
-Personal Finance Dashboard (github.com/pwdevens/finance-dashboard)
-  Flask + Pandas + Plotly dashboard for tracking income, expenses, and savings goals.
-  Reads from CSV exports; generates weekly summary charts. Deployed via Docker.
+Federal Acquisition Regulation Retrieval Augmented Generation Chatbot (github.com/pwdevens/finance-dashboard)
+  Flask + LlamaIndex + ChromaDB + FAR/DFARS DITA Source.
+  Reads DITA; generates answers to queries. Deployed via Docker.
 
 EDUCATION
-Bachelor of Arts, [Field of Study]
-[University Name], Washington DC
+Master of Science, Business Analytics
+University of Virginia, Charlottesvill, VA
+
+Bachelor of Arts, Psychology
+Christopher Newport University, Newport News, VA
 
 CERTIFICATIONS
-Python 3 — Codecademy (2025)
 Data Science Fundamentals — Codecademy (2025)
-Introduction to AI — Codecademy (2025)
 
 PROFESSIONAL EXPERIENCE
 [Prior professional roles — update with your full work history]
 
 INTERESTS
-Open-source AI tooling, LLMOps, career tech equity, helping job seekers
-leverage free AI tools in a competitive market.
+Open-source AI tooling, LLMOps, career tech equity, helping 
+leverage free AI tools locally using resource friendly models.
