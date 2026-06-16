@@ -200,7 +200,7 @@ def ingest_jobs(
 # Resume ingestion
 # ─────────────────────────────────────────────────────────────────────────────
 
-def _read_resume(path: Path) -> str:
+def read_resume(path: Path) -> str:
     """
     Extract plain text from a resume file (.txt, .pdf, .docx).
     Returns an empty string on failure (never raises).
@@ -253,7 +253,7 @@ def ingest_resume(filepath: str | Path) -> int:
     if not path.exists():
         raise FileNotFoundError(f"Resume file not found: {path}")
 
-    text = _read_resume(path)
+    text = read_resume(path)
     if not text.strip():
         logger.warning("Resume %s appears to be empty after text extraction.", path)
         return 0

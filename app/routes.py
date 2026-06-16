@@ -77,9 +77,9 @@ def search():
         saved_resume = _save_upload(resume_file, ALLOWED_RESUME)
         if saved_resume:
             try:
-                from app.pipeline.ingest import ingest_resume, _read_resume
+                from app.pipeline.ingest import ingest_resume, read_resume
                 ingest_resume(str(saved_resume))
-                resume_text = _read_resume(saved_resume)[:4000]
+                resume_text = read_resume(saved_resume)[:4000]
                 logger.info("Resume ingested: %s (%d chars)", saved_resume.name, len(resume_text or ""))
             except Exception as exc:
                 logger.warning("Resume ingest failed: %s", exc)
