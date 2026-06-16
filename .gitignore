@@ -40,6 +40,9 @@ Thumbs.db
 .pytest_cache/
 .coverage
 htmlcov/
+
+# Logs (app.log, errors.log, rotating backups)
+logs/
 *.log
 
 # Jupyter (keep notebooks but ignore checkpoints)
