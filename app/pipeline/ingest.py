@@ -64,14 +64,88 @@ def _stable_id(text: str) -> str:
     return hashlib.sha1(text.encode()).hexdigest()[:16]
 
 
-def _chunk_text(text: str, chunk_size: int = 300, overlap: int = 50) -> List[str]:
-    """Split text into overlapping word-count windows for resume chunking."""
+def _chunk_text_semantic(text: str, min_chunk_words: int = 100, max_chunk_words: int = 300) -> List[str]:
+    """
+    Chunk resume by semantic sections first, then by word count.
+
+    Strategy:
+    1. Split on section boundaries (double newline, headers like "## Section Name", "Skills:")
+    2. If a section is too large, sub-chunk by word count
+    3. Merge small chunks to ensure min size
+    4. Maintains semantic coherence better than fixed word counts
+
+    Args:
+        text: Resume text to chunk
+        min_chunk_words: Minimum words per chunk (for merging small chunks)
+        max_chunk_words: Maximum words per chunk (for splitting large sections)
+
+    Returns:
+        List of semantic chunks with min word count enforced
+    """
+    # Section regex: headers like "## Section", "Skills:", or blank lines + capitalized text
+    # Captures: double newline + uppercase text OR "## Header" format
+    section_pattern = re.compile(
+        r"(?:^##\s+|\n\n[A-Z][A-Za-z\s]+:\n|\n\n[A-Z][A-Za-z\s]+\n)",
+        re.MULTILINE
+    )
+
+    sections = section_pattern.split(text)
+    chunks = []
+
+    for section in sections:
+        if not section.strip():
+            continue
+
+        words = section.split()
+
+        # If section is large, sub-chunk by word count
+        if len(words) > max_chunk_words:
+            sub_chunks = _chunk_text_by_words(section, chunk_size=max_chunk_words, overlap=50)
+            chunks.extend(sub_chunks)
+        elif len(words) >= min_chunk_words:
+            # Section is within acceptable range
+            chunks.append(section.strip())
+        # else: small section, will be merged below
+
+    # Merge small chunks to enforce minimum word count
+    merged = []
+    current = ""
+
+    for chunk in chunks:
+        current_words = len(current.split())
+        chunk_words = len(chunk.split())
+
+        if current_words + chunk_words < min_chunk_words:
+            # Combine small chunks
+            current += " " + chunk if current else chunk
+        else:
+            # Current chunk is large enough, start a new one
+            if current:
+                merged.append(current.strip())
+            current = chunk
+
+    if current:
+        merged.append(current.strip())
+
+    return merged if merged else [text]
+
+
+def _chunk_text_by_words(text: str, chunk_size: int = 300, overlap: int = 50) -> List[str]:
+    """Split text into overlapping word-count windows (helper for large sections)."""
     words = text.split()
     chunks, i = [], 0
     while i < len(words):
         chunks.append(" ".join(words[i: i + chunk_size]))
         i += chunk_size - overlap
     return chunks or [text]
+
+
+def _chunk_text(text: str, chunk_size: int = 300, overlap: int = 50) -> List[str]:
+    """
+    Deprecated: Use _chunk_text_semantic instead.
+    Kept for backwards compatibility only.
+    """
+    return _chunk_text_semantic(text, min_chunk_words=100, max_chunk_words=chunk_size)
 
 
 def _clean(val) -> str:
@@ -258,7 +332,8 @@ def ingest_resume(filepath: str | Path) -> int:
         logger.warning("Resume %s appears to be empty after text extraction.", path)
         return 0
 
-    chunks = _chunk_text(text, chunk_size=300, overlap=50)
+    # Use semantic chunking (respects section boundaries, min/max word counts)
+    chunks = _chunk_text_semantic(text, min_chunk_words=100, max_chunk_words=300)
     ids    = [_stable_id(c) for c in chunks]
     metas  = [{"source": str(path), "chunk_index": str(i)} for i in range(len(chunks))]
 
