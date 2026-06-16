@@ -24,6 +24,7 @@ from app.config import (
     CHROMA_JOBS_COL, CHROMA_RESUME_COL,
     TOP_BLIND_SPOTS, TOP_JOBS, TOP_RESUME_RECS,
 )
+from app.pipeline.geolocation import location_matches
 
 logger = logging.getLogger(__name__)
 
@@ -41,11 +42,30 @@ def find_top_jobs(
     """
     Return the top-N matching jobs ranked by cosine similarity.
     Query = role_description + optional first 400 chars of resume.
+
+    If geo_preference is provided, filters results using intelligent geolocation
+    matching (handles Remote, city abbreviations, state normalization, fuzzy matching).
     """
     query  = _build_query(role_description, resume_text)
-    where  = _geo_where(geo_preference)
-    results = query_collection(CHROMA_JOBS_COL, [query], n_results=n, where=where)
-    return _format_results(results, n)
+    # Fetch more results than needed, then filter by location
+    # (to account for jobs that don't match geography preference)
+    fetch_count = max(n * 3, 50) if geo_preference else n
+    results = query_collection(CHROMA_JOBS_COL, [query], n_results=fetch_count)
+    jobs = _format_results(results, fetch_count)
+
+    # Apply geolocation filtering with intelligent matching
+    if geo_preference and jobs:
+        filtered = [
+            job for job in jobs
+            if location_matches(job.get("location", ""), geo_preference)
+        ]
+        logger.info(
+            "Geolocation filter '%s': %d → %d jobs",
+            geo_preference, len(jobs), len(filtered)
+        )
+        return filtered[:n]
+
+    return jobs[:n]
 
 
 def find_resume_recommendations(
@@ -160,13 +180,6 @@ def _build_query(role_description: str, resume_text: Optional[str]) -> str:
     if resume_text:
         parts.append(resume_text[:400])
     return " ".join(parts)
-
-
-def _geo_where(geo: Optional[str]) -> Optional[Dict]:
-    if not geo:
-        return None
-    # ChromaDB where filter: location field contains geo string
-    return {"location": {"$contains": geo}}
 
 
 def _format_results(raw: Dict[str, Any], n: int) -> List[Dict[str, Any]]:

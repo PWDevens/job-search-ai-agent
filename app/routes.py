@@ -226,6 +226,10 @@ def search():
 
     # ── 3. Run CrewAI pipeline ────────────────────────────────────────────────
     top_jobs, resume_recs, blind_spots = [], [], []
+    agent_validation = {
+        "resume_coach": False,
+        "career_strategist": False,
+    }
     merged_count = 0
 
     try:
@@ -240,6 +244,7 @@ def search():
         top_jobs    = result.top_jobs
         resume_recs = result.resume_recs
         blind_spots = result.blind_spots
+        agent_validation = result.agent_validation or agent_validation
 
     except Exception as exc:
         logger.error("CrewAI pipeline failed: %s", exc, exc_info=True)
@@ -309,6 +314,7 @@ def search():
         blind_spots = blind_spots,
         merged_count= merged_count,
         has_merged_file = bool(session.get("merged_jobs_path")),
+        agent_validation = agent_validation,
     )
 
 

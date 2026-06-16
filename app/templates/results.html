@@ -210,7 +210,14 @@
   <!-- ── Tab: Resume Coach ───────────────────────────────────────────────── -->
   <div id="tab-resume" class="ms-tab-panel ms-card" style="margin-top:0;border-top-left-radius:0;display:none;">
     <div class="ms-card__header">
-      <div class="ms-card__title">📝 Resume Recommendations</div>
+      <div style="display:flex;align-items:center;gap:10px;">
+        <div class="ms-card__title">📝 Resume Recommendations</div>
+        {% if agent_validation.get('resume_coach', False) %}
+        <span class="ms-badge ms-badge--green" title="AI validation passed">✓ Verified</span>
+        {% else %}
+        <span class="ms-badge ms-badge--gray" title="Using fallback results">⚡ Fallback</span>
+        {% endif %}
+      </div>
       <div class="ms-card__subtitle">
         AI-generated suggestions grounded in your top matching job postings.
       </div>
@@ -239,7 +246,14 @@
   <!-- ── Tab: Blind Spots ────────────────────────────────────────────────── -->
   <div id="tab-blind" class="ms-tab-panel ms-card" style="margin-top:0;border-top-left-radius:0;display:none;">
     <div class="ms-card__header">
-      <div class="ms-card__title">🔦 Blind Spots</div>
+      <div style="display:flex;align-items:center;gap:10px;">
+        <div class="ms-card__title">🔦 Blind Spots</div>
+        {% if agent_validation.get('career_strategist', False) %}
+        <span class="ms-badge ms-badge--green" title="AI validation passed">✓ Verified</span>
+        {% else %}
+        <span class="ms-badge ms-badge--gray" title="Using fallback results">⚡ Fallback</span>
+        {% endif %}
+      </div>
       <div class="ms-card__subtitle">
         Skills and keywords that appear in your matched job postings but are absent from your resume.
         Each comes with a free way to close the gap.

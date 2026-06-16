@@ -278,6 +278,9 @@ def read_resume(path: Path) -> str:
     """
     Extract plain text from a resume file (.txt, .pdf, .docx).
     Returns an empty string on failure (never raises).
+
+    For PDFs, tries pdfplumber first, then falls back to PyPDF2.
+    Logs detailed error information for better debugging.
     """
     suffix = path.suffix.lower()
     try:
@@ -285,30 +288,77 @@ def read_resume(path: Path) -> str:
             return path.read_text(encoding="utf-8", errors="ignore")
 
         if suffix == ".pdf":
+            # Try pdfplumber first (better extraction quality)
+            pdfplumber_error = None
             try:
                 import pdfplumber
                 with pdfplumber.open(path) as pdf:
-                    return "\n".join(
+                    text = "\n".join(
                         page.extract_text() or "" for page in pdf.pages
                     )
-            except Exception:
+                    if text.strip():
+                        logger.info("PDF extracted successfully with pdfplumber: %s", path.name)
+                        return text
+                    # PDF opened but no text extracted
+                    pdfplumber_error = "No text extracted (possibly scanned PDF without OCR)"
+            except ImportError:
+                pdfplumber_error = "pdfplumber not installed"
+            except Exception as exc:
+                pdfplumber_error = str(exc)
+
+            # Fallback to PyPDF2
+            pypdf2_error = None
+            try:
                 import PyPDF2
                 with open(path, "rb") as f:
                     reader = PyPDF2.PdfReader(f)
-                    return "\n".join(
+                    text = "\n".join(
                         p.extract_text() or "" for p in reader.pages
                     )
+                    if text.strip():
+                        logger.info(
+                            "PDF extracted with PyPDF2 fallback (pdfplumber failed: %s)",
+                            pdfplumber_error
+                        )
+                        return text
+                    pypdf2_error = "No text extracted (possibly scanned PDF without OCR)"
+            except ImportError:
+                pypdf2_error = "PyPDF2 not installed"
+            except Exception as exc:
+                pypdf2_error = str(exc)
+
+            # Both methods failed
+            logger.warning(
+                "PDF extraction failed for %s:\n"
+                "  pdfplumber: %s\n"
+                "  PyPDF2: %s",
+                path.name, pdfplumber_error, pypdf2_error
+            )
+            return ""
 
         if suffix == ".docx":
             try:
                 import docx
                 doc = docx.Document(path)
-                return "\n".join(p.text for p in doc.paragraphs)
+                text = "\n".join(p.text for p in doc.paragraphs)
+                if text.strip():
+                    logger.info("DOCX extracted successfully: %s", path.name)
+                    return text
+                logger.warning("DOCX file is empty: %s", path.name)
+                return ""
             except ImportError:
-                logger.warning("python-docx not installed; cannot read .docx resume.")
+                logger.error(
+                    "python-docx not installed; cannot read .docx resume (%s). "
+                    "Install with: pip install python-docx",
+                    path.name
+                )
+                return ""
+            except Exception as exc:
+                logger.error("Failed to extract DOCX %s: %s", path.name, exc)
+                return ""
 
     except Exception as exc:
-        logger.error("Failed to read resume %s: %s", path, exc)
+        logger.error("Unexpected error reading resume %s (%s): %s", path.name, suffix, exc)
 
     return ""
 
