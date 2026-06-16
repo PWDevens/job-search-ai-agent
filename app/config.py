@@ -8,10 +8,11 @@ from pathlib import Path
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # ── ChromaDB ──────────────────────────────────────────────────────────────────
-CHROMA_HOST       = os.getenv("CHROMA_HOST", "chromadb")          # docker service name
-CHROMA_PORT       = int(os.getenv("CHROMA_PORT", "8000"))
-CHROMA_JOBS_COL   = os.getenv("CHROMA_JOBS_COLLECTION",   "jobs")
-CHROMA_RESUME_COL = os.getenv("CHROMA_RESUME_COLLECTION", "resume_chunks")
+CHROMA_HOST        = os.getenv("CHROMA_HOST", "chromadb")          # docker service name
+CHROMA_PORT        = int(os.getenv("CHROMA_PORT", "8000"))
+CHROMA_TIMEOUT     = int(os.getenv("CHROMA_TIMEOUT", "10"))         # connection timeout in seconds
+CHROMA_JOBS_COL    = os.getenv("CHROMA_JOBS_COLLECTION",   "jobs")
+CHROMA_RESUME_COL  = os.getenv("CHROMA_RESUME_COLLECTION", "resume_chunks")
 
 # ── Local LLM (Ollama) ────────────────────────────────────────────────────────
 OLLAMA_BASE_URL   = os.getenv("OLLAMA_BASE_URL",  "http://ollama:11434")

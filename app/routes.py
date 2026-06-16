@@ -327,4 +327,21 @@ def download_merged():
 
 @bp.route("/health", methods=["GET"])
 def health():
-    return jsonify({"status": "ok", "service": "job-search-ai"}), 200
+    """
+    Health check endpoint for Docker/Kubernetes liveness probes.
+    Returns 200 if ChromaDB is reachable, 503 otherwise.
+    """
+    from app.chroma.client import health_check
+
+    if health_check():
+        return jsonify({
+            "status": "ok",
+            "service": "job-search-ai",
+            "chroma_db": "healthy",
+        }), 200
+    else:
+        return jsonify({
+            "status": "degraded",
+            "service": "job-search-ai",
+            "chroma_db": "unavailable",
+        }), 503
