@@ -64,23 +64,43 @@ def find_blind_spots(
     """
     Return skill/keyword terms that appear frequently in matched jobs
     but are absent or rare in the user's resume chunks.
+
+    Falls back gracefully if resume lookup fails:
+    - If resume_text is provided, uses that
+    - If resume_text is None, queries ChromaDB resume collection
+    - If ChromaDB query fails, uses job text only (logs warning)
     """
     jobs          = find_top_jobs(role_description, resume_text=resume_text, n=20)
     all_job_text  = " ".join(j.get("document", "") for j in jobs).lower()
 
     resume_chunks: List[str] = []
+    used_fallback = False
+
     if resume_text:
         resume_chunks = [resume_text.lower()]
     else:
         try:
             res = query_collection(CHROMA_RESUME_COL, [role_description], n_results=10)
             resume_chunks = [d.lower() for d in (res.get("documents", [[]])[0] or [])]
-        except Exception:
-            pass
+        except Exception as exc:
+            logger.warning(
+                "Resume chunk query failed in blind-spot analysis: %s. "
+                "Proceeding with job text only. Consider uploading a resume for better results.",
+                exc,
+            )
+            used_fallback = True
+
     resume_blob = " ".join(resume_chunks)
 
     candidate_terms = _extract_skill_terms(all_job_text)
     blind           = [t for t in candidate_terms if t not in resume_blob]
+
+    if used_fallback and not resume_chunks:
+        logger.debug(
+            "No resume data available for blind-spot analysis. "
+            "Results may be incomplete without actual resume content."
+        )
+
     return blind[:n]
 
 
