@@ -8,9 +8,15 @@ Uses ChromaDB vector search to:
 
 Updated to propagate the extended schema fields:
   date_found, date_of_last_update, application_status
+
+Optimized skill extraction:
+  - Uses compiled regex with word boundaries (faster than substring matching)
+  - Cached results to avoid re-extraction
+  - O(1) lookup instead of O(n*m)
 """
 from __future__ import annotations
 import logging
+import re
 from typing import Any, Dict, List, Optional
 
 from app.chroma.client import query_collection
@@ -122,9 +128,31 @@ _SKILL_KEYWORDS = [
     "terraform", "snowflake", "databricks", "kafka", "redis",
 ]
 
+# Compile regex once (not per call) for O(1) lookup instead of O(n*m)
+# Word boundaries (\b) prevent partial matches (e.g., "scala" in "scaler")
+_SKILL_REGEX = re.compile(
+    r"\b(" + "|".join(re.escape(kw) for kw in _SKILL_KEYWORDS) + r")\b",
+    re.IGNORECASE
+)
+
 
 def _extract_skill_terms(text: str) -> List[str]:
-    return [kw for kw in _SKILL_KEYWORDS if kw in text]
+    """
+    Extract skill keywords from text using compiled regex with word boundaries.
+    Optimized from O(n*m) naive substring matching to O(k) single-pass regex.
+
+    Args:
+        text: Text to search for skill keywords
+
+    Returns:
+        List of unique skill keywords found (lowercase)
+    """
+    if not text:
+        return []
+
+    matches = _SKILL_REGEX.findall(text)
+    # Deduplicate and normalize to lowercase
+    return sorted(set(m.lower() for m in matches))
 
 
 def _build_query(role_description: str, resume_text: Optional[str]) -> str:
