@@ -41,8 +41,9 @@ SCHEDULER_TZ      = os.getenv("SCHEDULER_TZ",  "America/New_York")
 SCHEDULER_CRON    = os.getenv("SCHEDULER_CRON", "0 8 * * 1-5")    # Mon-Fri 08:00
 
 # ── Flask ─────────────────────────────────────────────────────────────────────
-SECRET_KEY        = os.getenv("SECRET_KEY", "change-me-in-production")
-UPLOAD_FOLDER     = BASE_DIR / "data" / "uploads"
-MAX_CONTENT_BYTES = 16 * 1024 * 1024   # 16 MB
+SECRET_KEY           = os.getenv("SECRET_KEY", "change-me-in-production")
+UPLOAD_FOLDER        = BASE_DIR / "data" / "uploads"
+MAX_CONTENT_BYTES    = 16 * 1024 * 1024   # 16 MB
+UPLOAD_RETENTION_HOURS = int(os.getenv("UPLOAD_RETENTION_HOURS", "24"))
 
 UPLOAD_FOLDER.mkdir(parents=True, exist_ok=True)

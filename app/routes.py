@@ -84,6 +84,11 @@ def search():
             except Exception as exc:
                 logger.warning("Resume ingest failed: %s", exc)
                 flash(f"Resume could not be read ({exc}). Proceeding without it.", "warning")
+            finally:
+                # Always clean up uploaded resume file after processing
+                if saved_resume.exists():
+                    saved_resume.unlink()
+                    logger.debug("Cleaned up resume file: %s", saved_resume.name)
         else:
             flash("Resume file type not supported (.pdf, .txt, .docx only).", "warning")
 
@@ -93,16 +98,21 @@ def search():
     if jobs_file and jobs_file.filename:
         saved_jobs = _save_upload(jobs_file, ALLOWED_JOBS)
         if saved_jobs:
-            jobs_file_path = saved_jobs
             try:
                 from app.pipeline.ingest import ingest_jobs
                 n = ingest_jobs(str(saved_jobs), geo_filter=geo_preference)
                 logger.info("Jobs file ingested: %d rows from %s", n, saved_jobs.name)
                 flash(f"✅ Ingested {n} jobs from '{saved_jobs.name}' into the search index.", "info")
+                # Keep reference for merging, but mark for cleanup
+                jobs_file_path = saved_jobs
             except Exception as exc:
                 logger.warning("Jobs file ingest failed: %s", exc)
                 flash(f"Jobs file could not be read ({exc}). Using existing index.", "warning")
                 jobs_file_path = None  # don't attempt merge if ingest failed
+                # Clean up failed file
+                if saved_jobs.exists():
+                    saved_jobs.unlink()
+                    logger.debug("Cleaned up failed jobs file: %s", saved_jobs.name)
         else:
             flash("Jobs file type not supported (.csv, .xlsx, .xls only).", "warning")
 

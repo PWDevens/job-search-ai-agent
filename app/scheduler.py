@@ -20,9 +20,40 @@ from apscheduler.triggers.cron import CronTrigger
 from app.config import (
     EMAIL_TO, SCHEDULER_CRON, SCHEDULER_TZ,
     TOP_BLIND_SPOTS, TOP_JOBS, TOP_RESUME_RECS,
+    UPLOAD_FOLDER, UPLOAD_RETENTION_HOURS,
 )
 
 logger = logging.getLogger(__name__)
+
+# ── Cleanup job ────────────────────────────────────────────────────────────────
+
+def _cleanup_old_uploads() -> None:
+    """Delete uploaded files older than UPLOAD_RETENTION_HOURS."""
+    import time
+    from pathlib import Path
+
+    cutoff_time = time.time() - (UPLOAD_RETENTION_HOURS * 3600)
+    upload_dir = Path(UPLOAD_FOLDER)
+
+    if not upload_dir.exists():
+        return
+
+    deleted_count = 0
+    for file_path in upload_dir.glob("*"):
+        if not file_path.is_file():
+            continue
+
+        if file_path.stat().st_mtime < cutoff_time:
+            try:
+                file_path.unlink()
+                deleted_count += 1
+                logger.debug("Cleaned up stale upload: %s", file_path.name)
+            except Exception as exc:
+                logger.warning("Failed to delete %s: %s", file_path.name, exc)
+
+    if deleted_count > 0:
+        logger.info("[Scheduler] Cleaned up %d stale upload files", deleted_count)
+
 
 # ── Scheduled job ──────────────────────────────────────────────────────────────
 
@@ -129,6 +160,16 @@ def start_scheduler() -> BackgroundScheduler:
         replace_existing=True,
         misfire_grace_time=3600,   # tolerate up to 1h of system downtime
     )
+
+    # Add cleanup job: run every 4 hours
+    _scheduler.add_job(
+        _cleanup_old_uploads,
+        trigger=CronTrigger(hour="*/4", timezone=SCHEDULER_TZ),
+        id="cleanup_uploads",
+        name="Cleanup Old Upload Files",
+        replace_existing=True,
+    )
+
     _scheduler.start()
     logger.info(
         "[Scheduler] Started — cron='%s' tz='%s'", SCHEDULER_CRON, SCHEDULER_TZ
