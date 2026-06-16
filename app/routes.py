@@ -20,14 +20,82 @@ from flask import (
     render_template, request, send_file, session, url_for,
 )
 from werkzeug.utils import secure_filename
+import uuid
 
 from app.config import PIPELINE_XLSX, UPLOAD_FOLDER
+from app.validation import (
+    validate_search_input,
+    validate_file_upload,
+    ValidationError,
+)
 
 logger = logging.getLogger(__name__)
 bp     = Blueprint("main", __name__)
 
 ALLOWED_JOBS   = {".csv", ".xlsx", ".xls"}
 ALLOWED_RESUME = {".pdf", ".txt", ".docx"}
+
+# Simple rate limiting: track requests per session
+import time
+from collections import defaultdict
+_search_timestamps = defaultdict(list)
+
+
+def _check_rate_limit(session_id: str, max_per_minute: int = 10) -> bool:
+    """
+    Check if session has exceeded rate limit (searches per minute).
+    Returns True if within limit, False if exceeded.
+    """
+    now = time.time()
+    cutoff = now - 60  # 1 minute window
+
+    # Clean old timestamps
+    _search_timestamps[session_id] = [
+        ts for ts in _search_timestamps[session_id] if ts > cutoff
+    ]
+
+    if len(_search_timestamps[session_id]) >= max_per_minute:
+        return False
+
+    # Record this request
+    _search_timestamps[session_id].append(now)
+    return True
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Session-based file management
+# ─────────────────────────────────────────────────────────────────────────────
+
+def _get_session_upload_dir() -> Path:
+    """
+    Get session-specific upload directory.
+    Each session gets its own subdirectory to prevent filename collisions.
+    """
+    session_id = session.get("_id")
+    if not session_id:
+        # Generate new session ID if not present
+        session_id = str(uuid.uuid4())
+        session["_id"] = session_id
+
+    session_dir = Path(UPLOAD_FOLDER) / session_id
+    session_dir.mkdir(parents=True, exist_ok=True)
+    return session_dir
+
+
+def _cleanup_session_uploads() -> None:
+    """Delete all uploaded files for the current session."""
+    session_id = session.get("_id")
+    if not session_id:
+        return
+
+    session_dir = Path(UPLOAD_FOLDER) / session_id
+    if session_dir.exists():
+        import shutil
+        try:
+            shutil.rmtree(session_dir)
+            logger.debug("Cleaned up session uploads: %s", session_id)
+        except Exception as exc:
+            logger.warning("Failed to cleanup session uploads: %s", exc)
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -39,15 +107,37 @@ def _allowed(filename: str, extensions: set) -> bool:
 
 
 def _save_upload(file, extensions: set) -> Optional[Path]:
-    """Validate extension, secure the filename, and save to UPLOAD_FOLDER."""
+    """Validate extension, secure filename, and save to session-specific directory."""
     if not file or not file.filename:
         return None
     if not _allowed(file.filename, extensions):
         return None
+
+    # Validate file size (before saving)
+    try:
+        # Check Content-Length header first
+        content_length = request.content_length
+        if content_length and content_length > 16 * 1024 * 1024:  # 16 MB
+            raise ValidationError(
+                f"File too large ({content_length/1024/1024:.1f}MB). Maximum is 16MB."
+            )
+    except (ValidationError, ValueError) as exc:
+        logger.warning("File upload validation failed: %s", exc)
+        raise
+
     fname = secure_filename(file.filename)
-    dest  = Path(UPLOAD_FOLDER) / fname
-    dest.parent.mkdir(parents=True, exist_ok=True)
+    session_dir = _get_session_upload_dir()
+    dest  = session_dir / fname
     file.save(dest)
+
+    # Double-check file size after saving
+    actual_size = dest.stat().st_size
+    if actual_size > 16 * 1024 * 1024:
+        dest.unlink()  # Delete oversized file
+        raise ValidationError(
+            f"File too large ({actual_size/1024/1024:.1f}MB). Maximum is 16MB."
+        )
+
     return dest
 
 
@@ -62,12 +152,24 @@ def index():
 
 @bp.route("/search", methods=["POST"])
 def search():
-    role_description = request.form.get("role_description", "").strip()
-    geo_preference   = request.form.get("geo_preference",   "").strip() or None
-    extra_context    = request.form.get("extra_context",    "").strip() or None
+    # Rate limiting
+    session_id = session.get("_id")
+    if not _check_rate_limit(session_id or "anonymous"):
+        flash(
+            "Too many searches. Please wait a minute before searching again.",
+            "warning"
+        )
+        return redirect(url_for("main.index"))
 
-    if not role_description:
-        flash("Please enter a role description.", "warning")
+    # Input validation
+    try:
+        role_description, geo_preference, extra_context = validate_search_input(
+            request.form.get("role_description", ""),
+            request.form.get("geo_preference", ""),
+            request.form.get("extra_context", ""),
+        )
+    except ValidationError as exc:
+        flash(f"Invalid input: {exc}", "danger")
         return redirect(url_for("main.index"))
 
     # ── 1. Optional resume upload ─────────────────────────────────────────────
@@ -324,6 +426,19 @@ def download_merged():
 # ─────────────────────────────────────────────────────────────────────────────
 # /health — Docker liveness probe
 # ─────────────────────────────────────────────────────────────────────────────
+
+@bp.route("/logout", methods=["GET", "POST"])
+def logout():
+    """
+    Clean up session uploads and clear session data.
+    """
+    session_id = session.get("_id")
+    _cleanup_session_uploads()
+    session.clear()
+    flash("Session cleared. Uploaded files have been deleted.", "info")
+    logger.info("Session logged out and cleaned up: %s", session_id)
+    return redirect(url_for("main.index"))
+
 
 @bp.route("/health", methods=["GET"])
 def health():

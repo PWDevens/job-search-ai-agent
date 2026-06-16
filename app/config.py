@@ -42,7 +42,19 @@ SCHEDULER_TZ      = os.getenv("SCHEDULER_TZ",  "America/New_York")
 SCHEDULER_CRON    = os.getenv("SCHEDULER_CRON", "0 8 * * 1-5")    # Mon-Fri 08:00
 
 # ── Flask ─────────────────────────────────────────────────────────────────────
-SECRET_KEY           = os.getenv("SECRET_KEY", "change-me-in-production")
+_SECRET_KEY_ENV = os.getenv("SECRET_KEY")
+if not _SECRET_KEY_ENV or _SECRET_KEY_ENV == "change-me-in-production":
+    # Generate random SECRET_KEY if not configured (security best practice)
+    import secrets
+    SECRET_KEY = secrets.token_urlsafe(32)
+    import logging
+    logging.getLogger(__name__).warning(
+        "WARNING: SECRET_KEY not configured. Generated random key for this session. "
+        "Set SECRET_KEY environment variable in .env for persistent key across restarts."
+    )
+else:
+    SECRET_KEY = _SECRET_KEY_ENV
+
 UPLOAD_FOLDER        = BASE_DIR / "data" / "uploads"
 MAX_CONTENT_BYTES    = 16 * 1024 * 1024   # 16 MB
 UPLOAD_RETENTION_HOURS = int(os.getenv("UPLOAD_RETENTION_HOURS", "24"))
