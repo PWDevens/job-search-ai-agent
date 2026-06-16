@@ -23,6 +23,7 @@ from app.agents.tools import (
     PipelineWriterTool,
 )
 from app.config import TOP_BLIND_SPOTS, TOP_JOBS, TOP_RESUME_RECS
+from app.pipeline.audit import log_search_run
 
 logger = logging.getLogger(__name__)
 
@@ -395,6 +396,24 @@ def run_search_crew(req: SearchRequest) -> SearchResult:
         len(result.blind_spots),
         "OK" if validation_ok else "FALLBACK",
     )
+
+    # Log to audit trail (persistence layer)
+    try:
+        run_id = log_search_run(
+            role_description=req.role_description,
+            geo_preference=req.geo_preference,
+            resume_text=req.resume_text,
+            top_jobs=result.top_jobs,
+            resume_recs=result.resume_recs,
+            blind_spots=result.blind_spots,
+            raw_agent_output=result.raw_agent_output,
+            agent_validation=result.agent_validation,
+            error=None,
+        )
+        logger.debug("Search run logged to audit database: run_id=%d", run_id)
+    except Exception as exc:
+        logger.error("Failed to log search run to audit database: %s", exc)
+
     return result
 
 
