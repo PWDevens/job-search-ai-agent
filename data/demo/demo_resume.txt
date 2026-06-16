@@ -1,5 +1,5 @@
 PATRICK W. DEVENS
-Washington, DC | p.w.devens@gmail.com | linkedin.com/in/pwdevens | github.com/pwdevens
+Washington, DC | p.w.devens@gmail.com | linkedin.com/in/patrick-w-devens | github.com/pwdevens
 
 PROFESSIONAL SUMMARY
 Data and AI professional with experience building data pipelines, analytics dashboards,
@@ -26,22 +26,40 @@ Job-Search AI (github.com/pwdevens/job-search-ai)
   ranks top 25 matches, generates 10 resume recommendations and 5 blind-spot analyses.
   Weekly email scheduler with XLSX pipeline attachment. Docker-compose deployment.
 
-Federal Acquisition Regulation Retrieval Augmented Generation Chatbot (github.com/pwdevens/finance-dashboard)
+Federal Acquisition Regulation Retrieval Augmented Generation Chatbot (https://github.com/PWDevens/fedacq-rag-chatbot)
   Flask + LlamaIndex + ChromaDB + FAR/DFARS DITA Source.
   Reads DITA; generates answers to queries. Deployed via Docker.
 
 EDUCATION
 Master of Science, Business Analytics
-University of Virginia, Charlottesvill, VA
+University of Virginia, Charlottesville, VA
 
 Bachelor of Arts, Psychology
 Christopher Newport University, Newport News, VA
 
 CERTIFICATIONS
-Data Science Fundamentals — Codecademy (2025)
+PRINCE2
+Data Science Fundamentals — Codecademy 
 
 PROFESSIONAL EXPERIENCE
-[Prior professional roles — update with your full work history]
+Cognitus Heuristics Advisory, Founder (03/2026 – current); Washington, D.C.
+•	Consult start-ups and small businesses on data strategy, business strategy, and product development and management
+	o	Data Strategy: data analytics, data science, business analytics, marketing analytics, A/B testing
+	o	Business Strategy: business development, project management, process improvement, go-to-market
+	o	Product Development and Management: MVP scoping and development, beta testing, competitive intelligence
+•	Clientele include SaaS start-ups, federal contractors, professional services family offices, and entertainment venues
+EGlobalTech / TetraTech, Senior Consultant Task Lead (04/2020 – 03/2025); Washington, D.C.
+•	Consulted senior leadership across 5+ federal entities on the streamlining and automation of operations, cutting 2,000+ labor hours, delivering $300K+ cost savings, and accelerating turnaround times by 50%
+•	Built automated, data-driven tools (Excel and Google Sheets) to streamline training management for 140k+ employees, compensation tracking across 50+ employees, and budget forecasting across 2+ stakeholders, improving accuracy, scalability, and leadership decision-making
+•	Led, managed, and mentored members of cross-functional teams; received two promotions and was recognized with three annual company awards 
+Wolf Den Associates, Market Research and Competitive Intelligence Consultant (06/2018 – 12/2019); McLean, VA
+•	Led data analysis and research efforts to advise c-suite and senior leadership at various companies on market entry, growth strategy, and acquisition targets within highly regulated market
+•	Analyzed, forecasted, and visualized contract revenue data, customer spending trends, and agency budget data to provide clients with data-driven strategy recommendations  
+•	Re-engineered data pipelines and Excel-based resources for data processing and management, improving analytical efficiency and reliability; developed training materials and implemented new practices 
+Booz Allen Hamilton, Market Analyst (05/2017 – 06/2018); McLean, VA
+•	Developed, delivered, and presented analysis on the NASA market, based on data analyzed in Microsoft Excel, leading to $300M+ in contracts awarded; assisted assessment identifying synergies across technical capabilities to capitalize on client implementation of emerging technologies
+•	Delivered competitive intelligence, market segmentation reports, and black hat reviews to senior leadership across client and capability areas to inform investment and business development decisions
+•	Analyzed government resources, agency budget data, and third-party reports to produce data-driven deliverables across Power BI, Excel, and analytics platforms
 
 INTERESTS
 Open-source AI tooling, LLMOps, career tech equity, helping 
