@@ -41,7 +41,6 @@ def _create_client() -> chromadb.HttpClient:
         host=CHROMA_HOST,
         port=CHROMA_PORT,
         settings=Settings(anonymized_telemetry=False),
-        timeout=CHROMA_TIMEOUT,
     )
     # Verify connection is working
     try:
