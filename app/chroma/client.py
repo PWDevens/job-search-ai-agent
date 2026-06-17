@@ -31,28 +31,23 @@ _embed_fn = LocalEmbeddingFunction()
     wait=wait_exponential(multiplier=1, min=1, max=5),
     reraise=True,
 )
-def _create_client() -> chromadb.HttpClient:
-    """Create ChromaDB client with timeout. Retries with exponential backoff."""
-    logger.info(
-        "Connecting to ChromaDB at %s:%s (timeout=%ds)",
-        CHROMA_HOST, CHROMA_PORT, CHROMA_TIMEOUT,
-    )
-    client = chromadb.HttpClient(
-        host=CHROMA_HOST,
-        port=CHROMA_PORT,
-        settings=Settings(anonymized_telemetry=False),
-    )
-    # Verify connection is working
-    try:
-        client.heartbeat()
-        logger.info("ChromaDB connection verified")
-    except Exception as exc:
-        logger.error("ChromaDB heartbeat failed: %s", exc)
-        raise
-    return client
+def _create_client():
+    """Create ChromaDB client. Use HTTP if connected to remote, else use persistent."""
+    import os
+    chroma_host = os.getenv("CHROMA_HOST", "chromadb")
+    chroma_port = int(os.getenv("CHROMA_PORT", "8000"))
+
+    # If running in Docker, connect to HTTP service
+    # Otherwise, use persistent local client
+    if chroma_host == "chromadb":
+        logger.info("Creating ChromaDB HTTP client at %s:%s", chroma_host, chroma_port)
+        return chromadb.HttpClient(host=chroma_host, port=chroma_port)
+    else:
+        logger.info("Creating ChromaDB persistent client at ./chroma_data")
+        return chromadb.PersistentClient(path="./chroma_data")
 
 
-def get_client() -> chromadb.HttpClient:
+def get_client():
     """Get or create ChromaDB client with connection timeout and retry logic."""
     global _client
     if _client is None:
@@ -70,10 +65,7 @@ def get_client() -> chromadb.HttpClient:
 
 def get_or_create_collection(name: str, metadata: Optional[Dict] = None):
     client = get_client()
-    col = client.get_or_create_collection(
-        name=name,
-        metadata=metadata or {"hnsw:space": "cosine"},
-    )
+    col = client.get_or_create_collection(name=name)
     logger.debug("Collection '%s' ready (count=%s)", name, col.count())
     return col
 
@@ -93,14 +85,7 @@ def upsert_documents(
     metadatas: Optional[List[Dict]] = None,
 ) -> None:
     col = get_or_create_collection(collection_name)
-    # Pre-compute embeddings for each document
-    embeddings = [_embed_fn([doc])[0] for doc in documents]
-    col.upsert(
-        ids=ids,
-        documents=documents,
-        embeddings=embeddings,
-        metadatas=metadatas or [{} for _ in ids],
-    )
+    col.upsert(ids=ids, documents=documents, metadatas=metadatas or [{} for _ in ids])
     logger.info("Upserted %d docs into '%s'", len(ids), collection_name)
 
 
@@ -111,9 +96,7 @@ def query_collection(
     where: Optional[Dict] = None,
 ) -> Dict[str, Any]:
     col = get_or_create_collection(collection_name)
-    # Pre-compute embeddings for query texts
-    query_embeddings = [_embed_fn([text])[0] for text in query_texts]
-    kwargs: Dict[str, Any] = {"query_embeddings": query_embeddings, "n_results": n_results}
+    kwargs: Dict[str, Any] = {"query_texts": query_texts, "n_results": n_results}
     if where:
         kwargs["where"] = where
     return col.query(**kwargs)

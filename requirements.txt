@@ -8,7 +8,7 @@ crewai>=0.80.0
 litellm>=1.40.0
 
 # ── ChromaDB ───────────────────────────────────────────────────────────────────
-chromadb>=0.5.20
+chromadb==0.5.20
 
 # ── Embeddings (local, no GPU required) ───────────────────────────────────────
 sentence-transformers>=3.1.0   # fallback when Ollama embed is unavailable
