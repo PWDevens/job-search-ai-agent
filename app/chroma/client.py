@@ -15,6 +15,7 @@ from typing import Any, Dict, List, Optional
 
 import chromadb
 from chromadb.config import Settings
+from chromadb.utils import embedding_functions
 from tenacity import retry, stop_after_attempt, wait_exponential
 
 from app.config import CHROMA_HOST, CHROMA_PORT, CHROMA_TIMEOUT, CHROMA_JOBS_COL, CHROMA_RESUME_COL
@@ -24,6 +25,8 @@ logger = logging.getLogger(__name__)
 
 _client: Optional[chromadb.HttpClient] = None
 _embed_fn = LocalEmbeddingFunction()
+# Use ChromaDB's default embedding function (all-MiniLM) for HTTP client compatibility
+_default_embed_fn = embedding_functions.DefaultEmbeddingFunction()
 
 
 @retry(
@@ -32,19 +35,12 @@ _embed_fn = LocalEmbeddingFunction()
     reraise=True,
 )
 def _create_client():
-    """Create ChromaDB client. Use HTTP if connected to remote, else use persistent."""
+    """Create ChromaDB persistent client. Uses shared volume in Docker."""
     import os
-    chroma_host = os.getenv("CHROMA_HOST", "chromadb")
-    chroma_port = int(os.getenv("CHROMA_PORT", "8000"))
-
-    # If running in Docker, connect to HTTP service
-    # Otherwise, use persistent local client
-    if chroma_host == "chromadb":
-        logger.info("Creating ChromaDB HTTP client at %s:%s", chroma_host, chroma_port)
-        return chromadb.HttpClient(host=chroma_host, port=chroma_port)
-    else:
-        logger.info("Creating ChromaDB persistent client at ./chroma_data")
-        return chromadb.PersistentClient(path="./chroma_data")
+    chroma_path = "/chroma/chroma" if os.path.isdir("/chroma/chroma") else "./chroma_data"
+    logger.info("Creating ChromaDB persistent client at %s", chroma_path)
+    client = chromadb.PersistentClient(path=chroma_path)
+    return client
 
 
 def get_client():
@@ -65,9 +61,21 @@ def get_client():
 
 def get_or_create_collection(name: str, metadata: Optional[Dict] = None):
     client = get_client()
-    col = client.get_or_create_collection(name=name)
-    logger.debug("Collection '%s' ready (count=%s)", name, col.count())
-    return col
+    try:
+        col = client.get_or_create_collection(name=name)
+        logger.debug("Collection '%s' ready (count=%s)", name, col.count())
+        return col
+    except Exception as e:
+        if "KeyError" in str(e) and "_type" in str(e):
+            logger.error("ChromaDB collection error (likely API version mismatch): %s", e)
+            # Try with embedding function as last resort
+            try:
+                col = client.get_or_create_collection(name=name, embedding_function=_default_embed_fn)
+                logger.debug("Collection '%s' created with default embedding", name)
+                return col
+            except:
+                raise e
+        raise
 
 
 def jobs_collection():
