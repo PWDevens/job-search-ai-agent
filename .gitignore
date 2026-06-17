@@ -47,3 +47,13 @@ logs/
 
 # Jupyter (keep notebooks but ignore checkpoints)
 .ipynb_checkpoints/
+
+# Admin
+COMPLETION_SUMMARY.md
+DEPLOYMENT_CHECKLIST.md
+DEPLOYMENT_REPORT.md
+IMPROVEMENTS.md
+INDEX.md
+PHASE_1_REVIEW.md
+TASK_CUSTOMIZABLE_RESULT_COUNTS.md
+TESTING_GUIDE.md
