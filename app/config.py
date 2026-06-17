@@ -7,10 +7,9 @@ from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# ── ChromaDB ──────────────────────────────────────────────────────────────────
-CHROMA_HOST        = os.getenv("CHROMA_HOST", "chromadb")          # docker service name
-CHROMA_PORT        = int(os.getenv("CHROMA_PORT", "8000"))
-CHROMA_TIMEOUT     = int(os.getenv("CHROMA_TIMEOUT", "10"))         # connection timeout in seconds
+# ── Weaviate (Vector Database) ────────────────────────────────────────────────
+WEAVIATE_HOST      = os.getenv("WEAVIATE_HOST", "weaviate")         # docker service name
+WEAVIATE_PORT      = int(os.getenv("WEAVIATE_PORT", "8080"))
 CHROMA_JOBS_COL    = os.getenv("CHROMA_JOBS_COLLECTION",   "jobs")
 CHROMA_RESUME_COL  = os.getenv("CHROMA_RESUME_COLLECTION", "resume_chunks")
 

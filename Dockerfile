@@ -28,10 +28,6 @@ COPY . .
 # Create data directories
 RUN mkdir -p /app/data/uploads /app/data/demo
 
-# Non-root user for security
-RUN useradd -m -u 1000 appuser && chown -R appuser:appuser /app
-USER appuser
-
 ENV PYTHONUNBUFFERED=1 \
     PYTHONDONTWRITEBYTECODE=1 \
     FLASK_HOST=0.0.0.0 \
