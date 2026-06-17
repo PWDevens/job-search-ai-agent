@@ -72,7 +72,6 @@ def get_or_create_collection(name: str, metadata: Optional[Dict] = None):
     client = get_client()
     col = client.get_or_create_collection(
         name=name,
-        embedding_function=_embed_fn,
         metadata=metadata or {"hnsw:space": "cosine"},
     )
     logger.debug("Collection '%s' ready (count=%s)", name, col.count())
@@ -94,7 +93,14 @@ def upsert_documents(
     metadatas: Optional[List[Dict]] = None,
 ) -> None:
     col = get_or_create_collection(collection_name)
-    col.upsert(ids=ids, documents=documents, metadatas=metadatas or [{} for _ in ids])
+    # Pre-compute embeddings for each document
+    embeddings = [_embed_fn([doc])[0] for doc in documents]
+    col.upsert(
+        ids=ids,
+        documents=documents,
+        embeddings=embeddings,
+        metadatas=metadatas or [{} for _ in ids],
+    )
     logger.info("Upserted %d docs into '%s'", len(ids), collection_name)
 
 
@@ -105,7 +111,9 @@ def query_collection(
     where: Optional[Dict] = None,
 ) -> Dict[str, Any]:
     col = get_or_create_collection(collection_name)
-    kwargs: Dict[str, Any] = {"query_texts": query_texts, "n_results": n_results}
+    # Pre-compute embeddings for query texts
+    query_embeddings = [_embed_fn([text])[0] for text in query_texts]
+    kwargs: Dict[str, Any] = {"query_embeddings": query_embeddings, "n_results": n_results}
     if where:
         kwargs["where"] = where
     return col.query(**kwargs)
