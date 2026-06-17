@@ -22,18 +22,27 @@ cp .env.example .env
 # Edit .env if needed (SMTP credentials optional)
 ```
 
-### Start Services (2-5 minutes)
+### Start Services (3-5 minutes)
 ```bash
 # Terminal 1: Start Docker services
 docker-compose up -d
 
-# Check services are healthy
-docker-compose ps
-# Expected: all 3 services "healthy" or "running"
+# Wait for initial startup (Ollama takes time to initialize)
+Start-Sleep -Seconds 30
 
-# Terminal 2: Check logs
+# Check services status
+docker-compose ps
+# Expected: ChromaDB "healthy", Ollama "healthy", App "healthy"
+
+# Terminal 2: Monitor startup progress
 docker-compose logs -f
-# Expected: "Running on http://0.0.0.0:5000"
+# You'll see:
+#   - ChromaDB: "Running on port 8000"
+#   - Ollama: "Listening on [::]:11434"
+#   - Flask: "Running on http://0.0.0.0:5000"
+
+# If Ollama shows "unhealthy" but logs say "listening", it's initializing
+# Give it another 30 seconds - health check is generous (5 min timeout)
 ```
 
 ### Verify Health
@@ -76,27 +85,46 @@ open http://localhost:5000
 
 ## Debugging Common Issues
 
-### Issue: "ERROR: ConnectionRefusedError: [Errno 111] Connection refused"
+### Issue: Services show "unhealthy" status
 
-**Problem:** ChromaDB or Ollama not running
+**Problem:** Health check failing during startup
 
 **Solution:**
 ```bash
-# Check which services failed
-docker-compose logs chromadb
-docker-compose logs ollama
+# This is normal during initial startup - Ollama needs 60+ seconds to initialize
 
-# If chromadb logs show errors:
-docker-compose down
-docker volume rm chromadb chroma_data
-docker-compose up -d chromadb
-# Wait 10 seconds for ChromaDB to start
-docker-compose logs chromadb
+# Check if services are actually running:
+docker-compose logs ollama --tail 10
+# Look for: "Listening on [::]:11434"
 
-# If ollama failed to start:
-# May need to wait longer (it downloads 2-4 GB models)
-docker-compose logs ollama
-# Look for "listening on" message
+# If you see "listening", the service is fine - health check just hasn't caught up yet
+# Wait another 30 seconds and check again
+
+docker-compose ps
+# After 2-3 minutes, all should show "healthy"
+
+# If still failing after 5+ minutes:
+docker-compose down -v
+docker-compose up -d
+# The -v flag removes volumes (fresh start)
+```
+
+### Issue: "ERROR: ConnectionRefusedError: [Errno 111] Connection refused"
+
+**Problem:** Trying to connect before service is ready
+
+**Solution:**
+```bash
+# This usually means you're connecting too quickly
+
+# Ensure services are healthy:
+docker-compose ps
+# Wait until all three show "healthy"
+
+# Then test connections:
+curl http://localhost:8000/api/v1/heartbeat      # ChromaDB
+curl http://localhost:11434/api/version          # Ollama
+curl http://localhost:5000/health                # Flask
 ```
 
 ### Issue: "TimeoutError: Request timed out after 10 seconds"

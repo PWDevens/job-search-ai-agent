@@ -118,31 +118,84 @@ cp .env.example .env
 ```bash
 docker compose up --build -d
 ```
-This starts ChromaDB, Ollama, and the Flask app. First build takes ~3–5 minutes.
 
-### 3 — Download the LLM (one-time setup)
+This starts ChromaDB, Ollama, and Flask. 
+- **First build:** ~5-10 minutes (includes Python dependencies)
+- **Startup:** Services become healthy within 2-3 minutes
+- **Model download:** First time only, ~5-15 minutes depending on internet
+
+### 3 — Wait for services to be healthy
 ```bash
-bash scripts/pull_models.sh            # downloads phi4-mini + nomic-embed-text
-# OR for better quality (needs 8 GB RAM):
-bash scripts/pull_models.sh llama3
-```
-> **Model sizes:** `phi4-mini` = ~2.5 GB · `nomic-embed-text` = ~0.3 GB · `llama3` = ~4.7 GB
+# Wait 30 seconds for initial startup
+Start-Sleep -Seconds 30
 
-### 4 — Load the demo jobs
+# Check status
+docker compose ps
+
+# Expected: All three services show "Up" or "healthy"
+```
+
+If Ollama shows "unhealthy", it's still initializing. Wait another 30 seconds.
+
+### 4 — Download the LLM (one-time, automatic on first run)
+
+The first time you start Docker, the system will automatically download the LLM model:
+
+```bash
+docker compose exec ollama ollama pull phi4-mini
+```
+
+> **Model sizes:** `phi4-mini` = ~2.5 GB (recommended) · `llama3` = ~4.7 GB (better quality)
+
+**Alternative:** If you already have Ollama models, add to `.env`:
+```bash
+OLLAMA_DATA_PATH=C:/path/to/your/ollama-data
+```
+
+### 5 — Load demo data
 ```bash
 docker compose exec app python scripts/ingest_jobs.py data/demo/demo_jobs.csv
 docker compose exec app python scripts/ingest_resume.py data/demo/demo_resume.txt
 ```
 
-### 5 — Open the app
+### 6 — Open the app
 ```
 http://localhost:5000
 ```
 
-### 6 — Verify health check
+### 7 — Verify everything works
 ```bash
 curl http://localhost:5000/health
 # Expected: {"status":"ok","service":"job-search-ai","chroma_db":"healthy"}
+```
+
+---
+
+## ⏱️ Troubleshooting Docker Startup
+
+**If Ollama is stuck "unhealthy":**
+```bash
+# Check Ollama logs
+docker compose logs ollama --tail 20
+
+# If no models are loaded, download one:
+docker compose exec ollama ollama pull phi4-mini
+```
+
+**If Flask app won't start:**
+```bash
+# Check Flask logs
+docker compose logs app --tail 20
+
+# Restart all services
+docker compose restart
+```
+
+**To completely reset:**
+```bash
+docker compose down -v
+docker volume prune -f
+docker compose up -d
 ```
 
 ---
