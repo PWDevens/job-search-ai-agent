@@ -72,6 +72,7 @@ services:
       - "5000:5000"
     volumes:
       - ./data:/app/data          # persist pipeline XLSX and uploads
+      - chroma_data:/chroma/chroma  # share ChromaDB data for persistent client access
     env_file:
       - .env
     environment:
