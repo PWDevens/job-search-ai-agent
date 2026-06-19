@@ -1,0 +1,79 @@
+SOPHIE MARTIN, BA English
+Technical Writer | Documentation & Content Strategy
+Email: smartin.writing@email.com | Phone: (555) 567-8901 | LinkedIn: /in/sophiemartin
+
+PROFESSIONAL SUMMARY
+Skilled technical writer with 8 years of experience creating user documentation, API documentation, and training materials for software and SaaS companies. Expertise in documentation tools, content management systems, and UX writing. Seeking transition to content strategy or information architecture role leveraging technical communication expertise.
+
+PROFESSIONAL EXPERIENCE
+
+Senior Technical Writer | SaaS Company Inc | San Francisco, CA | 2021-Present
+• Lead documentation team producing user guides, API docs, and training materials
+• Manage documentation for 3 product lines serving 100K+ users
+• Create end-user guides, release notes, and knowledge base articles
+• Collaborate with product and engineering teams to document new features
+• Improve documentation usability through user feedback analysis
+• Maintain documentation site using Markdown and static site generators (Hugo)
+• Track documentation metrics: search queries, article views, user feedback
+• Mentor 1 junior technical writer
+
+Technical Writer | Software Development Company | Seattle, WA | 2018-2021
+• Created technical documentation for enterprise software products
+• Wrote API documentation using Swagger/OpenAPI specifications
+• Developed instructional videos and interactive tutorials
+• Managed documentation in Confluence and wiki systems
+• Collaborated with UX team to improve product usability
+
+Junior Technical Writer | IT Services Firm | Portland, OR | 2015-2018
+• Wrote user guides and system administration documentation
+• Created training materials for software implementation projects
+• Edited documentation for grammar and consistency
+• Managed documentation library and version control
+
+EDUCATION & CREDENTIALS
+Bachelor of Arts in English | University of Washington | Seattle, WA | 2015
+GPA: 3.6/4.0 | Minor: Technical Communication
+
+TECHNICAL WRITING SKILLS
+• Documentation Tools: Confluence, Jira, GitBook, Notion, Drupal CMS
+• Markup Languages: Markdown, reStructuredText, AsciiDoc, XML, HTML
+• Static Site Generators: Hugo, Jekyll, Sphinx, MkDocs
+• API Documentation: Swagger/OpenAPI, Postman, Readme.io
+• Version Control: Git, GitHub, GitLab
+• Diagramming: Lucidchart, Draw.io, Visio, Miro
+• Video Production: ScreenFlow, Camtasia, Loom
+• Content Management: WordPress, Sharepoint
+
+CORE COMPETENCIES
+• Technical Documentation & User Guides
+• API Documentation & Developer Content
+• Content Strategy & Information Architecture
+• UX Writing & Microcopy
+• Training Material Development
+• Audience Analysis & Personas
+• Usability Testing & User Feedback Analysis
+• Documentation SEO & Discoverability
+• Process Documentation & Workflows
+• Content Management Systems
+
+MAJOR ACCOMPLISHMENTS
+• Launched comprehensive API documentation increasing developer onboarding by 40% (2022)
+• Created documentation style guide adopted across 3 product teams (2021)
+• Reduced support tickets by 25% through improved documentation clarity (2021-2023)
+• Implemented documentation metrics dashboard tracking user engagement (2023)
+• Developed interactive tutorials increasing feature adoption by 35% (2022)
+
+PROFESSIONAL AFFILIATIONS
+• Society for Technical Communication (STC) | Member since 2015
+• Write the Docs Community | Active Member since 2018
+
+CERTIFICATIONS & TRAINING
+• Certified Technical Writer (CTW) | Society for Technical Communication | 2017
+• UX Writing Course | Nielsen Norman Group | 2021
+
+LANGUAGES & ADDITIONAL INFORMATION
+Fluent in French (conversational and professional)
+Strong writing and communication skills
+Experience writing for diverse audiences (engineers, product managers, end users)
+Seeking content strategy or information architecture role
+Available for transition to content-focused positions

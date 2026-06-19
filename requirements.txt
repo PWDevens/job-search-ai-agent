@@ -3,17 +3,16 @@ flask>=3.1.0
 python-dotenv>=1.0.1
 werkzeug>=3.1.0
 
-# ── CrewAI + LLM ──────────────────────────────────────────────────────────────
-crewai>=0.80.0
-litellm>=1.40.0
-
-# ── ChromaDB ───────────────────────────────────────────────────────────────────
+# ── ChromaDB (embedded vector store) ───────────────────────────────────────────
 chromadb==0.5.20
 
 # ── Embeddings (local, no GPU required) ───────────────────────────────────────
-sentence-transformers>=3.1.0   # fallback when Ollama embed is unavailable
+sentence-transformers>=3.1.0
 # Note: torch CPU-only is pulled automatically by sentence-transformers
 # If you have a CUDA GPU: pip install torch --index-url https://download.pytorch.org/whl/cu121
+
+# ── Reranker (cross-encoder, ~34 MB ONNX, CPU-only) ──────────────────────────
+flashrank>=0.2.0   # set RERANK_MODEL=none to disable; =bge-reranker-v2-m3 for max accuracy
 
 # ── Data / Excel ───────────────────────────────────────────────────────────────
 pandas>=2.2.0

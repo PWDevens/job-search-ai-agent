@@ -233,21 +233,21 @@ def search():
     merged_count = 0
 
     try:
-        from app.agents.crew import SearchRequest, run_search_crew
+        from app.agents.pipeline import SearchRequest, run
         req = SearchRequest(
             role_description=role_description,
             geo_preference=geo_preference,
             resume_text=resume_text,
             extra_context=extra_context,
         )
-        result = run_search_crew(req)
+        result = run(req)
         top_jobs    = result.top_jobs
         resume_recs = result.resume_recs
         blind_spots = result.blind_spots
         agent_validation = result.agent_validation or agent_validation
 
     except Exception as exc:
-        logger.error("CrewAI pipeline failed: %s", exc, exc_info=True)
+        logger.error("Pipeline failed: %s", exc, exc_info=True)
         # Graceful degradation: fall back to matcher-only results
         try:
             from app.pipeline.matcher import (
@@ -452,7 +452,7 @@ def health():
     Health check endpoint for Docker/Kubernetes liveness probes.
     Returns 200 if ChromaDB is reachable, 503 otherwise.
     """
-    from app.chroma.client import health_check
+    from app.retrieval.client import health_check
 
     if health_check():
         return jsonify({

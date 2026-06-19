@@ -14,7 +14,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from app.pipeline.ingest import ingest_resume
-from app.chroma.client import delete_collection
+from app.retrieval.client import delete_collection
 from app.config import CHROMA_RESUME_COL
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")

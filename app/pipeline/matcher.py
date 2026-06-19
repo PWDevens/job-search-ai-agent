@@ -19,7 +19,8 @@ import logging
 import re
 from typing import Any, Dict, List, Optional
 
-from app.chroma.client import query_collection
+from app.retrieval.client import query_collection
+from app.retrieval.rerank import rerank
 from app.config import (
     CHROMA_JOBS_COL, CHROMA_RESUME_COL,
     TOP_BLIND_SPOTS, TOP_JOBS, TOP_RESUME_RECS,
@@ -47,11 +48,14 @@ def find_top_jobs(
     matching (handles Remote, city abbreviations, state normalization, fuzzy matching).
     """
     query  = _build_query(role_description, resume_text)
-    # Fetch more results than needed, then filter by location
-    # (to account for jobs that don't match geography preference)
-    fetch_count = max(n * 3, 50) if geo_preference else n
+    # Retrieve 2× candidates so reranker has a wide field to work with.
+    # ponytail: RERANK_MODEL=none skips reranking and falls back to vector order.
+    fetch_count = max(n * 2, 50)
     results = query_collection(CHROMA_JOBS_COL, [query], n_results=fetch_count)
     jobs = _format_results(results, fetch_count)
+
+    # Cross-encoder rerank before geo filter so the best docs surface first.
+    jobs = rerank(query, jobs, top_n=fetch_count)
 
     # Apply geolocation filtering with intelligent matching
     if geo_preference and jobs:
