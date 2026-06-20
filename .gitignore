@@ -32,6 +32,9 @@ data/audit.db
 
 # SSH keys — never commit
 RUNPOD-SSH.txt
+
+# Pod-specific scripts (contain RunPod WebSocket credentials)
+scripts/pod_*.py
 RUNPOD-SSH.txt.pub
 
 # Claude Code session files
