@@ -22,8 +22,30 @@ data/uploads/
 data/job_pipeline.xlsx
 data/*.xlsx
 
-# ChromaDB local data (if running without Docker)
+# ChromaDB local data
 chroma_data/
+data/chroma/
+data/.chroma_test/
+
+# SQLite audit DB (generated at runtime)
+data/audit.db
+
+# SSH keys — never commit
+RUNPOD-SSH.txt
+
+# Pod-specific scripts (contain RunPod WebSocket credentials)
+scripts/pod_*.py
+RUNPOD-SSH.txt.pub
+
+# Claude Code session files
+.claude/
+.pipeline/
+
+# Generated reports / eval output
+reports/
+
+# Old docs archive
+docs/archive/
 
 # Ollama model cache (if running without Docker)
 .ollama/

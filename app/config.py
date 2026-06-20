@@ -7,20 +7,18 @@ from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# ── Weaviate (Vector Database) ────────────────────────────────────────────────
-WEAVIATE_HOST      = os.getenv("WEAVIATE_HOST", "weaviate")         # docker service name
-WEAVIATE_PORT      = int(os.getenv("WEAVIATE_PORT", "8080"))
+# ── Vector store (ChromaDB embedded, on-disk) ────────────────────────────────
+CHROMA_DB_PATH     = os.getenv("CHROMA_DB_PATH", str(BASE_DIR / "data" / "chroma"))
 CHROMA_JOBS_COL    = os.getenv("CHROMA_JOBS_COLLECTION",   "jobs")
 CHROMA_RESUME_COL  = os.getenv("CHROMA_RESUME_COLLECTION", "resume_chunks")
 
 # ── Local LLM (Ollama) ────────────────────────────────────────────────────────
-OLLAMA_BASE_URL   = os.getenv("OLLAMA_BASE_URL",  "http://ollama:11434")
-OLLAMA_MODEL      = os.getenv("OLLAMA_MODEL",     "llama3")        # pull via scripts
-OLLAMA_EMBED_MODEL= os.getenv("OLLAMA_EMBED_MODEL","nomic-embed-text")
+OLLAMA_BASE_URL   = os.getenv("OLLAMA_BASE_URL",  "http://localhost:11434")
+OLLAMA_MODEL      = os.getenv("OLLAMA_MODEL",     "qwen2.5:3b")
+AGENT_MODEL       = os.getenv("AGENT_MODEL",      "phi4-mini")   # agents default to phi4-mini; override via env
 
-# ── Embedding ─────────────────────────────────────────────────────────────────
-EMBED_BACKEND     = os.getenv("EMBED_BACKEND", "ollama")           # "ollama" | "sentence_transformers"
-ST_MODEL          = os.getenv("ST_MODEL", "all-MiniLM-L6-v2")     # used when EMBED_BACKEND=sentence_transformers
+# ── Embedding (single backend: sentence-transformers) ─────────────────────────
+EMBED_MODEL       = os.getenv("EMBED_MODEL", "BAAI/bge-small-en-v1.5")
 
 # ── Pipeline output ───────────────────────────────────────────────────────────
 PIPELINE_XLSX     = os.getenv("PIPELINE_XLSX", str(BASE_DIR / "data" / "job_pipeline.xlsx"))

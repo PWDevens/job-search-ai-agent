@@ -166,13 +166,14 @@ class TestDataConsistency:
     def test_resume_chunks_are_retrievable(self, sample_resume_txt):
         """Resume chunks should be retrievable after ingest."""
         from app.pipeline.ingest import ingest_resume
-        from app.chroma.client import resume_collection
+        from app.retrieval.client import get_or_create_collection
+        from app.config import CHROMA_RESUME_COL
 
         chunk_count = ingest_resume(sample_resume_txt)
         assert chunk_count > 0
 
         # Verify chunks in ChromaDB
-        col = resume_collection()
+        col = get_or_create_collection(CHROMA_RESUME_COL)
         assert col.count() == chunk_count, "All chunks should be in ChromaDB"
 
     def test_metadata_preserved_through_pipeline(self, sample_jobs_csv):

@@ -20,7 +20,7 @@ import hashlib
 import logging
 from typing import List
 
-from app.chroma.client import get_or_create_collection, upsert_documents
+from app.retrieval.client import get_or_create_collection, upsert_documents
 
 logger = logging.getLogger(__name__)
 
@@ -375,7 +375,7 @@ def query_ats_knowledge(query: str, n: int = 4) -> List[str]:
     Returns a list of article text strings.
     """
     _ensure_initialized()
-    from app.chroma.client import query_collection
+    from app.retrieval.client import query_collection
     results = query_collection(_ATS_COLLECTION, [query], n_results=n)
     docs = results.get("documents", [[]])[0] or []
     return docs

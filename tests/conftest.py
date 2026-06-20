@@ -21,72 +21,94 @@ import pytest
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 # ── Set environment variables BEFORE imports ──────────────────────────────────
-os.environ.setdefault("LLM_BACKEND",    "mock")
-os.environ.setdefault("EMBED_BACKEND",  "sentence_transformers")
-os.environ.setdefault("CHROMA_HOST",    "localhost")
-os.environ.setdefault("CHROMA_PORT",    "8000")
 os.environ.setdefault("OLLAMA_BASE_URL", "http://localhost:11434")
 os.environ.setdefault("SMTP_USER",      "")
 os.environ.setdefault("SMTP_PASS",      "")
 os.environ.setdefault("SECRET_KEY",     "test-secret-key")
-os.environ.setdefault("CHROMA_TIMEOUT", "5")
 
 
 # ─────────────────────────────────────────────────────────────────────────────
-# ChromaDB: Use ephemeral (in-memory) mode for tests
+# Retrieval: Mock ChromaDB client and embedding function for tests
 # ─────────────────────────────────────────────────────────────────────────────
-
-@pytest.fixture(scope="session")
-def chroma_client():
-    """
-    Session-scoped in-memory ChromaDB client.
-    Used by all tests to avoid spinning up a server.
-    """
-    import chromadb
-    from chromadb.config import Settings
-
-    client = chromadb.EphemeralClient(settings=Settings(anonymized_telemetry=False))
-    return client
-
 
 @pytest.fixture(autouse=True)
-def mock_chroma_get_client(chroma_client):
+def mock_retrieval_client():
     """
-    Auto-use fixture: patches app.chroma.client.get_client() to return
-    the in-memory client instead of connecting to a real server.
+    Auto-use fixture: mock app.retrieval.client._client and _embed_fn.
+    Ensures tests do not try to access real ChromaDB files or embedding models.
     """
-    with patch("app.chroma.client.get_client", return_value=chroma_client):
-        yield chroma_client
+    # Mock the module-level client and embedding function
+    mock_client = MagicMock()
+    mock_embed_fn = MagicMock()
 
-
-@pytest.fixture(autouse=True)
-def cleanup_chroma_collections(chroma_client):
-    """
-    Auto-use fixture: clean up all collections before each test.
-    Ensures tests don't interfere with each other.
-    """
-    yield
-    for collection_name in ["jobs", "resume_chunks"]:
-        try:
-            chroma_client.delete_collection(collection_name)
-        except Exception:
-            pass
+    # Patch both at import time
+    with patch("app.retrieval.client._client", mock_client), \
+         patch("app.retrieval.client._embed_fn", mock_embed_fn):
+        yield {"client": mock_client, "embed_fn": mock_embed_fn}
 
 
 # ─────────────────────────────────────────────────────────────────────────────
-# LLM: Mock provider
+# LLM: Mock chat function
 # ─────────────────────────────────────────────────────────────────────────────
 
 @pytest.fixture(autouse=True)
 def mock_llm():
     """
-    Auto-use fixture: mock the LLM provider.
-    Returns deterministic responses for testing agents.
+    Auto-use fixture: mock app.agents.base.chat() to return deterministic
+    Pydantic model instances for testing agents without Ollama.
     """
-    mock = MagicMock()
-    mock.invoke.return_value = "Mock LLM response"
-    with patch("app.agents.llm_provider.get_llm", return_value=mock):
-        yield mock
+    from app.agents.models import JobMatchList, ResumeRecList, CareerStrategy, JobMatch, ResumeRec, BlindSpot, StrategyRec
+
+    def mock_chat(system: str, user: str, schema):
+        """Return a mock model instance based on the schema."""
+        if schema == JobMatchList:
+            return JobMatchList(matches=[
+                JobMatch(
+                    rank=1,
+                    title="Mock Job",
+                    company="Mock Corp",
+                    location="Remote",
+                    salary="$100k",
+                    url="https://mock.com/job1",
+                    why_it_fits="Matches your skills in testing"
+                )
+            ])
+        elif schema == ResumeRecList:
+            return ResumeRecList(recommendations=[
+                ResumeRec(
+                    priority="HIGH",
+                    title="Add metrics",
+                    current_state="Resume lacks quantified achievements",
+                    fix="Add numbers: 'improved X by Y%'",
+                    why="Mock Corp values quantification",
+                    impact="Better ATS ranking"
+                )
+            ])
+        elif schema == CareerStrategy:
+            return CareerStrategy(
+                blind_spots=[
+                    BlindSpot(
+                        skill="Cloud Architecture",
+                        why="Mock Corp — Cloud DevOps",
+                        remediation="Take AWS Solutions Architect course",
+                        time_to_proficiency="3 months",
+                        priority="HIGH"
+                    )
+                ],
+                strategy=[
+                    StrategyRec(
+                        title="Build cloud portfolio",
+                        evidence="Mock Corp and others heavily hiring",
+                        action="Complete 2 AWS projects for portfolio"
+                    )
+                ]
+            )
+        else:
+            # Fallback: return empty instance
+            return schema()
+
+    with patch("app.agents.base.chat", side_effect=mock_chat):
+        yield mock_chat
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -222,6 +244,5 @@ def sample_large_jobs_csv(tmp_path):
 @pytest.fixture(scope="session", autouse=True)
 def setup_test_env():
     """Session-level setup: configure test environment."""
-    # Ensure embedding backend is set
-    os.environ.setdefault("EMBED_BACKEND", "sentence_transformers")
+    # Test environment configured via env vars set at top of conftest.py
     yield

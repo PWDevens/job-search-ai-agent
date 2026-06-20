@@ -33,7 +33,7 @@ from typing import Dict, List, Optional, Tuple
 
 import pandas as pd
 
-from app.chroma.client import upsert_documents
+from app.retrieval.client import upsert_documents
 from app.config import CHROMA_JOBS_COL, CHROMA_RESUME_COL
 from app.pipeline.normalizer import (
     normalize_headers,

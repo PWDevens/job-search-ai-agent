@@ -16,7 +16,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from app.pipeline.ingest import ingest_jobs
-from app.chroma.client import delete_collection
+from app.retrieval.client import delete_collection
 from app.config import CHROMA_JOBS_COL
 
 logging.basicConfig(

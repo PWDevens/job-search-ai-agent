@@ -86,14 +86,14 @@ def _run_pipeline() -> None:
         except Exception as exc:
             logger.warning("[Scheduler] Resume ingestion failed: %s", exc)
 
-    # Run CrewAI pipeline
+    # Run pipeline
     try:
-        from app.agents.crew import SearchRequest, run_search_crew
+        from app.agents.pipeline import SearchRequest, run
         req    = SearchRequest(
             role_description=role_description,
             geo_preference=geo_preference,
         )
-        result = run_search_crew(req)
+        result = run(req)
     except Exception as exc:
         logger.error("[Scheduler] Pipeline failed: %s", exc, exc_info=True)
         return
