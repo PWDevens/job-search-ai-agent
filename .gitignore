@@ -17,6 +17,9 @@ env/
 .env
 *.env.local
 
+# Secrets folder (RunPod connection, SSH keys, any credentials)
+.secrets/
+
 # Data / uploads (user-specific, potentially sensitive)
 data/uploads/
 data/job_pipeline.xlsx

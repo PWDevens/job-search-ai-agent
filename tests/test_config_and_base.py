@@ -33,7 +33,7 @@ class TestHardwareTier:
         from app.hardware import select_model
         assert select_model("cpu") == "phi4-mini:q4_K_M"
         assert select_model("gpu_avg") == "phi4:q4_K_M"
-        assert select_model("gpu_modern") == "gemma4:27b-q4_K_M"
+        assert select_model("gpu_modern") == "gemma2:9b"
 
     def test_detect_tier_returns_valid_tier(self):
         from app.hardware import detect_tier, MODELS
@@ -52,7 +52,7 @@ class TestHardwareTier:
         os.environ.pop("AGENT_MODEL", None)
         os.environ["HARDWARE_TIER"] = "gpu_modern"
         try:
-            assert _reload_config().AGENT_MODEL == "gemma4:27b-q4_K_M"
+            assert _reload_config().AGENT_MODEL == "gemma2:9b"
         finally:
             os.environ.pop("HARDWARE_TIER", None)
 

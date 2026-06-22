@@ -197,7 +197,7 @@ The first time you start Docker, the system will automatically download the LLM 
 docker compose exec ollama ollama pull phi4-mini
 ```
 
-> **Which model?** The app auto-detects your hardware and picks for you — see [How the app picks your AI model](#-how-the-app-picks-your-ai-model). On a CPU-only machine, `phi4-mini` (above) is all you need. With a GPU, also pull the matching model: `phi4` (mid GPU) or `gemma4:27b` (large GPU).
+> **Which model?** The app auto-detects your hardware and picks for you — see [How the app picks your AI model](#-how-the-app-picks-your-ai-model). On a CPU-only machine, `phi4-mini` (above) is all you need. With a GPU, also pull the matching model: `phi4` (mid GPU) or `gemma2:9b` (large GPU).
 
 **Alternative:** If you already have Ollama models, add to `.env`:
 ```bash
@@ -343,7 +343,7 @@ All settings live in `.env`. Key options:
 |---------------|------|---------------|------------------|
 | No GPU (most laptops) | `cpu` | **phi4-mini** (4-bit) | `ollama pull phi4-mini` |
 | GPU under 10 GB | `gpu_avg` | **phi4** 14B (4-bit) | `ollama pull phi4` |
-| GPU 10 GB or more | `gpu_modern` | **gemma4** 27B (4-bit) | `ollama pull gemma4:27b` |
+| GPU 10 GB or more | `gpu_modern` | **gemma2** 9B | `ollama pull gemma2:9b` |
 
 All models are **4-bit quantized** — a smaller, faster version that keeps almost all of the smarts while using far less memory.
 

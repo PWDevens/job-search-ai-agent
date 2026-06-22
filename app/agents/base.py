@@ -7,11 +7,16 @@ import logging
 from pathlib import Path
 import httpx
 from pydantic import BaseModel, ValidationError
-from app.config import OLLAMA_BASE_URL, AGENT_MODEL, JOB_CONTEXT_CHARS
+import app.config as cfg
+from app.config import JOB_CONTEXT_CHARS
 
 logger = logging.getLogger(__name__)
 
 SKILLS = Path(__file__).parent / "skills"
+
+# Perf telemetry from the most recent Ollama call (read by the eval harness).
+# Updated on every successful chat(); tokens_per_sec = eval_count / eval_duration.
+LAST_TIMING: dict = {}
 
 
 def fmt_resume(text: str | None, chars: int) -> str:
@@ -94,22 +99,29 @@ def chat(system: str, user: str, schema: type[BaseModel]) -> BaseModel:
         ValidationError: Response doesn't match schema
         ValueError: JSON parsing failed
     """
-    url = f"{OLLAMA_BASE_URL}/api/chat"
+    # Read config dynamically so the eval harness can vary model / GPU / temp per run.
+    url = f"{cfg.OLLAMA_BASE_URL}/api/chat"
+    options = {
+        "temperature": cfg.OLLAMA_TEMPERATURE,
+        "num_ctx": cfg.OLLAMA_NUM_CTX,
+    }
+    if cfg.OLLAMA_NUM_GPU is not None:      # 0 = force CPU; N = cap GPU layers (simulate smaller VRAM)
+        options["num_gpu"] = cfg.OLLAMA_NUM_GPU
+    if cfg.OLLAMA_NUM_THREAD:               # cap CPU threads to mimic an average CPU
+        options["num_thread"] = cfg.OLLAMA_NUM_THREAD
+
     request_body = {
-        "model": AGENT_MODEL,
+        "model": cfg.AGENT_MODEL,
         "stream": False,
         "format": schema.model_json_schema(),
         "messages": [
             {"role": "system", "content": system},
             {"role": "user", "content": user}
         ],
-        "options": {
-            "temperature": 0.2,
-            "num_ctx": 4096
-        }
+        "options": options,
     }
 
-    logger.debug(f"Calling Ollama {url} with model {AGENT_MODEL}")
+    logger.debug(f"Calling Ollama {url} with model {cfg.AGENT_MODEL} options={options}")
 
     try:
         with httpx.Client(timeout=120.0) as client:
@@ -118,6 +130,17 @@ def chat(system: str, user: str, schema: type[BaseModel]) -> BaseModel:
 
         response_json = response.json()
         content = response_json.get("message", {}).get("content", "")
+
+        # Capture inference perf (Ollama returns nanosecond durations).
+        eval_count = response_json.get("eval_count")
+        eval_dur   = response_json.get("eval_duration")
+        LAST_TIMING.clear()
+        LAST_TIMING.update({
+            "eval_count": eval_count,
+            "eval_duration_ns": eval_dur,
+            "total_duration_ns": response_json.get("total_duration"),
+            "tokens_per_sec": (eval_count / (eval_dur / 1e9)) if eval_count and eval_dur else None,
+        })
 
         if not content:
             raise ValueError("Empty response from Ollama")

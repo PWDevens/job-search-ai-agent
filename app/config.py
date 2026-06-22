@@ -23,6 +23,15 @@ AGENT_MODEL   = os.getenv("AGENT_MODEL")   or _hw.select_model(HARDWARE_TIER)
 OLLAMA_BASE_URL   = os.getenv("OLLAMA_BASE_URL",  "http://localhost:11434")
 OLLAMA_MODEL      = os.getenv("OLLAMA_MODEL",     "qwen2.5:3b")
 
+# Ollama inference options (override via env — for hardware simulation + reproducible evals)
+def _int_or_none(v):
+    return int(v) if v not in (None, "") else None
+
+OLLAMA_NUM_GPU    = _int_or_none(os.getenv("OLLAMA_NUM_GPU"))     # None=auto, 0=force CPU, N=GPU layers (cap to mimic smaller VRAM)
+OLLAMA_NUM_THREAD = _int_or_none(os.getenv("OLLAMA_NUM_THREAD"))  # cap CPU threads to mimic an average CPU
+OLLAMA_NUM_CTX    = int(os.getenv("OLLAMA_NUM_CTX",      "4096"))
+OLLAMA_TEMPERATURE= float(os.getenv("OLLAMA_TEMPERATURE", "0.2")) # set 0.0 for greedy/reproducible eval baselines
+
 # ── Embedding (single backend: sentence-transformers) ─────────────────────────
 EMBED_MODEL       = os.getenv("EMBED_MODEL", "BAAI/bge-small-en-v1.5")
 
