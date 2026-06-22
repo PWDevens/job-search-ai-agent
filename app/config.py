@@ -35,6 +35,13 @@ OLLAMA_TEMPERATURE= float(os.getenv("OLLAMA_TEMPERATURE", "0.2")) # set 0.0 for 
 # ── Embedding (single backend: sentence-transformers) ─────────────────────────
 EMBED_MODEL       = os.getenv("EMBED_MODEL", "BAAI/bge-small-en-v1.5")
 
+# ── Live job search (Adzuna — free aggregator API) ────────────────────────────
+# Free app_id + app_key from https://developer.adzuna.com (2-min signup).
+ADZUNA_APP_ID     = os.getenv("ADZUNA_APP_ID",  "")
+ADZUNA_APP_KEY    = os.getenv("ADZUNA_APP_KEY", "")
+ADZUNA_COUNTRY    = os.getenv("ADZUNA_COUNTRY", "us")   # us, gb, au, ca, ...
+ADZUNA_MAX_DAYS   = int(os.getenv("ADZUNA_MAX_DAYS", "30"))  # freshness filter
+
 # ── Reranker passes (1 = retrieval only; 2 = +role+resume; 3 = +resume recs) ─
 RERANK_PASSES = int(os.getenv("RERANK_PASSES", "2"))
 
