@@ -1,11 +1,11 @@
 # 🤖 Job-Search AI
 
-> **A fully local, open-source job-search assistant powered by ChromaDB, CrewAI, and local LLMs (Phi-4-mini / Llama-3 / Mistral via Ollama). No cloud APIs. No data leaving your machine.**
+> **A fully local, open-source job-search assistant powered by ChromaDB and local LLMs (Phi-4 family / Gemma via Ollama). It auto-detects your computer's hardware and picks the best model for it — no setup choices required. No cloud APIs. No data leaving your machine.**
 
 [![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://python.org)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 [![Docker](https://img.shields.io/badge/docker-compose-2496ED.svg)](docker-compose.yml)
-[![CrewAI](https://img.shields.io/badge/CrewAI-0.80+-orange.svg)](https://crewai.com)
+[![Ollama](https://img.shields.io/badge/Ollama-local%20LLM-orange.svg)](https://ollama.com)
 [![ChromaDB](https://img.shields.io/badge/ChromaDB-0.5+-purple.svg)](https://trychroma.com)
 [![Tests](https://img.shields.io/badge/tests-104%2B-brightgreen.svg)](tests/)
 [![Coverage](https://img.shields.io/badge/coverage-80%2B%25-brightgreen.svg)](tests/)
@@ -27,6 +27,55 @@ Results are displayed in a clean web UI, appended to a **job pipeline Excel work
 
 ---
 
+## 👋 New here? Start with this (non-technical guide)
+
+**You do not need to understand any of the code below.** Follow these steps exactly and you'll have it running.
+
+### What you need first
+1. A computer (Windows, Mac, or Linux).
+2. **Docker Desktop** — this is a free program that runs the app for you. [Download it here](https://www.docker.com/products/docker-desktop/), install it, and **open it once** so it's running (you'll see a little whale icon in your taskbar/menu bar).
+
+### Get it running — copy/paste, one line at a time
+Open a terminal (Windows: search "PowerShell" · Mac: search "Terminal"), then paste each line and press Enter:
+
+```bash
+git clone https://github.com/PWDevens/job-search-ai-agent.git
+cd job-search-ai-agent
+cp .env.example .env
+docker compose up -d
+```
+
+The first time, this takes **5–15 minutes** (it's downloading the app and the AI brain). That's normal. Go get a coffee. ☕
+
+### Tell it which AI brain to download (one time)
+Paste this and wait — it grabs the AI model that matches your computer:
+
+```bash
+docker compose exec ollama ollama pull phi4-mini
+```
+
+> 💡 **You don't pick the model — the app does.** When it runs, it checks whether you have a graphics card (GPU) and automatically chooses the smartest model your machine can handle. See [How the app picks your AI model](#-how-the-app-picks-your-ai-model) for the details. If you have a powerful GPU, see that section for the one extra download command.
+
+### Load some example data so you can try it immediately
+```bash
+docker compose exec app python scripts/ingest_jobs.py data/demo/demo_jobs.csv
+docker compose exec app python scripts/ingest_resume.py data/demo/demo_resume.txt
+```
+
+### Open it
+Go to **[http://localhost:5000](http://localhost:5000)** in your web browser. Type a job title, upload your resume (PDF or Word), and click search. Done!
+
+### When you're finished
+Type this to shut it down cleanly (your data is saved):
+```bash
+docker compose down
+```
+Next time, just run `docker compose up -d` again — no re-downloading.
+
+**Stuck?** Jump to [Troubleshooting](#-troubleshooting-docker-startup) — every common problem has a copy/paste fix.
+
+---
+
 ## 🚀 Production-Ready
 
 **Status:** ✅ **PRODUCTION-READY**
@@ -39,11 +88,10 @@ This application has been thoroughly tested, secured, and documented:
 - ✅ **Performance optimized** (10-25x faster skill extraction)
 
 **Quick Links:**
-- 📖 [Getting Started Guide](INDEX.md)
-- 🚀 [Deployment Checklist](DEPLOYMENT_CHECKLIST.md)
-- 🧪 [Testing & Debugging Guide](TESTING_GUIDE.md)
-- 📚 [Improvement Roadmap](IMPROVEMENTS.md)
-- ✅ [Project Completion Report](COMPLETION_SUMMARY.md)
+- 🧪 [Testing & Debugging Guide](docs/development/testing-guide.md)
+- 📚 [Improvement Roadmap](docs/development/improvements.md)
+- 🚀 [Deployment Checklist](docs/deployment/01-checklist.md)
+- 🧠 [SLM Fine-Tuning Guide](docs/SLM_FINETUNING_GUIDE.md)
 
 ---
 
@@ -56,7 +104,8 @@ This application has been thoroughly tested, secured, and documented:
 └───────────────────────────┬─────────────────────────────────┘
                             │
                     ┌───────▼────────┐
-                    │  CrewAI Crew   │  ← 3 agents, sequential
+                    │  Orchestrator  │  ← 3 framework-free agents, sequential
+                    │  (pipeline.py) │     + grounding checks + reranker passes
                     └───────┬────────┘
            ┌────────────────┼────────────────┐
            ▼                ▼                ▼
@@ -67,16 +116,17 @@ This application has been thoroughly tested, secured, and documented:
           │                │                   │
           ▼                ▼                   ▼
    ┌─────────────────────────────────────────────────────┐
-   │                   Local Tools                        │
-   │  JobSearchTool · ResumeMatchTool · BlindSpotTool    │
-   │  ATSKnowledgeTool (RAG) · PipelineWriterTool        │
+   │              Retrieval + Reranking                   │
+   │  matcher (vector search) · rerank (cross-encoder)   │
+   │  grounding checks · ATS knowledge (RAG)             │
    └──────────────┬──────────────┬──────────────────────┘
                   │              │
-         ┌────────▼────┐  ┌──────▼────────┐
-         │  ChromaDB   │  │  Ollama LLM   │
-         │  (vector    │  │  (Phi-4-mini  │
-         │   store)    │  │  / Llama-3)   │
-         └─────────────┘  └───────────────┘
+         ┌────────▼────┐  ┌──────▼──────────────┐
+         │  ChromaDB   │  │  Ollama LLM         │
+         │  (embedded  │  │  (model auto-picked │
+         │   vector    │  │   by hardware tier) │
+         │   store)    │  │                     │
+         └─────────────┘  └─────────────────────┘
                   │
          ┌────────▼────────┐     ┌──────────────┐
          │  jobs           │     │  ATS RAG      │
@@ -88,9 +138,11 @@ This application has been thoroughly tested, secured, and documented:
 
 **Key design principles:**
 - 🔒 **Zero external APIs** — everything runs in Docker on your laptop
-- 📦 **ChromaDB** stores job embeddings, resume chunks, and ATS knowledge articles
-- 🧠 **Local embeddings** via Ollama `nomic-embed-text` or Sentence Transformers fallback
-- 🤖 **CrewAI** orchestrates agents with proper context passing and tool use
+- 📦 **ChromaDB** (embedded, on-disk) stores job embeddings, resume chunks, and ATS knowledge articles
+- 🧠 **Local embeddings** via Sentence Transformers (`BAAI/bge-small-en-v1.5`)
+- 🤖 **Framework-free agents** — plain Python orchestration (`app/pipeline/pipeline.py`), no heavy agent framework, with skill prompts in markdown (`app/agents/skills/`)
+- 🖥️ **Auto hardware detection** picks the best Ollama model for your CPU/GPU
+- 🔁 **Multi-pass reranker** (1–3 passes) sorts results by relevance
 - ✅ **Agent validation** prevents hallucination by grounding outputs in actual job data
 - 📧 **APScheduler** drives weekly Mon–Fri 8 AM pipelines with SMTP email summaries
 - 🐳 **Docker Compose** bundles ChromaDB + Ollama + Flask in a single command
@@ -107,8 +159,8 @@ This application has been thoroughly tested, secured, and documented:
 
 ### 1 — Clone and configure
 ```bash
-git clone https://github.com/pwdevens/job-search-ai.git
-cd job-search-ai
+git clone https://github.com/PWDevens/job-search-ai-agent.git
+cd job-search-ai-agent
 cp .env.example .env
 # Edit .env if you want email summaries (add SMTP_USER / SMTP_PASS)
 # Everything else works out of the box
@@ -145,7 +197,7 @@ The first time you start Docker, the system will automatically download the LLM 
 docker compose exec ollama ollama pull phi4-mini
 ```
 
-> **Model sizes:** `phi4-mini` = ~2.5 GB (recommended) · `llama3` = ~4.7 GB (better quality)
+> **Which model?** The app auto-detects your hardware and picks for you — see [How the app picks your AI model](#-how-the-app-picks-your-ai-model). On a CPU-only machine, `phi4-mini` (above) is all you need. With a GPU, also pull the matching model: `phi4` (mid GPU) or `gemma4:27b` (large GPU).
 
 **Alternative:** If you already have Ollama models, add to `.env`:
 ```bash
@@ -208,32 +260,25 @@ docker compose up -d
 
 ### Setup
 ```bash
-git clone https://github.com/pwdevens/job-search-ai.git
-cd job-search-ai
+git clone https://github.com/PWDevens/job-search-ai-agent.git
+cd job-search-ai-agent
 
 python -m venv .venv
 source .venv/bin/activate        # Windows: .venv\Scripts\activate
 pip install -r requirements.txt
 
 cp .env.example .env
-# Edit .env: set CHROMA_HOST=localhost, OLLAMA_BASE_URL=http://localhost:11434
+# Edit .env: set OLLAMA_BASE_URL=http://localhost:11434
 ```
 
-### Start ChromaDB locally
-```bash
-# Install ChromaDB CLI
-pip install chromadb
-
-# Start persistent server
-chroma run --path ./chroma_data --port 8000
-```
+> **No ChromaDB server needed.** The app uses ChromaDB in *embedded* mode — it reads/writes a folder on disk (`data/chroma/`) automatically. Nothing to start.
 
 ### Start Ollama and pull models
 ```bash
 # Install Ollama: https://ollama.com/download
 ollama serve                          # starts Ollama server (background)
-ollama pull phi4-mini                 # ~2.5 GB download
-ollama pull nomic-embed-text          # ~0.3 GB download
+ollama pull phi4-mini                 # ~2.5 GB; the app auto-selects this on CPU
+# Embeddings run locally via Sentence Transformers — no embedding model to pull.
 ```
 
 ### Run the Flask app
@@ -275,27 +320,63 @@ All settings live in `.env`. Key options:
 
 | Variable | Default | Description |
 |----------|---------|-------------|
-| `LLM_BACKEND` | `phi4_mini` | `phi4_mini` · `llama3` · `mistral` · `tinyllama` · `mock` |
-| `EMBED_BACKEND` | `ollama` | `ollama` (nomic-embed-text) or `sentence_transformers` |
+| `HARDWARE_TIER` | _(auto-detected)_ | Force a tier: `cpu` · `gpu_avg` · `gpu_modern`. Leave unset to auto-detect. |
+| `AGENT_MODEL` | _(from tier)_ | Exact Ollama model to use. Overrides tier selection. |
+| `RERANK_PASSES` | `2` | Reranker iterations: `1` (fast) · `2` (balanced) · `3` (best quality) |
+| `RERANK_MODEL` | `ms-marco-MiniLM-L-12-v2` | Reranker model; set `none` to disable reranking |
 | `TOP_JOBS` | `25` | Number of job matches to return |
 | `TOP_RESUME_RECS` | `10` | Number of resume recommendations |
 | `TOP_BLIND_SPOTS` | `5` | Number of blind spots to identify |
-| `CHROMA_TIMEOUT` | `10` | Connection timeout in seconds (prevents hangs) |
 | `UPLOAD_RETENTION_HOURS` | `24` | Auto-cleanup interval for upload files |
 | `SCHEDULER_CRON` | `0 8 * * 1-5` | Cron schedule (default: Mon–Fri 8 AM) |
 | `SCHEDULER_TZ` | `America/New_York` | Timezone for scheduled runs |
 | `EMAIL_TO` | `p.w.devens@gmail.com` | Weekly summary recipient |
 | `SECRET_KEY` | (random) | Flask session key (auto-generated if not set) |
 
-### LLM options by machine spec
+---
 
-| Machine | Recommended LLM | RAM Usage | Notes |
-|---------|----------------|-----------|-------|
-| <4 GB RAM | `tinyllama` or `llama3.2:1b` | ~2 GB | Demo quality only; use RAG heavily |
-| 4–6 GB RAM | `phi4_mini` | ~3.5 GB | ✅ Best choice for constrained machines |
-| 6–10 GB RAM | `llama3` | ~6 GB | ✅ Recommended for quality results |
-| 10+ GB RAM | `llama3` or `mistral` | 6–8 GB | Comfortable headroom |
-| NVIDIA GPU | `llama3` (GPU) | 4–6 GB VRAM | Uncomment GPU block in docker-compose.yml |
+## 🧠 How the app picks your AI model
+
+**You don't choose a model — the app detects your hardware on startup and picks the best one automatically.** It runs `nvidia-smi` once to see if you have an NVIDIA graphics card (GPU) and how much memory it has, then selects:
+
+| Your computer | Tier | Model it uses | What to download |
+|---------------|------|---------------|------------------|
+| No GPU (most laptops) | `cpu` | **phi4-mini** (4-bit) | `ollama pull phi4-mini` |
+| GPU under 10 GB | `gpu_avg` | **phi4** 14B (4-bit) | `ollama pull phi4` |
+| GPU 10 GB or more | `gpu_modern` | **gemma4** 27B (4-bit) | `ollama pull gemma4:27b` |
+
+All models are **4-bit quantized** — a smaller, faster version that keeps almost all of the smarts while using far less memory.
+
+**Want to override it?** Set these in your `.env` file (most people never need to):
+
+```bash
+HARDWARE_TIER=gpu_avg        # force a tier: cpu | gpu_avg | gpu_modern
+AGENT_MODEL=phi4:q4_K_M      # or name an exact Ollama model (wins over tier)
+```
+
+> **Non-technical translation:** Leave it alone and it just works. The bigger your computer's graphics card, the smarter the assistant — automatically.
+
+---
+
+## 🔁 Reranking — how results get sorted by quality
+
+After the AI suggests jobs and advice, the app runs a **local reranker** (a small scoring model) one to three times to push the most relevant results to the top. This is controlled by one setting:
+
+```bash
+RERANK_PASSES=2     # 1 = fast, 2 = balanced (default), 3 = highest quality
+```
+
+- **Pass 1** — sorts the raw job matches.
+- **Pass 2** — re-sorts the shortlist using your job target *and* your resume together.
+- **Pass 3** (optional) — re-sorts your resume tips by how well they fit your actual resume.
+
+More passes = slightly slower but more accurate. The default of `2` is the sweet spot.
+
+> _Advanced/developer note:_ to test all three hardware tiers on a cloud box (without owning each GPU), the `staging` branch ships `docker-compose.staging.yml`. Force any tier with `HARDWARE_TIER`:
+> ```bash
+> HARDWARE_TIER=gpu_modern docker compose -f docker-compose.yml -f docker-compose.staging.yml up
+> ```
+> A quick no-Ollama smoke test of all tiers: `python scripts/test_hardware_profiles.py`
 
 ---
 
@@ -305,22 +386,21 @@ All settings live in `.env`. Key options:
 # Install test deps (included in requirements.txt)
 pip install pytest pytest-cov
 
-# Run all tests (no live services required)
-LLM_BACKEND=mock EMBED_BACKEND=sentence_transformers pytest tests/ -v --cov=app --cov-report=html
+# Run all tests (no live services required — external calls are mocked)
+pytest tests/ -v --cov=app --cov-report=html
 
-# Run specific test file
-pytest tests/test_ingest.py -v
-pytest tests/test_matcher.py -v
-pytest tests/test_crew.py -v
-pytest tests/test_audit.py -v
+# Run specific test files
+pytest tests/test_config_and_base.py -v   # hardware tier + model selection + config
+pytest tests/test_merge_fix.py -v          # job merge logic
+pytest tests/test_run_agent.py -v          # end-to-end mock pipeline
+
+# Try the whole pipeline end-to-end with no Ollama or GPU:
+python run_agent.py --role "Data Engineer" --resume data/demo/demo_resume.txt --mock
 ```
 
-**Test Coverage:**
-- 104+ test cases across 8 modules
-- 80%+ code coverage
-- All critical paths tested
-- Tests mock all external services (safe to run in CI)
-- Tests pass in <5 minutes
+**Test notes:**
+- Tests mock all external services (safe to run in CI).
+- On Windows, some `tmp_path`-based tests may error under certain pytest-asyncio versions — this is an environment/plugin issue, not the app.
 
 ### GitHub Actions CI (`.github/workflows/test.yml`)
 ```yaml
@@ -335,10 +415,6 @@ jobs:
         with: { python-version: "3.11" }
       - run: pip install -r requirements.txt
       - run: pytest tests/ -v --cov=app
-        env:
-          LLM_BACKEND: mock
-          EMBED_BACKEND: sentence_transformers
-          CHROMA_HOST: localhost
 ```
 
 ---
@@ -370,14 +446,13 @@ This app uses three layers to compensate for small model limitations:
 ## 📁 Project Structure
 
 ```
-job-search-ai/
-├── INDEX.md                     # Documentation navigation
-├── COMPLETION_SUMMARY.md        # Full project completion report
-├── DEPLOYMENT_CHECKLIST.md      # Step-by-step deployment verification
-├── DEPLOYMENT_REPORT.md         # Deployment verification results
-├── TESTING_GUIDE.md             # Testing and debugging guide
-├── IMPROVEMENTS.md              # Improvement roadmap (Priority 1-4)
-├── PHASE_1_REVIEW.md            # Architecture and design decisions
+job-search-ai-agent/
+├── README.md                    # This file
+├── STATUS.md                    # Current project status
+├── docs/                        # Guides (deployment, testing, fine-tuning)
+│   ├── SLM_FINETUNING_GUIDE.md
+│   ├── deployment/              # Checklist, report, status, verification
+│   └── development/             # testing-guide.md, improvements.md
 │
 ├── app/
 │   ├── __init__.py              # Flask app factory
@@ -385,20 +460,27 @@ job-search-ai/
 │   ├── routes.py                # Flask routes (5 endpoints)
 │   ├── validation.py            # Input validation + rate limiting
 │   ├── scheduler.py             # APScheduler weekly pipeline
+│   ├── hardware.py              # Hardware-tier detection → model selection
 │   ├── agents/
-│   │   ├── crew.py              # CrewAI orchestration (3 agents)
-│   │   ├── tools.py             # Custom CrewAI tools
-│   │   ├── llm_provider.py      # Ollama/LLM abstraction
-│   │   └── rag_knowledge.py     # ATS knowledge base (11 articles)
-│   ├── chroma/
-│   │   ├── client.py            # ChromaDB client (timeout + retry)
-│   │   └── embeddings.py        # Local embedding (Ollama / ST)
+│   │   ├── base.py              # chat() + load_skill() + context helpers
+│   │   ├── agent_job_matcher.py        # Job-matching agent
+│   │   ├── agent_resume_coach.py        # Resume-advice agent
+│   │   ├── agent_career_strategist.py   # Blind-spot / strategy agent
+│   │   ├── grounding.py         # Citation grounding checks
+│   │   ├── models.py            # Pydantic output schemas
+│   │   ├── rag_knowledge.py     # ATS knowledge base (11 articles)
+│   │   └── skills/              # Agent prompts as markdown (.md)
+│   ├── retrieval/
+│   │   ├── client.py            # ChromaDB embedded client
+│   │   ├── embeddings.py        # Local Sentence Transformers embedding
+│   │   └── rerank.py            # FlashRank cross-encoder reranker
 │   ├── email/
 │   │   └── sender.py            # SMTP email (HTML + XLSX)
 │   ├── pipeline/
+│   │   ├── pipeline.py          # Orchestrator (3 agents + reranker passes)
 │   │   ├── ingest.py            # Job/resume ingestion
 │   │   ├── matcher.py           # Semantic search (optimized)
-│   │   ├── geolocation.py       # Location normalization (NEW)
+│   │   ├── geolocation.py       # Location normalization
 │   │   ├── audit.py             # SQLite audit logging
 │   │   ├── excel_writer.py      # Output XLSX generation
 │   │   └── normalizer.py        # CSV header normalization
@@ -416,7 +498,9 @@ job-search-ai/
 │   ├── conftest.py              # Shared fixtures
 │   ├── test_ingest.py           # Ingestion tests (27 cases)
 │   ├── test_matcher.py          # Matching tests (18 cases)
-│   ├── test_crew.py             # Agent tests (25+ cases)
+│   ├── test_config_and_base.py # Hardware tier + config + base tests
+│   ├── test_merge_fix.py        # Job merge logic tests
+│   ├── test_run_agent.py        # End-to-end mock pipeline tests
 │   ├── test_audit.py            # Audit logging tests (16+ cases)
 │   ├── test_email.py            # Email tests (20+ cases)
 │   ├── test_excel_writer.py     # Excel writer tests (10 cases)
@@ -461,7 +545,7 @@ All implemented and verified:
 
 ## 🛠️ Troubleshooting
 
-**For detailed troubleshooting:** See [TESTING_GUIDE.md](TESTING_GUIDE.md)
+**For detailed troubleshooting:** See [the Testing & Debugging guide](docs/development/testing-guide.md)
 
 ### "ChromaDB connection refused"
 ```bash
@@ -487,22 +571,21 @@ ollama pull phi4-mini
 python scripts/ingest_jobs.py data/demo/demo_jobs.csv
 # Check collection count
 python -c "
-import os; os.environ['CHROMA_HOST']='localhost'
-from app.chroma.client import jobs_collection
-print('Jobs in DB:', jobs_collection().count())
+from app.retrieval.client import get_or_create_collection
+print('Jobs in DB:', get_or_create_collection('jobs').count())
 "
 ```
 
 ### "PDF extraction failed"
-The app supports PDF, TXT, and DOCX. For scanned PDFs without OCR, convert to searchable PDF first or use TXT instead. See [TESTING_GUIDE.md](TESTING_GUIDE.md) for detailed PDF debugging.
+The app supports PDF, TXT, and DOCX. For scanned PDFs without OCR, convert to searchable PDF first or use TXT instead. See [the Testing & Debugging guide](docs/development/testing-guide.md) for detailed PDF debugging.
 
 ### "Agent validation failed" (using fallback results)
-This is normal — when agent outputs don't match actual job data, the app falls back to matcher results. See [IMPROVEMENTS.md](IMPROVEMENTS.md) for how to improve validation in the future.
+This is normal — when agent outputs don't match actual job data, the app falls back to matcher results. See [the Improvements roadmap](docs/development/improvements.md) for how to improve validation in the future.
 
 ### Slow performance on CPU
-- Switch to a smaller model: set `LLM_BACKEND=llama3_1b` or `LLM_BACKEND=tinyllama` in `.env`
-- Switch to ST embeddings: set `EMBED_BACKEND=sentence_transformers` (faster on CPU)
-- Reduce `TOP_JOBS=10` to cut search time
+- On CPU the app already uses the lightweight `phi4-mini` automatically — this is expected to take ~10–20s per search.
+- Speed it up: set `RERANK_PASSES=1` in `.env` (fewer reranker passes), and/or reduce `TOP_JOBS=10` to cut search time.
+- For real speed, run on a machine with an NVIDIA GPU — the app detects it and uses a stronger model automatically.
 
 ### Email not sending
 - Verify `SMTP_USER` and `SMTP_PASS` are set in `.env`
@@ -543,7 +626,7 @@ This is an open-source tool built for job seekers. Contributions welcome:
 - **Tests** for the agents layer (requires mock LLM integration)
 - **Performance optimizations** (vector search, caching, etc.)
 
-See [IMPROVEMENTS.md](IMPROVEMENTS.md) for a prioritized roadmap.
+See [the Improvements roadmap](docs/development/improvements.md) for a prioritized roadmap.
 
 Please open an issue before submitting large PRs.
 
@@ -559,11 +642,11 @@ MIT License — free to use, modify, and distribute. See [LICENSE](LICENSE).
 
 | Tool | Purpose | License |
 |------|---------|---------|
-| [CrewAI](https://crewai.com) | Multi-agent orchestration | MIT |
-| [ChromaDB](https://trychroma.com) | Local vector database | Apache 2.0 |
+| [ChromaDB](https://trychroma.com) | Local vector database (embedded) | Apache 2.0 |
 | [Ollama](https://ollama.com) | Local LLM server | MIT |
-| [Phi-4-mini](https://huggingface.co/microsoft/Phi-4-mini-instruct) | Default SLM | MIT |
-| [Sentence Transformers](https://sbert.net) | CPU embedding fallback | Apache 2.0 |
+| [Phi-4 family / Gemma](https://ollama.com/library) | Hardware-tiered SLMs | MIT |
+| [FlashRank](https://github.com/PrithivirajDamodaran/FlashRank) | Local cross-encoder reranker | Apache 2.0 |
+| [Sentence Transformers](https://sbert.net) | Local CPU embeddings | Apache 2.0 |
 | [Flask](https://flask.palletsprojects.com) | Web framework | BSD |
 | [APScheduler](https://apscheduler.readthedocs.io) | Weekly scheduler | MIT |
 | [Bootstrap 5](https://getbootstrap.com) | UI framework | MIT |
@@ -573,16 +656,14 @@ MIT License — free to use, modify, and distribute. See [LICENSE](LICENSE).
 ## 📚 Documentation
 
 **Quick Links:**
-- 🚀 [Getting Started](INDEX.md) — Project overview and navigation
-- ✅ [Deployment Checklist](DEPLOYMENT_CHECKLIST.md) — Pre-deployment verification
-- 📋 [Deployment Report](DEPLOYMENT_REPORT.md) — Verification results
-- 🧪 [Testing & Debugging](TESTING_GUIDE.md) — How to test locally
-- 📈 [Improvements Roadmap](IMPROVEMENTS.md) — Future features (Priority 1-4)
-- 📊 [Completion Summary](COMPLETION_SUMMARY.md) — Full project report
+- 🧪 [Testing & Debugging](docs/development/testing-guide.md) — How to test locally
+- 📈 [Improvements Roadmap](docs/development/improvements.md) — Future features
+- 🚀 [Deployment Checklist](docs/deployment/01-checklist.md) — Pre-deployment verification
+- 🧠 [SLM Fine-Tuning Guide](docs/SLM_FINETUNING_GUIDE.md) — QLoRA walkthrough
 
 ---
 
-*Built by [Patrick Devens](https://github.com/pwdevens) · Washington, DC · 2026*  
+*Built by [Patrick Devens](https://github.com/PWDevens) · Washington, DC · 2026*  
 *Free tool for job seekers competing in a tough market. Star ⭐ if this helped you.*
 
 **Status:** ✅ Production-Ready · **Grade:** A · **Tests:** 104+ · **Coverage:** 80%+
