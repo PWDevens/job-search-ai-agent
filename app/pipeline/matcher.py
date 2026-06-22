@@ -138,19 +138,71 @@ def find_blind_spots(
 # Private helpers
 # ─────────────────────────────────────────────────────────────────────────────
 
-_SKILL_KEYWORDS = [
-    "python", "sql", "excel", "tableau", "power bi", "machine learning",
-    "deep learning", "pytorch", "tensorflow", "nlp", "llm", "langchain",
-    "crewai", "docker", "kubernetes", "aws", "azure", "gcp", "spark",
-    "airflow", "dbt", "git", "agile", "scrum", "product management",
-    "data engineering", "etl", "ci/cd", "fastapi", "flask", "react",
-    "typescript", "javascript", "rust", "go", "java", "scala",
-    "communication", "leadership", "stakeholder", "cross-functional",
-    "a/b testing", "experiment", "analytics", "statistics", "r", "sas",
-    "vector database", "chromadb", "rag", "fine-tuning", "llmops",
-    "huggingface", "peft", "lora", "mlflow", "ray", "seldon",
-    "terraform", "snowflake", "databricks", "kafka", "redis",
-]
+# Skills grouped by field so blind-spot detection works across ALL occupations,
+# not just data/tech. Add a row to extend a field; the flat list below is derived.
+# (Used only by find_blind_spots' fallback term extraction.)
+SKILLS_BY_FIELD = {
+    "data_tech": [
+        "python", "sql", "excel", "tableau", "power bi", "machine learning",
+        "deep learning", "pytorch", "tensorflow", "nlp", "docker", "kubernetes",
+        "aws", "azure", "gcp", "spark", "airflow", "etl", "ci/cd", "git",
+        "javascript", "java", "snowflake", "databricks", "statistics", "r", "sas",
+        "data analysis", "rag", "fine-tuning",
+    ],
+    "healthcare": [
+        "patient care", "acls", "bls", "pals", "cpr", "ehr", "epic", "cerner",
+        "triage", "iv insertion", "phlebotomy", "hipaa", "medication administration",
+        "clinical documentation", "patient assessment", "infection control",
+    ],
+    "education": [
+        "lesson planning", "classroom management", "curriculum", "curriculum design",
+        "iep", "differentiated instruction", "assessment", "pedagogy",
+        "student engagement", "instructional design", "standards alignment",
+    ],
+    "skilled_trades": [
+        "nec code", "conduit", "blueprint reading", "troubleshooting", "plc",
+        "motor controls", "osha", "wiring", "preventive maintenance",
+        "electrical installation", "hand tools", "schematics",
+    ],
+    "finance_accounting": [
+        "gaap", "reconciliation", "financial reporting", "auditing", "accounts payable",
+        "accounts receivable", "budgeting", "variance analysis", "cpa", "erp", "sap",
+        "quickbooks", "general ledger", "cost accounting", "internal controls",
+    ],
+    "sales": [
+        "crm", "salesforce", "prospecting", "pipeline management", "negotiation",
+        "account management", "quota", "lead generation", "cold calling",
+        "business development", "forecasting", "solution selling",
+    ],
+    "hr": [
+        "recruiting", "sourcing", "onboarding", "employee relations", "hris", "workday",
+        "benefits administration", "talent acquisition", "performance management",
+        "compensation", "compliance", "ats",
+    ],
+    "operations": [
+        "supply chain", "logistics", "inventory management", "lean", "six sigma",
+        "process improvement", "procurement", "scheduling", "kpis",
+        "warehouse management", "demand planning", "vendor management",
+    ],
+    "design": [
+        "figma", "sketch", "adobe", "photoshop", "illustrator", "user research",
+        "wireframing", "prototyping", "ux", "ui", "design systems", "typography",
+        "interaction design", "usability testing",
+    ],
+    "writing_comms": [
+        "technical writing", "documentation", "editing", "content strategy", "markdown",
+        "dita", "api documentation", "information architecture", "copywriting",
+        "proposal writing", "content design",
+    ],
+    "general_soft": [
+        "communication", "leadership", "stakeholder", "cross-functional",
+        "project management", "teamwork", "problem solving", "mentoring",
+        "collaboration", "time management", "agile", "scrum",
+    ],
+}
+
+# Flattened, deduped keyword list used to build the extraction regex.
+_SKILL_KEYWORDS = sorted({kw for kws in SKILLS_BY_FIELD.values() for kw in kws})
 
 # Compile regex once (not per call) for O(1) lookup instead of O(n*m)
 # Word boundaries (\b) prevent partial matches (e.g., "scala" in "scaler")
