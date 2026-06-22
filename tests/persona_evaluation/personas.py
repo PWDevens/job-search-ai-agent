@@ -463,6 +463,24 @@ TECHNICAL_WRITER = Persona(
 ALL_PERSONAS = [NURSE, TEACHER, CONSULTANT, ENGINEER, DESIGNER, ACCOUNTANT, SALES_MANAGER, ELECTRICIAN, HR_MANAGER, OPERATIONS_MANAGER, TECHNICAL_WRITER]
 
 
+# Stay-in-field queries: each persona searches its OWN profession (not pivoting to
+# analytics). Used by the staying-in-field eval (#3/#4) against the stay-in-field
+# job market. Geo intentionally None = nationwide demand for the role.
+STAY_IN_FIELD_QUERIES = {
+    "Nurse":              "Registered nurse with ICU and critical care experience seeking RN or charge nurse role",
+    "Teacher":            "High school mathematics teacher seeking classroom teaching or curriculum developer role",
+    "Consultant":         "Management consultant with strategy and operations experience seeking consulting or strategy manager role",
+    "Civil Engineer":     "Licensed civil engineer with infrastructure and structural design experience seeking civil engineering role",
+    "Digital Designer":   "Product and UX designer with user research and Figma experience seeking UX or product design role",
+    "Accountant":         "CPA with accounting and financial reporting experience seeking senior accountant or controller role",
+    "Sales Manager":      "Sales leader with enterprise account and team management experience seeking sales manager or director role",
+    "Electrician":        "Journeyman electrician with commercial and industrial experience seeking electrician or electrical supervisor role",
+    "HR Manager":         "HR professional with employee relations and talent experience seeking HR generalist or manager role",
+    "Operations Manager": "Operations leader with supply chain and process improvement experience seeking operations manager role",
+    "Technical Writer":   "Technical writer with software documentation experience seeking technical writing or documentation role",
+}
+
+
 def get_persona_by_name(name: str) -> Persona:
     """Get a persona by name"""
     for persona in ALL_PERSONAS:

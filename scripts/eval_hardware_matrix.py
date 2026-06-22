@@ -25,7 +25,7 @@ sys.path.insert(0, str(ROOT))
 import app.config as cfg
 from app.pipeline.pipeline import run, SearchRequest
 import app.agents.base as base
-from tests.persona_evaluation.personas import ALL_PERSONAS
+from tests.persona_evaluation.personas import ALL_PERSONAS, STAY_IN_FIELD_QUERIES
 from tests.persona_evaluation.evaluation_scoring import ResultEvaluator
 from tests.persona_evaluation.metrics_collector import SearchMetrics
 
@@ -64,13 +64,21 @@ def _read_resume(path):
     return p.read_text(errors="replace") if (p and p.exists()) else None
 
 
-def build_rows(smoke: bool):
-    """(persona_obj_or_demo, dataset, role, geo, resume_text) tuples."""
+def build_rows(smoke: bool, variant: str = "switching"):
+    """(persona_obj_or_demo, dataset, role, geo, resume_text) tuples.
+
+    variant="switching"  -> persona pivots to analytics (existing variant[0])
+    variant="stayinfield"-> persona searches its own profession (geo=None, nationwide)
+    """
     rows = []
     personas = ALL_PERSONAS[:3] if smoke else ALL_PERSONAS
     for p in personas:
-        v = p.search_variants[0]
-        rows.append((p, "synthetic", v.role_description, v.geo_preference, _read_resume(p.resume_path)))
+        if variant == "stayinfield":
+            role, geo = STAY_IN_FIELD_QUERIES[p.name], None
+        else:
+            v = p.search_variants[0]
+            role, geo = v.role_description, v.geo_preference
+        rows.append((p, "synthetic", role, geo, _read_resume(p.resume_path)))
     # demo row (uses the demo resume + demo jobs ingested into the same collection)
     rows.append((
         _DemoPersona(), "demo",
@@ -156,11 +164,15 @@ def main():
     ap.add_argument("--scenarios", default="1,2,3,4,5", help="comma list of scenario ids")
     ap.add_argument("--smoke", action="store_true", help="3 personas + demo, scenario 5 only")
     ap.add_argument("--phi4-8gb-layers", type=int, default=30, help="GPU layers for the simulated-8GB phi4 run")
+    ap.add_argument("--variant", choices=["switching", "stayinfield"], default="switching",
+                    help="persona query set: switching->analytics (default) or stayinfield")
+    ap.add_argument("--temp", type=float, default=0.0,
+                    help="Ollama temperature: 0.0 greedy (synthetic baselines) | 0.2 reg (Adzuna)")
     args = ap.parse_args()
     LABEL = args.label
 
-    # Global determinism + endpoint (base.chat reads cfg dynamically).
-    cfg.OLLAMA_TEMPERATURE = 0.0
+    # Endpoint + temperature (base.chat reads cfg dynamically).
+    cfg.OLLAMA_TEMPERATURE = args.temp
     cfg.OLLAMA_BASE_URL = args.ollama_url
 
     all_scn = scenarios(args.phi4_8gb_layers)
@@ -168,13 +180,13 @@ def main():
     if args.scenarios and not args.smoke:
         want = {int(x) for x in args.scenarios.split(",")}
     scns = [s for s in all_scn if s["id"] in want]
-    rows_spec = build_rows(args.smoke)
+    rows_spec = build_rows(args.smoke, args.variant)
 
     out = ROOT / "reports" / f"hardware_eval_matrix_{LABEL}.csv"
     out.parent.mkdir(parents=True, exist_ok=True)
     total = len(scns) * len(rows_spec)
     print(f"Matrix: {len(scns)} scenario(s) x {len(rows_spec)} rows = {total} runs -> {out}")
-    print(f"Ollama: {cfg.OLLAMA_BASE_URL} | greedy temp={cfg.OLLAMA_TEMPERATURE}\n")
+    print(f"Ollama: {cfg.OLLAMA_BASE_URL} | temp={cfg.OLLAMA_TEMPERATURE} | variant={args.variant}\n")
 
     with open(out, "w", newline="") as f:
         w = csv.DictWriter(f, fieldnames=CSV_FIELDS)
