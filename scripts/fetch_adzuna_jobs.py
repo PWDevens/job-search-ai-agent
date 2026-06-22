@@ -24,10 +24,17 @@ DEMO = ("Data Engineer", "Washington DC")  # demo persona market
 
 
 def _query_for(persona):
-    """Short role term for the Adzuna 'what' param + the persona's geo."""
+    """Short role term for the Adzuna 'what' param + the persona's geo.
+
+    Adzuna's 'where' expects a real place — "Remote" (or blank) returns nothing,
+    so map those to a nationwide search, which is what "general market demand"
+    for the role actually means.
+    """
     what = (persona.target_job_titles[0] if getattr(persona, "target_job_titles", None)
             else persona.search_variants[0].role_description)
     where = persona.search_variants[0].geo_preference
+    if not where or where.strip().lower() == "remote":
+        where = None
     return what, where
 
 
