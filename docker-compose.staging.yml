@@ -1,0 +1,32 @@
+# Staging override — hardware-tier simulation for cloud testing.
+#
+# HARDWARE_TIER forces the tier regardless of the host's actual GPU, so a cloud
+# box can mimic any of the three target configs. AGENT_MODEL (optional) overrides
+# the tier→model lookup directly.
+#
+# Usage:
+#   HARDWARE_TIER=cpu        docker compose -f docker-compose.yml -f docker-compose.staging.yml up
+#   HARDWARE_TIER=gpu_avg    docker compose -f docker-compose.yml -f docker-compose.staging.yml up
+#   HARDWARE_TIER=gpu_modern docker compose -f docker-compose.yml -f docker-compose.staging.yml up
+#
+# For a real GPU box, uncomment the ollama deploy block below.
+
+services:
+  app:
+    environment:
+      - HARDWARE_TIER=${HARDWARE_TIER:-cpu}
+      - AGENT_MODEL=${AGENT_MODEL:-}
+      - RERANK_PASSES=${RERANK_PASSES:-2}
+
+  ollama:
+    environment:
+      - OLLAMA_NUM_PARALLEL=1
+      - OLLAMA_MAX_LOADED_MODELS=1
+    # Uncomment on a GPU host (needs nvidia-container-toolkit):
+    # deploy:
+    #   resources:
+    #     reservations:
+    #       devices:
+    #         - driver: nvidia
+    #           count: 1
+    #           capabilities: [gpu]

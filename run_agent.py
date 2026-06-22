@@ -20,7 +20,7 @@ sys.path.insert(0, str(ROOT))
 
 from app.agents.models import (JobMatchList, JobMatch, ResumeRecList, ResumeRec,
                                CareerStrategy, BlindSpot, StrategyRec)
-from app.agents.pipeline import run, SearchRequest
+from app.pipeline.pipeline import run, SearchRequest
 from tests.persona_evaluation.personas import ALL_PERSONAS, get_persona_by_name
 from tests.persona_evaluation.evaluation_scoring import ResultEvaluator
 
@@ -101,9 +101,9 @@ class _AdHocPersona:
 @contextmanager
 def mock_patches():
     with ExitStack() as stack:
-        stack.enter_context(patch("app.agents.pipeline.find_top_jobs", side_effect=_mock_find_top_jobs))
-        stack.enter_context(patch("app.agents.pipeline.find_resume_recommendations", side_effect=_mock_find_top_jobs))
-        stack.enter_context(patch("app.agents.pipeline.find_blind_spots", return_value=["Python","SQL","Cloud","Tableau","ML"]))
+        stack.enter_context(patch("app.pipeline.pipeline.find_top_jobs", side_effect=_mock_find_top_jobs))
+        stack.enter_context(patch("app.pipeline.pipeline.find_resume_recommendations", side_effect=_mock_find_top_jobs))
+        stack.enter_context(patch("app.pipeline.pipeline.find_blind_spots", return_value=["Python","SQL","Cloud","Tableau","ML"]))
         stack.enter_context(patch("app.agents.agent_job_matcher.chat", side_effect=_mock_chat))
         stack.enter_context(patch("app.agents.agent_resume_coach.chat", side_effect=_mock_chat))
         stack.enter_context(patch("app.agents.agent_career_strategist.chat", side_effect=_mock_chat))

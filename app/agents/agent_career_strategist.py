@@ -3,73 +3,40 @@ Career Strategist Agent: blind spot identification and career strategy.
 Enhanced with ATS knowledge from RAG.
 """
 import logging
-from app.agents.base import load_skill, chat
+from app.agents.base import load_skill, chat, fmt_resume, fmt_jobs
 from app.agents.models import CareerStrategy
 from app.agents.rag_knowledge import query_ats_knowledge
-from app.config import TOP_BLIND_SPOTS
+from app.config import TOP_BLIND_SPOTS, RESUME_MID_CHARS
 
 logger = logging.getLogger(__name__)
 
 
 def run(role_description: str, resume_text: str, matched_jobs: list[dict],
         resume_recs: list[str], n_blind: int = TOP_BLIND_SPOTS, extra_context: str | None = None) -> CareerStrategy:
-    """Identify blind spots and generate career strategy.
-
-    Args:
-        role_description: target role/title
-        resume_text: candidate resume
-        matched_jobs: final top_jobs dicts as grounding
-        resume_recs: rendered resume recommendations (list[str])
-        n_blind: number of blind spots to identify
-        extra_context: optional corrective context for re-asks
-
-    Returns:
-        CareerStrategy with blind_spots and strategy recommendations
-    """
-    # Truncate resume
-    resume_snippet = resume_text[:1500] if resume_text else "(no resume)"
-
-    # Retrieve ATS knowledge
+    """Identify blind spots and generate career strategy."""
     try:
         ats_knowledge = query_ats_knowledge(role_description, n=4)
-        ats_block = f"ATS/Applicant Tracking System best practices for {role_description}:\n{ats_knowledge}"
+        ats_block = f"ATS best practices for {role_description}:\n{ats_knowledge}"
     except Exception as e:
-        logger.warning(f"Failed to retrieve ATS knowledge: {e}")
+        logger.warning("Failed to retrieve ATS knowledge: %s", e)
         ats_block = "(ATS knowledge unavailable)"
 
-    # Build matched jobs context
-    jobs_context_lines = []
-    for i, job in enumerate(matched_jobs[:8], 1):
-        title = job.get("title", "N/A")
-        company = job.get("company", "N/A")
-        jobs_context_lines.append(f"{i}. {title} at {company}")
-
-    jobs_context_block = "Target opportunities:\n" + "\n".join(jobs_context_lines)
-
-    # Build resume recs summary
+    jobs_block  = "Target opportunities:\n" + fmt_jobs(matched_jobs, max_count=8)
     recs_summary = "\n".join(resume_recs[:5]) if resume_recs else "(no resume recs)"
 
-    # Build user message
-    user_message = f"""Candidate Profile:
-Role: {role_description}
-Resume: {resume_snippet}
-
-{jobs_context_block}
-
-Resume improvements identified:
-{recs_summary}
-
-{ats_block}
-
-Please identify {n_blind} critical blind spots (skill gaps, missing experience, ATS/process blindspots) that limit this candidate's competitiveness.
-For each, include: skill name, why it matters (cite 2-3 target roles), remediation path, time-to-proficiency, and priority.
-Then provide 3-4 strategic recommendations with evidence and concrete actions."""
-
-    # Append extra context if provided (re-ask with corrective grounding)
+    user_message = (
+        f"Candidate Profile:\nRole: {role_description}\n"
+        f"Resume: {fmt_resume(resume_text, RESUME_MID_CHARS)}\n\n"
+        f"{jobs_block}\n\n"
+        f"Resume improvements identified:\n{recs_summary}\n\n"
+        f"{ats_block}\n\n"
+        f"Please identify {n_blind} critical blind spots (skill gaps, missing experience, ATS blindspots) "
+        f"that limit this candidate's competitiveness.\n"
+        f"For each: skill name, why it matters (cite 2-3 target roles), remediation path, "
+        f"time-to-proficiency, and priority.\n"
+        f"Then provide 3-4 strategic recommendations with evidence and concrete actions."
+    )
     if extra_context:
         user_message += f"\n\n{extra_context}"
 
-    # Load skill and call agent
-    system_prompt = load_skill("career_strategist")
-
-    return chat(system_prompt, user_message, CareerStrategy)
+    return chat(load_skill("career_strategist"), user_message, CareerStrategy)

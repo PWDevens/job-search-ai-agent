@@ -7,11 +7,43 @@ import logging
 from pathlib import Path
 import httpx
 from pydantic import BaseModel, ValidationError
-from app.config import OLLAMA_BASE_URL, AGENT_MODEL
+from app.config import OLLAMA_BASE_URL, AGENT_MODEL, JOB_CONTEXT_CHARS
 
 logger = logging.getLogger(__name__)
 
 SKILLS = Path(__file__).parent / "skills"
+
+
+def fmt_resume(text: str | None, chars: int) -> str:
+    """Truncate resume to `chars`; returns '(no resume)' if empty."""
+    return text[:chars] if text else "(no resume)"
+
+
+def fmt_jobs(jobs: list[dict], max_count: int = 10, detail: bool = False) -> str:
+    """Numbered job list for agent context. Replaces inline loops in each agent.
+
+    detail=True: includes location, salary, url, doc excerpt (job_matcher context)
+    detail=False: title + company only (resume_coach / career_strategist context)
+    """
+    lines = []
+    for i, job in enumerate(jobs[:max_count], 1):
+        title   = job.get("title",   "N/A")
+        company = job.get("company", "N/A")
+        if detail:
+            loc = job.get("location", "")
+            sal = job.get("salary",   "")
+            url = job.get("url",      "")
+            doc = job.get("document", "")[:JOB_CONTEXT_CHARS]
+            extras = (
+                (f" | {loc}" if loc else "")
+                + (f" | {sal}" if sal else "")
+                + (f" | {url}" if url else "")
+                + (f" | {doc}" if doc else "")
+            )
+            lines.append(f"{i}. {title} at {company}{extras}")
+        else:
+            lines.append(f"{i}. {title} at {company}")
+    return "\n".join(lines)
 
 
 def load_skill(name: str) -> str:

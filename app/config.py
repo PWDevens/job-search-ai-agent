@@ -12,13 +12,28 @@ CHROMA_DB_PATH     = os.getenv("CHROMA_DB_PATH", str(BASE_DIR / "data" / "chroma
 CHROMA_JOBS_COL    = os.getenv("CHROMA_JOBS_COLLECTION",   "jobs")
 CHROMA_RESUME_COL  = os.getenv("CHROMA_RESUME_COLLECTION", "resume_chunks")
 
+# ── Hardware tier + model selection ──────────────────────────────────────────
+from app import hardware as _hw
+
+HARDWARE_TIER = os.getenv("HARDWARE_TIER") or _hw.detect_tier()
+# AGENT_MODEL: env override → hardware-selected quantized model
+AGENT_MODEL   = os.getenv("AGENT_MODEL")   or _hw.select_model(HARDWARE_TIER)
+
 # ── Local LLM (Ollama) ────────────────────────────────────────────────────────
 OLLAMA_BASE_URL   = os.getenv("OLLAMA_BASE_URL",  "http://localhost:11434")
 OLLAMA_MODEL      = os.getenv("OLLAMA_MODEL",     "qwen2.5:3b")
-AGENT_MODEL       = os.getenv("AGENT_MODEL",      "phi4-mini")   # agents default to phi4-mini; override via env
 
 # ── Embedding (single backend: sentence-transformers) ─────────────────────────
 EMBED_MODEL       = os.getenv("EMBED_MODEL", "BAAI/bge-small-en-v1.5")
+
+# ── Reranker passes (1 = retrieval only; 2 = +role+resume; 3 = +resume recs) ─
+RERANK_PASSES = int(os.getenv("RERANK_PASSES", "2"))
+
+# ── Context window sizes (chars) — tunable per hardware/model capacity ────────
+RESUME_SNIPPET_CHARS = int(os.getenv("RESUME_SNIPPET_CHARS", "600"))
+RESUME_MID_CHARS     = int(os.getenv("RESUME_MID_CHARS",     "1500"))
+RESUME_FULL_CHARS    = int(os.getenv("RESUME_FULL_CHARS",    "3000"))
+JOB_CONTEXT_CHARS    = int(os.getenv("JOB_CONTEXT_CHARS",    "400"))
 
 # ── Pipeline output ───────────────────────────────────────────────────────────
 PIPELINE_XLSX     = os.getenv("PIPELINE_XLSX", str(BASE_DIR / "data" / "job_pipeline.xlsx"))

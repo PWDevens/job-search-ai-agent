@@ -88,7 +88,7 @@ def _run_pipeline() -> None:
 
     # Run pipeline
     try:
-        from app.agents.pipeline import SearchRequest, run
+        from app.pipeline.pipeline import SearchRequest, run
         req    = SearchRequest(
             role_description=role_description,
             geo_preference=geo_preference,

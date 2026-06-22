@@ -1,10 +1,12 @@
 """
-Unit tests for configuration changes:
-1. app/config.py: AGENT_MODEL default changed to "phi4-mini" (not dependent on OLLAMA_MODEL)
-2. app/agents/base.py: httpx.Client timeout changed from 600.0 to 120.0
+Unit tests for configuration:
+1. app/config.py: AGENT_MODEL selected by hardware tier (env override wins)
+2. app/hardware.py: tier detection + model selection
+3. app/agents/base.py: httpx.Client timeout is 120.0
 
 Tests verify:
-- AGENT_MODEL defaults to "phi4-mini" without env override
+- HARDWARE_TIER maps to the right quantized model
+- AGENT_MODEL env override wins over tier selection
 - OLLAMA_MODEL remains independent at "qwen2.5:3b"
 - httpx.Client is initialized with 120.0 timeout in base.py
 """
@@ -16,23 +18,47 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 
+def _reload_config():
+    import importlib
+    if 'app.config' in sys.modules:
+        importlib.reload(sys.modules['app.config'])
+    import app.config
+    return app.config
+
+
+class TestHardwareTier:
+    """Test hardware tier detection and model selection."""
+
+    def test_tier_to_model_mapping(self):
+        from app.hardware import select_model
+        assert select_model("cpu") == "phi4-mini:q4_K_M"
+        assert select_model("gpu_avg") == "phi4:q4_K_M"
+        assert select_model("gpu_modern") == "gemma4:27b-q4_K_M"
+
+    def test_detect_tier_returns_valid_tier(self):
+        from app.hardware import detect_tier, MODELS
+        assert detect_tier() in MODELS
+
+    def test_cpu_tier_selects_phi4_mini(self):
+        """HARDWARE_TIER=cpu should select phi4-mini quantized model."""
+        os.environ.pop("AGENT_MODEL", None)
+        os.environ["HARDWARE_TIER"] = "cpu"
+        try:
+            assert _reload_config().AGENT_MODEL == "phi4-mini:q4_K_M"
+        finally:
+            os.environ.pop("HARDWARE_TIER", None)
+
+    def test_gpu_modern_tier_selects_gemma(self):
+        os.environ.pop("AGENT_MODEL", None)
+        os.environ["HARDWARE_TIER"] = "gpu_modern"
+        try:
+            assert _reload_config().AGENT_MODEL == "gemma4:27b-q4_K_M"
+        finally:
+            os.environ.pop("HARDWARE_TIER", None)
+
+
 class TestConfigAgentModel:
     """Test AGENT_MODEL configuration."""
-
-    def test_agent_model_defaults_to_phi4_mini(self):
-        """AGENT_MODEL should default to 'phi4-mini' when no env override."""
-        # Clear any existing env vars
-        os.environ.pop("AGENT_MODEL", None)
-        os.environ.pop("OLLAMA_MODEL", None)
-
-        # Reimport config to get fresh defaults
-        import importlib
-        if 'app.config' in sys.modules:
-            importlib.reload(sys.modules['app.config'])
-
-        from app.config import AGENT_MODEL
-
-        assert AGENT_MODEL == "phi4-mini", f"Expected 'phi4-mini', got '{AGENT_MODEL}'"
 
     def test_agent_model_respects_env_override(self):
         """AGENT_MODEL should use environment variable if set."""
@@ -64,45 +90,18 @@ class TestConfigAgentModel:
         assert OLLAMA_MODEL == "qwen2.5:3b", f"Expected 'qwen2.5:3b', got '{OLLAMA_MODEL}'"
 
     def test_agent_model_independent_of_ollama_model(self):
-        """AGENT_MODEL and OLLAMA_MODEL should be independent.
-
-        This is the key fix: previously AGENT_MODEL = os.getenv("AGENT_MODEL", OLLAMA_MODEL)
-        made it depend on OLLAMA_MODEL. Now it should default to "phi4-mini" regardless.
-        """
+        """AGENT_MODEL (tier-selected) and OLLAMA_MODEL should be independent."""
         os.environ.pop("AGENT_MODEL", None)
+        os.environ["HARDWARE_TIER"] = "cpu"
         os.environ["OLLAMA_MODEL"] = "some-other-model"
-
-        # Reimport config
-        import importlib
-        if 'app.config' in sys.modules:
-            importlib.reload(sys.modules['app.config'])
-
-        from app.config import AGENT_MODEL, OLLAMA_MODEL
-
-        assert AGENT_MODEL == "phi4-mini", "AGENT_MODEL should be phi4-mini"
-        assert OLLAMA_MODEL == "some-other-model", "OLLAMA_MODEL should be some-other-model"
-        assert AGENT_MODEL != OLLAMA_MODEL, "AGENT_MODEL and OLLAMA_MODEL should be independent"
-
-        # Clean up
-        os.environ.pop("OLLAMA_MODEL", None)
-
-    def test_config_file_has_correct_comment(self):
-        """Verify that config.py line 18 has the correct comment."""
-        from pathlib import Path
-        config_path = Path(__file__).resolve().parent.parent / "app" / "config.py"
-        config_text = config_path.read_text()
-
-        # The line should contain "agents default to phi4-mini"
-        assert 'agents default to phi4-mini' in config_text, \
-            "config.py should have comment about phi4-mini default"
-        # The line should contain AGENT_MODEL and phi4-mini default (allowing for whitespace variations)
-        assert 'AGENT_MODEL' in config_text and 'phi4-mini' in config_text, \
-            "config.py should have AGENT_MODEL with phi4-mini as default"
-        # Verify it's using os.getenv with phi4-mini
-        import re
-        agent_model_pattern = r'AGENT_MODEL\s*=\s*os\.getenv\s*\(\s*"AGENT_MODEL"\s*,\s*"phi4-mini"\s*\)'
-        assert re.search(agent_model_pattern, config_text), \
-            "config.py should have AGENT_MODEL = os.getenv(\"AGENT_MODEL\", \"phi4-mini\")"
+        try:
+            cfg = _reload_config()
+            assert cfg.AGENT_MODEL == "phi4-mini:q4_K_M", "AGENT_MODEL should follow cpu tier"
+            assert cfg.OLLAMA_MODEL == "some-other-model"
+            assert cfg.AGENT_MODEL != cfg.OLLAMA_MODEL
+        finally:
+            os.environ.pop("OLLAMA_MODEL", None)
+            os.environ.pop("HARDWARE_TIER", None)
 
 
 class TestBaseHttpxTimeout:

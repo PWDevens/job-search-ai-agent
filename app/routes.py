@@ -233,7 +233,7 @@ def search():
     merged_count = 0
 
     try:
-        from app.agents.pipeline import SearchRequest, run
+        from app.pipeline.pipeline import SearchRequest, run
         req = SearchRequest(
             role_description=role_description,
             geo_preference=geo_preference,
