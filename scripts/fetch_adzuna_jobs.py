@@ -22,14 +22,27 @@ from tests.persona_evaluation.personas import ALL_PERSONAS
 FIELDS = ["title", "company", "location", "description", "salary", "url", "date_posted", "source"]
 DEMO = ("Data Engineer", "Washington DC")  # demo persona market
 
+# Short native-field Adzuna search terms for the stay-in-field variant (the
+# eval's STAY_IN_FIELD_QUERIES are full sentences; Adzuna 'what' wants a keyword).
+STAY_TITLES = {
+    "Nurse": "Registered Nurse", "Teacher": "High School Teacher",
+    "Consultant": "Management Consultant", "Civil Engineer": "Civil Engineer",
+    "Digital Designer": "UX Designer", "Accountant": "Senior Accountant",
+    "Sales Manager": "Sales Manager", "Electrician": "Electrician",
+    "HR Manager": "HR Manager", "Operations Manager": "Operations Manager",
+    "Technical Writer": "Technical Writer",
+}
 
-def _query_for(persona):
+
+def _query_for(persona, variant="switching"):
     """Short role term for the Adzuna 'what' param + the persona's geo.
 
-    Adzuna's 'where' expects a real place — "Remote" (or blank) returns nothing,
-    so map those to a nationwide search, which is what "general market demand"
-    for the role actually means.
+    Adzuna's 'where' expects a real place — "Remote"/blank return nothing, so map
+    those to a nationwide search (= general market demand for the role).
+    stayinfield -> search the persona's OWN profession instead of the analytics pivot.
     """
+    if variant == "stayinfield":
+        return STAY_TITLES.get(persona.name, persona.name), None
     what = (persona.target_job_titles[0] if getattr(persona, "target_job_titles", None)
             else persona.search_variants[0].role_description)
     where = persona.search_variants[0].geo_preference
@@ -42,9 +55,11 @@ def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--per-persona", type=int, default=25, help="postings to fetch per persona")
     ap.add_argument("--out", default=None, help="output CSV (default: data/adzuna/jobs_<ts>.csv)")
+    ap.add_argument("--variant", choices=["switching", "stayinfield"], default="switching",
+                    help="switching -> analytics pivot (default); stayinfield -> own profession")
     args = ap.parse_args()
 
-    queries = [(p.name, *_query_for(p)) for p in ALL_PERSONAS] + [("demo", *DEMO)]
+    queries = [(p.name, *_query_for(p, args.variant)) for p in ALL_PERSONAS] + [("demo", *DEMO)]
 
     all_jobs, seen = [], set()
     for name, what, where in queries:
