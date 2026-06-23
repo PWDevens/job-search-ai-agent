@@ -1,10 +1,10 @@
 """
 Hardware tier detection and model selection.
 
-Tiers:
+Tiers (model picked to FIT the tier's VRAM, smarter model on bigger cards):
   cpu         — no NVIDIA GPU;     phi4-mini:q4_K_M   (~2.5 GB RAM)
-  gpu_avg     — GPU <  10 GB VRAM; phi4:q4_K_M         (~7.7 GB VRAM)
-  gpu_modern  — GPU >= 10 GB VRAM; gemma2:9b           (~5.5 GB VRAM)
+  gpu_avg     — GPU <  10 GB VRAM; gemma2:9b          (~5.5 GB VRAM, fits 8 GB)
+  gpu_modern  — GPU >= 10 GB VRAM; phi4               (14B, ~9-12 GB VRAM)
 
 Override via env:
   HARDWARE_TIER=cpu|gpu_avg|gpu_modern   (skips detection)
@@ -20,8 +20,8 @@ logger = logging.getLogger(__name__)
 
 MODELS = {
     "cpu":        "phi4-mini:q4_K_M",
-    "gpu_avg":    "phi4:q4_K_M",
-    "gpu_modern": "gemma2:9b",
+    "gpu_avg":    "gemma2:9b",   # fits an 8 GB card cleanly (no offload)
+    "gpu_modern": "phi4",        # 14B; needs ~12 GB, comfortable on 16 GB+
 }
 
 _tier: str | None = None  # cached after first detection

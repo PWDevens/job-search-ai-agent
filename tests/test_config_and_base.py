@@ -32,8 +32,8 @@ class TestHardwareTier:
     def test_tier_to_model_mapping(self):
         from app.hardware import select_model
         assert select_model("cpu") == "phi4-mini:q4_K_M"
-        assert select_model("gpu_avg") == "phi4:q4_K_M"
-        assert select_model("gpu_modern") == "gemma2:9b"
+        assert select_model("gpu_avg") == "gemma2:9b"   # fits 8GB
+        assert select_model("gpu_modern") == "phi4"     # 14B, 16GB+
 
     def test_detect_tier_returns_valid_tier(self):
         from app.hardware import detect_tier, MODELS
@@ -48,9 +48,17 @@ class TestHardwareTier:
         finally:
             os.environ.pop("HARDWARE_TIER", None)
 
-    def test_gpu_modern_tier_selects_gemma(self):
+    def test_gpu_modern_tier_selects_phi4(self):
         os.environ.pop("AGENT_MODEL", None)
         os.environ["HARDWARE_TIER"] = "gpu_modern"
+        try:
+            assert _reload_config().AGENT_MODEL == "phi4"
+        finally:
+            os.environ.pop("HARDWARE_TIER", None)
+
+    def test_gpu_avg_tier_selects_gemma(self):
+        os.environ.pop("AGENT_MODEL", None)
+        os.environ["HARDWARE_TIER"] = "gpu_avg"
         try:
             assert _reload_config().AGENT_MODEL == "gemma2:9b"
         finally:
