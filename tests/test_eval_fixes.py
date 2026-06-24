@@ -93,6 +93,29 @@ def test_c5_job_scale_normalized():
     assert out["overall_score"] > 1.1
 
 
+# ── MJ3: grounded agent rationale lifts the job-match score ─────────────────────
+def test_mj3_grounded_rationale_lifts_score():
+    fields = ["data"]
+    base_job = {"title": "Data Engineer", "company": "Acme",
+                "description": "build python sql data pipelines on aws", "score": 0.8}
+    plain = R.score_job_match(base_job, fields)
+    with_why = R.score_job_match(
+        {**base_job, "score": 0.7,
+         "why_it_fits": "Your python and sql pipeline experience fits these aws data roles"},
+        fields)
+    assert with_why.score >= plain.score
+    assert "grounded agent rationale" in with_why.reasoning
+
+
+# ── MJ5: personas now carry native-field targets ────────────────────────────────
+def test_mj5_native_field_targets_present():
+    from tests.persona_evaluation.personas import get_persona_by_name
+    nurse = get_persona_by_name("Nurse")
+    elec = get_persona_by_name("Electrician")
+    assert any("nurse" in t.lower() for t in nurse.target_job_titles)
+    assert any("electric" in t.lower() for t in elec.target_job_titles)
+
+
 if __name__ == "__main__":
     import pytest
     raise SystemExit(pytest.main([__file__, "-q"]))

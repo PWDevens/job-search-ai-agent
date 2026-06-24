@@ -238,7 +238,17 @@ class EvaluationRubric:
         score_val = job.get("score", 0)
 
         # Check if job matches persona's target fields
-        field_match = any(field in description for field in persona_fields)
+        field_match = any(field.lower() in description for field in persona_fields)
+
+        # MJ3: reward the AGENT's rationale when it's grounded in the job's actual
+        # requirements (shares >=2 distinctive words with the description). This makes
+        # the job dimension reflect LLM quality, not just retrieval similarity.
+        _STOP = {"this", "that", "with", "your", "role", "will", "work", "team",
+                 "company", "experience", "strong", "good", "great", "candidate"}
+        why = job.get("why_it_fits", "").lower()
+        why_tokens = {w for w in re.split(r"[^a-z0-9+#.]+", why) if len(w) > 3 and w not in _STOP}
+        desc_tokens = set(re.split(r"[^a-z0-9+#.]+", description))
+        grounded_rationale = len(why_tokens & desc_tokens) >= 2
 
         # Check for experience level alignment
         experience_level = ""
@@ -265,6 +275,11 @@ class EvaluationRubric:
         else:
             score = 1  # Fair
             reasoning = f"Fair match, experience level: {experience_level}"
+
+        # MJ3: a grounded agent rationale lifts the match one tier (the LLM earned it).
+        if grounded_rationale and score < 3:
+            score += 1
+            reasoning += " | +grounded agent rationale"
 
         return JobMatchScore(
             title=title,

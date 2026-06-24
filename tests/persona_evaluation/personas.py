@@ -481,6 +481,27 @@ STAY_IN_FIELD_QUERIES = {
 }
 
 
+# MJ5: each persona's target_job_titles were analytics-biased (career-changer goal),
+# so job-match scoring failed for stay-in-field runs against native postings. Extend
+# every persona's targets with short native-field terms so field_match works for BOTH
+# the switching (→analytics) and staying-in-field markets.
+NATIVE_FIELD_TERMS = {
+    "Nurse":              ["nurse", "nursing", "rn", "clinical", "patient", "icu", "ehr"],
+    "Teacher":            ["teacher", "teaching", "classroom", "curriculum", "education", "instruction"],
+    "Consultant":         ["consultant", "consulting", "strategy", "engagement", "advisory"],
+    "Civil Engineer":     ["civil engineer", "structural", "infrastructure", "transportation", "geotechnical", "pe"],
+    "Digital Designer":   ["designer", "ux", "ui", "product design", "user research", "figma"],
+    "Accountant":         ["accountant", "accounting", "audit", "controller", "gaap", "financial reporting"],
+    "Sales Manager":      ["sales", "account executive", "business development", "revenue", "quota", "crm"],
+    "Electrician":        ["electrician", "electrical", "journeyman", "conduit", "wiring", "nec"],
+    "HR Manager":         ["human resources", "hr", "recruiting", "talent", "employee relations", "hris"],
+    "Operations Manager": ["operations", "supply chain", "logistics", "process improvement", "warehouse", "procurement"],
+    "Technical Writer":   ["technical writer", "documentation", "content", "api docs", "editing"],
+}
+for _p in ALL_PERSONAS:
+    _p.target_job_titles = list(_p.target_job_titles) + NATIVE_FIELD_TERMS.get(_p.name, [])
+
+
 def get_persona_by_name(name: str) -> Persona:
     """Get a persona by name"""
     for persona in ALL_PERSONAS:

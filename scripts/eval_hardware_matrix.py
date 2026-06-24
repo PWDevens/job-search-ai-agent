@@ -42,13 +42,13 @@ def scenarios(phi4_8gb_layers: int):
     ]
 
 CSV_FIELDS = [
-    "timestamp", "label", "scenario_id", "gpu_simulated", "llm_used", "vram_mode",
-    "dataset", "persona", "role_description", "geo_preference", "used_resume",
+    "timestamp", "label", "repeat", "scenario_id", "gpu_simulated", "llm_used", "vram_mode",
+    "dataset", "persona", "variant_name", "role_description", "geo_preference", "used_resume",
     "execution_time_sec", "tokens_per_sec",
     "jobs_returned", "recommendations_returned", "blind_spots_returned",
     "avg_job_score", "avg_rec_score", "avg_spot_score", "overall_score", "quality_label",
     "tangible_rec_pct", "avg_company_citations_per_rec", "blind_spot_grounded_pct",
-    "validation_resume_coach", "validation_career_strategist", "fallback_used",
+    "validation_resume_coach", "validation_career_strategist", "fallback_used", "usable_output",
     "error_message",
 ]
 
@@ -64,24 +64,28 @@ def _read_resume(path):
     return p.read_text(errors="replace") if (p and p.exists()) else None
 
 
-def build_rows(smoke: bool, variant: str = "switching"):
-    """(persona_obj_or_demo, dataset, role, geo, resume_text) tuples.
+def build_rows(smoke: bool, variant: str = "switching", all_variants: bool = False):
+    """(persona, dataset, variant_name, role, geo, resume_text) tuples.
 
-    variant="switching"  -> persona pivots to analytics (existing variant[0])
+    variant="switching"  -> persona pivots to analytics (search_variants)
     variant="stayinfield"-> persona searches its own profession (geo=None, nationwide)
+    all_variants=True (switching only) -> exercise ALL search_variants per persona
+        (MJ1: the personas define 3 each — no-resume + alternate roles — previously unused).
     """
     rows = []
     personas = ALL_PERSONAS[:3] if smoke else ALL_PERSONAS
     for p in personas:
         if variant == "stayinfield":
-            role, geo = STAY_IN_FIELD_QUERIES[p.name], None
+            rows.append((p, "synthetic", "stayinfield", STAY_IN_FIELD_QUERIES[p.name], None,
+                         _read_resume(p.resume_path)))
         else:
-            v = p.search_variants[0]
-            role, geo = v.role_description, v.geo_preference
-        rows.append((p, "synthetic", role, geo, _read_resume(p.resume_path)))
+            variants = p.search_variants if all_variants else p.search_variants[:1]
+            for v in variants:
+                resume = _read_resume(p.resume_path) if v.use_resume else None
+                rows.append((p, "synthetic", v.name, v.role_description, v.geo_preference, resume))
     # demo row (uses the demo resume + demo jobs ingested into the same collection)
     rows.append((
-        _DemoPersona(), "demo",
+        _DemoPersona(), "demo", "demo",
         "Data Engineer AI/ML Python Flask ChromaDB federal government contractor",
         "Washington DC",
         _read_resume(ROOT / "data" / "demo" / "demo_resume.txt"),
@@ -99,7 +103,7 @@ def submetrics(scores):
     return tangible_pct, avg_cites, grounded_pct
 
 
-def run_row(scn, persona, dataset, role, geo, resume_text):
+def run_row(scn, persona, dataset, variant_name, role, geo, resume_text, repeat=1):
     """One pipeline run under one scenario → one CSV-row dict."""
     base.LAST_TIMING.clear()
     t0 = time.monotonic()
@@ -116,15 +120,22 @@ def run_row(scn, persona, dataset, role, geo, resume_text):
     tangible_pct, avg_cites, grounded_pct = submetrics(scores)
 
     av = d.get("agent_validation", {})
+    n_jobs = len(d.get("top_jobs", []))
+    n_recs = len(d.get("resume_recs", []))
+    n_spots = len(d.get("blind_spots", []))
+    # MJ2: honest "usable_output" — grounding passes trivially on EMPTY output, so
+    # validation alone is misleading. A row is only usable if it produced real,
+    # job-grounded content (non-empty jobs + recs + spots).
+    usable_output = bool(n_jobs and n_recs and n_spots and not err)
     m = SearchMetrics(
         timestamp=datetime.now().isoformat(),
         persona=getattr(persona, "name", "?"),
-        search_variant="v0", search_query=role, geo_preference=geo,
+        search_variant=variant_name, search_query=role, geo_preference=geo,
         used_resume=bool(resume_text), execution_time_sec=elapsed,
-        jobs_returned=len(d.get("top_jobs", [])),
+        jobs_returned=n_jobs,
         jobs_score_avg=0.0,
-        recommendations_returned=len(d.get("resume_recs", [])),
-        blind_spots_returned=len(d.get("blind_spots", [])),
+        recommendations_returned=n_recs,
+        blind_spots_returned=n_spots,
         validation_resume_coach=av.get("resume_coach", False),
         validation_career_strategist=av.get("career_strategist", False),
         fallback_used=any(not v for v in av.values()) if av else True,
@@ -132,9 +143,10 @@ def run_row(scn, persona, dataset, role, geo, resume_text):
     )
 
     return {
-        "timestamp": m.timestamp, "label": LABEL,
+        "timestamp": m.timestamp, "label": LABEL, "repeat": repeat,
         "scenario_id": scn["id"], "gpu_simulated": scn["gpu"], "llm_used": scn["model"],
         "vram_mode": scn["vram_mode"], "dataset": dataset, "persona": m.persona,
+        "variant_name": variant_name,
         "role_description": role, "geo_preference": geo or "", "used_resume": m.used_resume,
         "execution_time_sec": m.execution_time_sec,
         "tokens_per_sec": round(base.LAST_TIMING.get("tokens_per_sec"), 1) if base.LAST_TIMING.get("tokens_per_sec") else "",
@@ -152,6 +164,7 @@ def run_row(scn, persona, dataset, role, geo, resume_text):
         "validation_resume_coach": m.validation_resume_coach,
         "validation_career_strategist": m.validation_career_strategist,
         "fallback_used": m.fallback_used,
+        "usable_output": usable_output,
         "error_message": err or "",
     }
 
@@ -168,6 +181,10 @@ def main():
                     help="persona query set: switching->analytics (default) or stayinfield")
     ap.add_argument("--temp", type=float, default=0.0,
                     help="Ollama temperature: 0.0 greedy (synthetic baselines) | 0.2 reg (Adzuna)")
+    ap.add_argument("--all-variants", action="store_true",
+                    help="MJ1: run all 3 search_variants per persona (switching only)")
+    ap.add_argument("--repeats", type=int, default=1,
+                    help="MJ4: run each row N times (variance for non-greedy/Adzuna runs)")
     args = ap.parse_args()
     LABEL = args.label
 
@@ -180,13 +197,13 @@ def main():
     if args.scenarios and not args.smoke:
         want = {int(x) for x in args.scenarios.split(",")}
     scns = [s for s in all_scn if s["id"] in want]
-    rows_spec = build_rows(args.smoke, args.variant)
+    rows_spec = build_rows(args.smoke, args.variant, args.all_variants)
 
     out = ROOT / "reports" / f"hardware_eval_matrix_{LABEL}.csv"
     out.parent.mkdir(parents=True, exist_ok=True)
-    total = len(scns) * len(rows_spec)
-    print(f"Matrix: {len(scns)} scenario(s) x {len(rows_spec)} rows = {total} runs -> {out}")
-    print(f"Ollama: {cfg.OLLAMA_BASE_URL} | temp={cfg.OLLAMA_TEMPERATURE} | variant={args.variant}\n")
+    total = len(scns) * len(rows_spec) * args.repeats
+    print(f"Matrix: {len(scns)} scenario(s) x {len(rows_spec)} rows x {args.repeats} rep = {total} runs -> {out}")
+    print(f"Ollama: {cfg.OLLAMA_BASE_URL} | temp={cfg.OLLAMA_TEMPERATURE} | variant={args.variant} | all_variants={args.all_variants}\n")
 
     with open(out, "w", newline="") as f:
         w = csv.DictWriter(f, fieldnames=CSV_FIELDS)
@@ -197,11 +214,12 @@ def main():
             cfg.AGENT_MODEL    = scn["model"]
             cfg.OLLAMA_NUM_GPU = scn["num_gpu"]
             cfg.OLLAMA_NUM_THREAD = scn["num_thread"]
-            for persona, dataset, role, geo, resume in rows_spec:
+            for persona, dataset, variant_name, role, geo, resume in rows_spec:
+              for rep in range(1, args.repeats + 1):
                 i += 1
                 who = getattr(persona, "name", "?")
-                print(f"[{i}/{total}] scn{scn['id']} {scn['gpu']} {scn['model']} | {dataset}/{who} ...", flush=True)
-                row = run_row(scn, persona, dataset, role, geo, resume)
+                print(f"[{i}/{total}] scn{scn['id']} {scn['gpu']} {scn['model']} | {dataset}/{who}/{variant_name} r{rep} ...", flush=True)
+                row = run_row(scn, persona, dataset, variant_name, role, geo, resume, repeat=rep)
                 w.writerow(row); f.flush()
                 tag = row["error_message"] or f"{row['overall_score']} ({row['quality_label']}) {row['execution_time_sec']}s {row['tokens_per_sec']}tok/s"
                 print(f"      -> {tag}")
