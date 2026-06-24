@@ -36,3 +36,6 @@ pytest-mock>=3.14.0
 
 # ── Linting / formatting (dev only) ───────────────────────────────────────────
 ruff>=0.4.0
+
+# Eval plotting (scripts/plot_eval.py)
+matplotlib>=3.7
