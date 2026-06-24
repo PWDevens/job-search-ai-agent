@@ -116,6 +116,17 @@ def test_mj5_native_field_targets_present():
     assert any("electric" in t.lower() for t in elec.target_job_titles)
 
 
+# ── KEY FIX: rubric must read the pipeline's "document" key, not "description" ───
+# Real pipeline job dicts store text under "document"; reading "description"
+# silently no-op'd ALL grounding (C1/C4/MJ3) on real data.
+def test_grounding_works_on_document_key():
+    jobs = [{"document": "Data analyst needs Python and SQL and Tableau"}]  # no "description"
+    bs = R.score_blind_spot("[HIGH] Python: course", jobs)
+    assert bs.job_citations > 0, "must ground against the 'document' key"
+    rec = R.score_recommendation("Add Python and SQL to your skills", jobs)
+    assert rec.skill_mentions >= 2, "grounded skills must count via 'document'"
+
+
 if __name__ == "__main__":
     import pytest
     raise SystemExit(pytest.main([__file__, "-q"]))

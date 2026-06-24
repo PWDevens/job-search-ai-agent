@@ -21,6 +21,13 @@ def _extract_skill(text: str) -> str:
     return s.strip()
 
 
+def _job_text(job: dict) -> str:
+    """Job description text. The pipeline stores it under "document" (not
+    "description"), so grounding silently no-op'd against the wrong key. Try both.
+    """
+    return (job.get("description") or job.get("document") or "").lower()
+
+
 @dataclass
 class RecommendationScore:
     """Score for a single recommendation"""
@@ -102,7 +109,7 @@ class EvaluationRubric:
         # recommendation AND a retrieved job description. This de-games the rubric —
         # naming skills the market doesn't actually want no longer earns points.
         text_lower = text.lower()
-        job_text = " ".join(j.get("description", "").lower() for j in top_jobs[:10])
+        job_text = " ".join(_job_text(j) for j in top_jobs[:10])
         skill_mentions = sum(
             1 for skill in EvaluationRubric.TECH_SKILLS
             if skill in text_lower and skill in job_text
@@ -183,7 +190,7 @@ class EvaluationRubric:
                   if len(t) > 2 and t not in _GENERIC]
         job_citations = sum(
             1 for job in top_jobs[:10]
-            if (desc := job.get("description", "").lower())
+            if (desc := _job_text(job))
             and (skill_lower in desc or any(t in desc for t in tokens))
         )
 
@@ -234,7 +241,7 @@ class EvaluationRubric:
 
         title = job.get("title", "")
         company = job.get("company", "")
-        description = job.get("description", "").lower()
+        description = _job_text(job)
         score_val = job.get("score", 0)
 
         # Check if job matches persona's target fields
