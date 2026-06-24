@@ -29,7 +29,7 @@ def _int_or_none(v):
 
 OLLAMA_NUM_GPU    = _int_or_none(os.getenv("OLLAMA_NUM_GPU"))     # None=auto, 0=force CPU, N=GPU layers (cap to mimic smaller VRAM)
 OLLAMA_NUM_THREAD = _int_or_none(os.getenv("OLLAMA_NUM_THREAD"))  # cap CPU threads to mimic an average CPU
-OLLAMA_NUM_CTX    = int(os.getenv("OLLAMA_NUM_CTX",      "4096"))
+OLLAMA_NUM_CTX    = int(os.getenv("OLLAMA_NUM_CTX",      "8192"))  # 4096 truncates the ~5.2k-tok job_matcher prompt → agents fail; 8192 needed for llama3.1/gemma
 OLLAMA_TEMPERATURE= float(os.getenv("OLLAMA_TEMPERATURE", "0.2")) # set 0.0 for greedy/reproducible eval baselines
 
 # ── Embedding (single backend: sentence-transformers) ─────────────────────────

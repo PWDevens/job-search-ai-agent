@@ -224,7 +224,7 @@ def search():
     else:
         session.pop("uploaded_jobs_path", None)
 
-    # ── 3. Run CrewAI pipeline ────────────────────────────────────────────────
+    # ── 3. Run pipeline ────────────────────────────────────────────────
     top_jobs, resume_recs, blind_spots = [], [], []
     agent_validation = {
         "resume_coach": False,

@@ -3,8 +3,14 @@ Hardware tier detection and model selection.
 
 Tiers:
   cpu         — no NVIDIA GPU;     phi4-mini:q4_K_M   (~2.5 GB RAM)
-  gpu_avg     — GPU <  10 GB VRAM; phi4:q4_K_M         (~7.7 GB VRAM)
-  gpu_modern  — GPU >= 10 GB VRAM; gemma2:9b           (~5.5 GB VRAM)
+  gpu_avg     — GPU <  10 GB VRAM; llama3.1:8b        (~4.9 GB VRAM)
+  gpu_modern  — GPU >= 10 GB VRAM; llama3.1:8b        (~4.9 GB VRAM)
+
+Both GPU tiers run llama3.1:8b — the bake-off (2026-06) showed it the fastest
+(~2x) and most reliable at the pipeline's structured-output agents, at quality
+within noise of gemma2:9b, and it fits both the 8 GB and 16 GB tiers.
+Requires OLLAMA_NUM_CTX>=8192 (config default) — the ~5.2k-token job_matcher
+prompt is truncated and fails at 4096.
 
 Override via env:
   HARDWARE_TIER=cpu|gpu_avg|gpu_modern   (skips detection)
@@ -20,8 +26,8 @@ logger = logging.getLogger(__name__)
 
 MODELS = {
     "cpu":        "phi4-mini:q4_K_M",
-    "gpu_avg":    "phi4:q4_K_M",
-    "gpu_modern": "gemma2:9b",
+    "gpu_avg":    "llama3.1:8b",
+    "gpu_modern": "llama3.1:8b",
 }
 
 _tier: str | None = None  # cached after first detection
