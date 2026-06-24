@@ -98,11 +98,14 @@ class EvaluationRubric:
             if company.lower() in text.lower()
         )
 
-        # Count specific skill mentions
+        # Count GROUNDED skill mentions: a recognized skill that appears in BOTH the
+        # recommendation AND a retrieved job description. This de-games the rubric —
+        # naming skills the market doesn't actually want no longer earns points.
         text_lower = text.lower()
+        job_text = " ".join(j.get("description", "").lower() for j in top_jobs[:10])
         skill_mentions = sum(
             1 for skill in EvaluationRubric.TECH_SKILLS
-            if skill in text_lower
+            if skill in text_lower and skill in job_text
         )
 
         # Detect if recommendation is tangible (specific tools, companies, etc.)
@@ -184,8 +187,11 @@ class EvaluationRubric:
             and (skill_lower in desc or any(t in desc for t in tokens))
         )
 
-        # Check if it's a real/recognized skill
+        # Real/recognized skill — OR grounded in the actual job market. A skill that
+        # appears in retrieved postings IS a real market skill by definition (works
+        # cross-industry: nursing/trades/finance, not just the tech vocabulary).
         is_realistic = (
+            job_citations > 0 or
             skill_lower in EvaluationRubric.TECH_SKILLS or
             skill_lower in EvaluationRubric.SOFT_SKILLS or
             any(keyword in skill_lower for keyword in ["learning", "data", "analytics", "design"])
@@ -306,9 +312,12 @@ class ResultEvaluator:
         avg_rec_score = sum(s.score for s in rec_scores) / len(rec_scores) if rec_scores else 0
         avg_spot_score = sum(s.score for s in spot_scores) / len(spot_scores) if spot_scores else 0
 
-        # Overall quality score (0-4)
+        # Overall quality score (0-4). Job match is a 0-3 rubric while rec/spot are
+        # 0-4, so normalize job to the 0-4 scale before weighting — otherwise the
+        # job dimension is structurally under-weighted (max 3 vs 4).
+        job_norm = avg_job_score * (4.0 / 3.0)
         overall_score = (
-            avg_job_score * 0.3 +
+            job_norm * 0.3 +
             avg_rec_score * 0.4 +
             avg_spot_score * 0.3
         )

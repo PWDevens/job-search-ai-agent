@@ -47,6 +47,52 @@ def test_c2_city_filtering_still_works():
     assert lm("Washington, DC", "Washington DC") is True
 
 
+# ── C3: majority-grounded gate ──────────────────────────────────────────────────
+from app.pipeline.pipeline import _grounded_enough
+
+def test_c3_majority_grounded_passes():
+    jobs = [{"company": "Acme", "title": "X"}, {"company": "Globex", "title": "Y"}]
+    # 2 of 3 grounded -> passes (old code required ALL grounded -> failed)
+    ok, _ = _grounded_enough(["Acme", "Globex", "Initech"], jobs)
+    assert ok is True
+
+def test_c3_mostly_ungrounded_fails():
+    jobs = [{"company": "Acme", "title": "X"}]
+    ok, _ = _grounded_enough(["Foo", "Bar", "Acme"], jobs)
+    assert ok is False
+
+def test_c3_no_citations_is_not_a_hallucination():
+    assert _grounded_enough([], [{"company": "Acme"}])[0] is True
+
+
+# ── C4: de-gamed rec scoring (skills must be grounded in jobs) ───────────────────
+def test_c4_skill_not_in_jobs_does_not_count():
+    jobs = [{"company": "Acme", "description": "We need SQL and Tableau"}]
+    grounded = R.score_recommendation("Add Python and Docker and Kubernetes to your resume", jobs)
+    gamed    = R.score_recommendation("Add SQL and Tableau (skills Acme wants)", jobs)
+    # naming skills the jobs DON'T want should not out-score grounded skills
+    assert gamed.skill_mentions >= grounded.skill_mentions
+    assert grounded.skill_mentions == 0  # python/docker/k8s absent from jobs
+
+def test_c4_blind_spot_grounded_is_realistic():
+    jobs = [{"description": "RN role requiring ACLS and patient assessment"}]
+    s = R.score_blind_spot("[HIGH] ACLS: get certified", jobs)
+    assert s.is_realistic is True and s.score >= 1
+
+
+# ── C5: job 0-3 normalized to 0-4 in overall ────────────────────────────────────
+def test_c5_job_scale_normalized():
+    from tests.persona_evaluation.evaluation_scoring import ResultEvaluator
+    class P: target_job_titles = ["data"]
+    # perfect job match (score 3) should contribute as 4*0.3, not 3*0.3
+    result = {"top_jobs": [{"title": "Data Engineer", "company": "Acme",
+                            "description": "data", "score": 0.9}],
+              "resume_recs": [], "blind_spots": []}
+    out = ResultEvaluator.evaluate_search_result(result, P())
+    # job=3 -> normalized 4 -> overall = 4*0.3 = 1.2 (was 3*0.3=0.9)
+    assert out["overall_score"] > 1.1
+
+
 if __name__ == "__main__":
     import pytest
     raise SystemExit(pytest.main([__file__, "-q"]))
