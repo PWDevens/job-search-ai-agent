@@ -7,6 +7,20 @@ import re
 from dataclasses import dataclass
 
 
+def _extract_skill(text: str) -> str:
+    """Pull the skill phrase out of a rendered blind spot.
+
+    The pipeline renders blind spots as "[PRIORITY] skill: remediation". Scoring
+    must match on the skill ("Python"), not the whole string — otherwise nothing
+    grounds. Accepts already-clean skills too.
+    """
+    if not text:
+        return ""
+    s = re.sub(r"^\s*\[[^\]]*\]\s*", "", text)   # strip "[HIGH] "
+    s = s.split(":", 1)[0]                         # drop "...: remediation"
+    return s.strip()
+
+
 @dataclass
 class RecommendationScore:
     """Score for a single recommendation"""
@@ -153,12 +167,21 @@ class EvaluationRubric:
                 has_learning_path=False,
             )
 
-        skill_lower = skill.lower()
+        # Extract the actual skill phrase from "[PRIORITY] skill: remediation"
+        # so we match THAT against jobs, not the whole rendered string.
+        skill_clean = _extract_skill(skill)
+        skill_lower = skill_clean.lower()
 
-        # Check if skill appears in top jobs
+        # Ground at word level: a multi-word skill ("AWS Cloud Practitioner")
+        # counts if the phrase OR a distinctive token appears in a job description.
+        _GENERIC = {"the", "and", "for", "with", "your", "skills", "skill",
+                    "experience", "knowledge", "ability", "strong", "certification"}
+        tokens = [t for t in re.split(r"[^a-z0-9+#.]+", skill_lower)
+                  if len(t) > 2 and t not in _GENERIC]
         job_citations = sum(
             1 for job in top_jobs[:10]
-            if skill_lower in job.get("description", "").lower()
+            if (desc := job.get("description", "").lower())
+            and (skill_lower in desc or any(t in desc for t in tokens))
         )
 
         # Check if it's a real/recognized skill

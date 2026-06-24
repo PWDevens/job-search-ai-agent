@@ -171,13 +171,15 @@ def location_matches(job_location: str, user_preference: str) -> bool:
     if job_loc_norm == user_pref_norm:
         return True
 
-    # Special case: user prefers "Remote" — only match remote jobs
+    # User prefers "Remote": treat as location-flexible (open to anywhere).
+    # Real postings are rarely tagged "Remote", so strict remote-only filtering
+    # zeroes out the entire job pool — a remote seeker considers nationwide roles.
     if is_remote(user_pref_norm):
-        return is_remote(job_loc_norm)
+        return True
 
-    # Special case: user location includes Remote; match Remote jobs
+    # A remote job fits ANY location preference (you can do it from anywhere).
     if is_remote(job_loc_norm):
-        return False
+        return True
 
     # Fuzzy match: if user's preference city appears in job location
     # E.g., user says "California" and job is "San Francisco, CA"
