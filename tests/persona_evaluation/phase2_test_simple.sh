@@ -26,7 +26,7 @@ from app.agents.crew import SearchRequest, run_search_crew
 print("[*] Step 1: Ingest synthetic jobs...")
 try:
     job_count = ingest_jobs("/app/data/synthetic/synthetic_jobs.csv")
-    print(f"[OK] Ingested {job_count} jobs into Weaviate")
+    print(f"[OK] Ingested {job_count} jobs into ChromaDB")
 except Exception as e:
     print(f"[WARN] Error ingesting jobs: {e}")
     job_count = 0

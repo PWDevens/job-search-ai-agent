@@ -4,7 +4,7 @@ Phase 2: Initial Testing — Run all persona searches and collect baseline metri
 
 This script:
 1. Loads all 11 personas
-2. Ingests synthetic jobs into Weaviate
+2. Ingests synthetic jobs into ChromaDB
 3. Runs all 33 searches (11 personas × 3 variants)
 4. Collects metrics for each search
 5. Generates baseline report
@@ -35,7 +35,7 @@ def load_personas_and_resumes():
 
 
 def ingest_synthetic_jobs():
-    """Ingest all synthetic jobs into Weaviate"""
+    """Ingest all synthetic jobs into ChromaDB"""
     jobs_csv = PROJECT_ROOT / "data" / "synthetic" / "synthetic_jobs.csv"
 
     if not jobs_csv.exists():
@@ -45,7 +45,7 @@ def ingest_synthetic_jobs():
     print(f"\n📥 Ingesting synthetic jobs from {jobs_csv}...")
     try:
         job_count = ingest_jobs(str(jobs_csv))
-        print(f"✓ Successfully ingested {job_count} jobs into Weaviate")
+        print(f"✓ Successfully ingested {job_count} jobs into ChromaDB")
         return job_count
     except Exception as e:
         print(f"❌ Error ingesting jobs: {e}")
