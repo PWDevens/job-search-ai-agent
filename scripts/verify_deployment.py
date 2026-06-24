@@ -2,8 +2,8 @@
 """
 Stage 1: Deployment Verification Script
 
-Checks all three services (Weaviate, Ollama, Flask app) and confirms
-the canonical LLM model is available.
+Checks core services (Ollama, Flask app) and confirms
+the canonical LLM model is available. ChromaDB is embedded in the Flask app.
 
 Exit codes:
   0 = all checks passed
@@ -14,18 +14,6 @@ import sys
 import os
 import requests
 from typing import Tuple
-
-
-def check_weaviate() -> Tuple[bool, str]:
-    """Check Weaviate meta endpoint"""
-    try:
-        response = requests.get("http://localhost:8080/v1/meta", timeout=5)
-        if response.status_code == 200:
-            return True, "[OK] Weaviate meta endpoint"
-        else:
-            return False, f"[FAIL] Weaviate returned {response.status_code}"
-    except Exception as e:
-        return False, f"[FAIL] Weaviate: {e}"
 
 
 def check_ollama_version() -> Tuple[bool, str]:
@@ -90,7 +78,6 @@ def main() -> int:
     print("=" * 60 + "\n")
 
     checks = [
-        ("Weaviate", check_weaviate),
         ("Ollama Version", check_ollama_version),
         ("Ollama Model", check_ollama_model),
         ("Flask Health", check_flask_health),

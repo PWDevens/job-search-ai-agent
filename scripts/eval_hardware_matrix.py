@@ -39,6 +39,9 @@ def scenarios(phi4_8gb_layers: int):
         {"id": 3, "gpu": "RTX 4070 (8GB)",    "model": "gemma2:9b", "num_gpu": None,            "num_thread": None, "vram_mode": "fits-8gb"},
         {"id": 4, "gpu": "RTX 4070 (8GB)",    "model": "phi4",      "num_gpu": phi4_8gb_layers, "num_thread": None, "vram_mode": f"partial-offload~8gb (num_gpu={phi4_8gb_layers})"},
         {"id": 5, "gpu": "Avg CPU (16GB RAM)","model": "phi4-mini", "num_gpu": 0,               "num_thread": 6,    "vram_mode": "cpu"},
+        {"id": 6, "gpu": "GPU",               "model": "gemma4:12b-it-q4_K_M","num_gpu": None,   "num_thread": None, "vram_mode": "full"},  # bake-off: gemma4 12B dense (fails career_strategist)
+        {"id": 7, "gpu": "GPU",               "model": "gemma3:12b-it-q4_K_M","num_gpu": None,   "num_thread": None, "vram_mode": "full"},  # bake-off: gemma3 12B dense
+        {"id": 8, "gpu": "GPU",               "model": "gemma4:26b-a4b-it-qat","num_gpu": None,  "num_thread": None, "vram_mode": "full"}, # bake-off: gemma4 26B MoE (4B active)
     ]
 
 CSV_FIELDS = [
