@@ -1,6 +1,6 @@
-# 🤖 Job-Search AI
+# Job-Search AI Agent
 
-> **A fully local, open-source job-search assistant powered by ChromaDB and local LLMs (Phi-4 family / Gemma via Ollama). It auto-detects your computer's hardware and picks the best model for it — no setup choices required. No cloud APIs. No data leaving your machine.**
+> **A fully local, open-source job-search assistant powered by ChromaDB and local LLMs (Phi-4-mini on CPU, Llama 3.1 8B on GPU, via Ollama). It auto-detects your computer's hardware and picks the best model for it — no setup choices required. No cloud APIs. No data leaving your machine.**
 
 [![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://python.org)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
@@ -13,21 +13,21 @@
 
 ---
 
-## ✨ What It Does
+## What It Does
 
 Upload your resume and a jobs spreadsheet, describe the role you're targeting, and the app runs a **3-agent AI pipeline** that returns:
 
 | Output | Count | Description |
 |--------|-------|-------------|
-| 🏆 Top Job Matches | 25 | Semantically ranked by cosine similarity to your profile |
-| 📝 Resume Recommendations | 10 | Specific, ATS-grounded improvements with citations |
-| 🔦 Blind Spots | 5 | Skills in demand that are absent from your resume + free ways to close each gap |
+| Top Job Matches | 25 | Semantically ranked by cosine similarity to your profile |
+| Resume Recommendations | 10 | Specific, ATS-grounded improvements with citations |
+| Career Strategist Recommendations | 5 | Blindspots to your search and skills that are in demand, absent from your resume, and guidance on free ways to close each gap |
 
 Results are displayed in a clean web UI, appended to a **job pipeline Excel workbook**, and emailed to you weekly on a Mon–Fri schedule.
 
 ---
 
-## 👋 New here? Start with this (non-technical guide)
+## New here? Start with this (non-technical guide)
 
 **You do not need to understand any of the code below.** Follow these steps exactly and you'll have it running.
 
@@ -54,7 +54,7 @@ Paste this and wait — it grabs the AI model that matches your computer:
 docker compose exec ollama ollama pull phi4-mini
 ```
 
-> 💡 **You don't pick the model — the app does.** When it runs, it checks whether you have a graphics card (GPU) and automatically chooses the smartest model your machine can handle. See [How the app picks your AI model](#-how-the-app-picks-your-ai-model) for the details. If you have a powerful GPU, see that section for the one extra download command.
+> **You don't pick the model — the app does.** When it runs, it checks whether you have a graphics card (GPU) and automatically chooses the smartest model your machine can handle. See [How the app picks your AI model](#-how-the-app-picks-your-ai-model) for the details. If you have an NVIDIA GPU, also run one extra download: `docker compose exec ollama ollama pull llama3.1:8b`
 
 ### Load some example data so you can try it immediately
 ```bash
@@ -76,26 +76,26 @@ Next time, just run `docker compose up -d` again — no re-downloading.
 
 ---
 
-## 🚀 Production-Ready
+## Production-Status
 
-**Status:** ✅ **PRODUCTION-READY**
+**Status:** **UNDER DEVELOPMENT**
 
-This application has been thoroughly tested, secured, and documented:
-- ✅ **104+ automated tests** (80%+ code coverage)
-- ✅ **Zero critical bugs** (all PHASE 1 issues fixed)
-- ✅ **8/8 security controls** implemented
-- ✅ **Comprehensive documentation** for deployment and testing
-- ✅ **Performance optimized** (10-25x faster skill extraction)
+This application will be thoroughly tested, secured, and documented:
+- **104+ automated tests** 
+- **Zero critical bugs** 
+- **8/8 security controls** 
+- **Comprehensive documentation** 
+- **Performance optimized** 
 
 **Quick Links:**
-- 🧪 [Testing & Debugging Guide](docs/development/testing-guide.md)
-- 📚 [Improvement Roadmap](docs/development/improvements.md)
-- 🚀 [Deployment Checklist](docs/deployment/01-checklist.md)
-- 🧠 [SLM Fine-Tuning Guide](docs/SLM_FINETUNING_GUIDE.md)
+- [Testing & Debugging Guide](docs/development/testing-guide.md)
+- [Improvement Roadmap](docs/development/improvements.md)
+- [Deployment Checklist](docs/deployment/01-checklist.md)
+- [SLM Fine-Tuning Guide](docs/SLM_FINETUNING_GUIDE.md)
 
 ---
 
-## 🏗️ Architecture
+## Architecture
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
@@ -137,20 +137,20 @@ This application has been thoroughly tested, secured, and documented:
 ```
 
 **Key design principles:**
-- 🔒 **Zero external APIs** — everything runs in Docker on your laptop
-- 📦 **ChromaDB** (embedded, on-disk) stores job embeddings, resume chunks, and ATS knowledge articles
-- 🧠 **Local embeddings** via Sentence Transformers (`BAAI/bge-small-en-v1.5`)
-- 🤖 **Framework-free agents** — plain Python orchestration (`app/pipeline/pipeline.py`), no heavy agent framework, with skill prompts in markdown (`app/agents/skills/`)
-- 🖥️ **Auto hardware detection** picks the best Ollama model for your CPU/GPU
-- 🔁 **Multi-pass reranker** (1–3 passes) sorts results by relevance
-- ✅ **Agent validation** prevents hallucination by grounding outputs in actual job data
-- 📧 **APScheduler** drives weekly Mon–Fri 8 AM pipelines with SMTP email summaries
-- 🐳 **Docker Compose** bundles ChromaDB + Ollama + Flask in a single command
-- 🔐 **Security hardened** with input validation, rate limiting, and session isolation
+- **Zero external APIs** — everything runs in Docker on your laptop
+- **ChromaDB** (embedded, on-disk) stores job embeddings, resume chunks, and ATS knowledge articles
+- **Local embeddings** via Sentence Transformers (`BAAI/bge-small-en-v1.5`)
+- **Framework-free agents** — plain Python orchestration (`app/pipeline/pipeline.py`), no heavy agent framework, with skill prompts in markdown (`app/agents/skills/`)
+- **Auto hardware detection** picks the best Ollama model for your CPU/GPU
+- **Multi-pass reranker** (1–3 passes) sorts results by relevance
+- **Agent validation** prevents hallucination by grounding outputs in actual job data
+- **APScheduler** drives weekly Mon–Fri 8 AM pipelines with SMTP email summaries
+- **Docker Compose** bundles ChromaDB + Ollama + Flask in a single command
+- **Security hardened** with input validation, rate limiting, and session isolation
 
 ---
 
-## 🚀 Quick Start (Docker — Recommended)
+## Quick Start (Docker — Recommended)
 
 ### Prerequisites
 - [Docker Desktop](https://www.docker.com/products/docker-desktop/) (Windows/Mac/Linux)
@@ -197,7 +197,7 @@ The first time you start Docker, the system will automatically download the LLM 
 docker compose exec ollama ollama pull phi4-mini
 ```
 
-> **Which model?** The app auto-detects your hardware and picks for you — see [How the app picks your AI model](#-how-the-app-picks-your-ai-model). On a CPU-only machine, `phi4-mini` (above) is all you need. With a GPU, also pull the matching model: `phi4` (mid GPU) or `gemma2:9b` (large GPU).
+> **Which model?** The app auto-detects your hardware and picks for you — see [How the app picks your AI model](#-how-the-app-picks-your-ai-model). On a CPU-only machine, `phi4-mini` (above) is all you need. With any NVIDIA GPU, pull `llama3.1:8b` instead: `docker compose exec ollama ollama pull llama3.1:8b`.
 
 **Alternative:** If you already have Ollama models, add to `.env`:
 ```bash
@@ -223,7 +223,7 @@ curl http://localhost:5000/health
 
 ---
 
-## ⏱️ Troubleshooting Docker Startup
+## Troubleshooting Docker Startup
 
 **If Ollama is stuck "unhealthy":**
 ```bash
@@ -252,7 +252,7 @@ docker compose up -d
 
 ---
 
-## 💻 Local Development (No Docker)
+## Local Development (No Docker)
 
 ### Prerequisites
 - Python 3.11+
@@ -296,7 +296,7 @@ FLASK_DEBUG=true python run.py
 
 ---
 
-## 📊 Supported Input Formats
+## Supported Input Formats
 
 ### Jobs file (CSV or XLSX)
 Required columns: `title`, `company`, `description`
@@ -314,7 +314,7 @@ Senior Data Engineer,Acme Corp,Washington DC,"Build pipelines with Python and Sp
 
 ---
 
-## ⚙️ Configuration
+## Configuration
 
 All settings live in `.env`. Key options:
 
@@ -322,6 +322,7 @@ All settings live in `.env`. Key options:
 |----------|---------|-------------|
 | `HARDWARE_TIER` | _(auto-detected)_ | Force a tier: `cpu` · `gpu_avg` · `gpu_modern`. Leave unset to auto-detect. |
 | `AGENT_MODEL` | _(from tier)_ | Exact Ollama model to use. Overrides tier selection. |
+| `OLLAMA_NUM_CTX` | `8192` | LLM context window. Must be ≥ 8192 — the job-matcher prompt is ~5,200 tokens, and the agents fail silently if it's truncated. Only lower on RAM-constrained CPUs (may degrade quality). |
 | `RERANK_PASSES` | `2` | Reranker iterations: `1` (fast) · `2` (balanced) · `3` (best quality) |
 | `RERANK_MODEL` | `ms-marco-MiniLM-L-12-v2` | Reranker model; set `none` to disable reranking |
 | `TOP_JOBS` | `25` | Number of job matches to return |
@@ -335,30 +336,44 @@ All settings live in `.env`. Key options:
 
 ---
 
-## 🧠 How the app picks your AI model
+## How the app picks your AI model
 
 **You don't choose a model — the app detects your hardware on startup and picks the best one automatically.** It runs `nvidia-smi` once to see if you have an NVIDIA graphics card (GPU) and how much memory it has, then selects:
 
 | Your computer | Tier | Model it uses | What to download |
 |---------------|------|---------------|------------------|
-| No GPU (most laptops) | `cpu` | **phi4-mini** (4-bit) | `ollama pull phi4-mini` |
-| GPU under 10 GB | `gpu_avg` | **phi4** 14B (4-bit) | `ollama pull phi4` |
-| GPU 10 GB or more | `gpu_modern` | **gemma2** 9B | `ollama pull gemma2:9b` |
+| No GPU (most laptops) | `cpu` | **phi4-mini** (4-bit) | `ollama pull phi4-mini:q4_K_M` |
+| Any NVIDIA GPU | `gpu_avg` / `gpu_modern` | **llama3.1:8b** | `ollama pull llama3.1:8b` |
 
-All models are **4-bit quantized** — a smaller, faster version that keeps almost all of the smarts while using far less memory.
+The CPU model is **4-bit quantized** — a smaller, faster version that keeps almost all of the smarts while using far less memory. The GPU model (`llama3.1:8b`, ~4.9 GB) fits both smaller (8 GB) and larger (16 GB+) graphics cards, so there's just one to download.
 
 **Want to override it?** Set these in your `.env` file (most people never need to):
 
 ```bash
 HARDWARE_TIER=gpu_avg        # force a tier: cpu | gpu_avg | gpu_modern
-AGENT_MODEL=phi4:q4_K_M      # or name an exact Ollama model (wins over tier)
+AGENT_MODEL=llama3.1:8b      # or name an exact Ollama model (wins over tier)
 ```
 
-> **Non-technical translation:** Leave it alone and it just works. The bigger your computer's graphics card, the smarter the assistant — automatically.
+> **Non-technical translation:** Leave it alone and it just works. If you have a graphics card, the assistant runs faster — automatically.
+
+### Why llama3.1:8b for GPU?
+
+In June 2026 we ran a **bake-off** — testing several models head-to-head on the same job-search pipeline — to find the best GPU model. The pipeline asks each model to return strictly structured output (JSON), which not every model handles reliably. Results on a cloud GPU (NVIDIA A40):
+
+| Model | Reliable structured output? | Speed | Notes |
+|-------|------------------------------|-------|-------|
+| gemma2:9b | ✅ Yes | ~120 s/run | The previous default |
+| gemma3:12b | ✅ Yes | ~150 s/run | Slower, no quality gain |
+| gemma4 (12B & 26B-MoE) | ❌ No | — | Returns empty responses under structured output |
+| **llama3.1:8b** | **✅ Yes** | **~67 s/run** | **~2× faster, quality within noise of gemma2, fits every GPU tier** |
+
+`llama3.1:8b` won on reliability, speed, and hardware fit. It needs a context window of at least 8,192 tokens — the app sets `OLLAMA_NUM_CTX=8192` automatically, because the job-matcher prompt (~5,200 tokens) is silently truncated and breaks at the old 4,096 default.
+
+> **License note:** `llama3.1` is released under [Meta's Llama 3.1 Community License](https://www.llama.com/llama3_1/license/), not MIT. If you redistribute this app, include a "Built with Llama" attribution as that license requires.
 
 ---
 
-## 🔁 Reranking — how results get sorted by quality
+## Reranking — how results get sorted by quality
 
 After the AI suggests jobs and advice, the app runs a **local reranker** (a small scoring model) one to three times to push the most relevant results to the top. This is controlled by one setting:
 
@@ -380,7 +395,7 @@ More passes = slightly slower but more accurate. The default of `2` is the sweet
 
 ---
 
-## 🧪 Running Tests
+## Running Tests
 
 ```bash
 # Install test deps (included in requirements.txt)
@@ -419,7 +434,7 @@ jobs:
 
 ---
 
-## 📧 Email Setup (Gmail App Password)
+## Email Setup (Gmail App Password)
 
 1. Go to [myaccount.google.com/security](https://myaccount.google.com/security)
 2. Enable **2-Step Verification** (required)
@@ -433,7 +448,7 @@ jobs:
 
 ---
 
-## 🧠 SLM Quality & RAG Strategy
+## SLM Quality & RAG Strategy
 
 This app uses three layers to compensate for small model limitations:
 
@@ -443,7 +458,7 @@ This app uses three layers to compensate for small model limitations:
 
 ---
 
-## 📁 Project Structure
+## Project Structure
 
 ```
 job-search-ai-agent/
@@ -527,23 +542,23 @@ job-search-ai-agent/
 
 ---
 
-## 🔐 Security Features
+## Security Features
 
 All implemented and verified:
 
-- ✅ **Input validation**: Role, geo preference, file size (16MB limit)
-- ✅ **SQL injection protection**: Dangerous pattern detection
-- ✅ **Rate limiting**: 10 searches/minute per session (DoS prevention)
-- ✅ **Session isolation**: UUID-based upload directories
-- ✅ **Secret management**: Random SECRET_KEY generation
-- ✅ **Data privacy**: Resume content never logged (MD5 hash only)
-- ✅ **Error handling**: No stack traces to users
-- ✅ **Audit trail**: Full SQLite logging of all searches
-- ✅ **Service health**: ChromaDB timeout (10s) + retry with backoff
+- **Input validation**: Role, geo preference, file size (16MB limit)
+- **SQL injection protection**: Dangerous pattern detection
+- **Rate limiting**: 10 searches/minute per session (DoS prevention)
+- **Session isolation**: UUID-based upload directories
+- **Secret management**: Random SECRET_KEY generation
+- **Data privacy**: Resume content never logged (MD5 hash only)
+- **Error handling**: No stack traces to users
+- **Audit trail**: Full SQLite logging of all searches
+- **Service health**: ChromaDB timeout (10s) + retry with backoff
 
 ---
 
-## 🛠️ Troubleshooting
+## Troubleshooting
 
 **For detailed troubleshooting:** See [the Testing & Debugging guide](docs/development/testing-guide.md)
 
@@ -585,7 +600,7 @@ This is normal — when agent outputs don't match actual job data, the app falls
 ### Slow performance on CPU
 - On CPU the app already uses the lightweight `phi4-mini` automatically — this is expected to take ~10–20s per search.
 - Speed it up: set `RERANK_PASSES=1` in `.env` (fewer reranker passes), and/or reduce `TOP_JOBS=10` to cut search time.
-- For real speed, run on a machine with an NVIDIA GPU — the app detects it and uses a stronger model automatically.
+- For real speed, run on a machine with an NVIDIA GPU — the app detects it and switches to `llama3.1:8b` automatically (~2× faster than the CPU model).
 
 ### Email not sending
 - Verify `SMTP_USER` and `SMTP_PASS` are set in `.env`
@@ -599,7 +614,7 @@ This is normal — when agent outputs don't match actual job data, the app falls
 
 ---
 
-## 📈 Performance
+## Performance
 
 | Operation | Baseline | After Optimization | Speedup |
 |-----------|----------|---|---|
@@ -615,7 +630,7 @@ Key optimizations:
 
 ---
 
-## 🤝 Contributing
+## Contributing
 
 This is an open-source tool built for job seekers. Contributions welcome:
 
@@ -632,19 +647,19 @@ Please open an issue before submitting large PRs.
 
 ---
 
-## 📄 License
+## License
 
 MIT License — free to use, modify, and distribute. See [LICENSE](LICENSE).
 
 ---
 
-## 🙏 Built With
+## Built With
 
 | Tool | Purpose | License |
 |------|---------|---------|
 | [ChromaDB](https://trychroma.com) | Local vector database (embedded) | Apache 2.0 |
 | [Ollama](https://ollama.com) | Local LLM server | MIT |
-| [Phi-4 family / Gemma](https://ollama.com/library) | Hardware-tiered SLMs | MIT |
+| [Phi-4-mini](https://ollama.com/library/phi4-mini) (CPU) / [Llama 3.1 8B](https://ollama.com/library/llama3.1) (GPU) | Hardware-tiered SLMs | MIT / Llama 3.1 Community License |
 | [FlashRank](https://github.com/PrithivirajDamodaran/FlashRank) | Local cross-encoder reranker | Apache 2.0 |
 | [Sentence Transformers](https://sbert.net) | Local CPU embeddings | Apache 2.0 |
 | [Flask](https://flask.palletsprojects.com) | Web framework | BSD |
@@ -653,17 +668,17 @@ MIT License — free to use, modify, and distribute. See [LICENSE](LICENSE).
 
 ---
 
-## 📚 Documentation
+## Documentation
 
 **Quick Links:**
-- 🧪 [Testing & Debugging](docs/development/testing-guide.md) — How to test locally
-- 📈 [Improvements Roadmap](docs/development/improvements.md) — Future features
-- 🚀 [Deployment Checklist](docs/deployment/01-checklist.md) — Pre-deployment verification
-- 🧠 [SLM Fine-Tuning Guide](docs/SLM_FINETUNING_GUIDE.md) — QLoRA walkthrough
+- [Testing & Debugging](docs/development/testing-guide.md) — How to test locally
+- [Improvements Roadmap](docs/development/improvements.md) — Future features
+- [Deployment Checklist](docs/deployment/01-checklist.md) — Pre-deployment verification
+- [SLM Fine-Tuning Guide](docs/SLM_FINETUNING_GUIDE.md) — QLoRA walkthrough
 
 ---
 
 *Built by [Patrick Devens](https://github.com/PWDevens) · Washington, DC · 2026*  
 *Free tool for job seekers competing in a tough market. Star ⭐ if this helped you.*
 
-**Status:** ✅ Production-Ready · **Grade:** A · **Tests:** 104+ · **Coverage:** 80%+
+**Status:** ✅ Production-In Progress · **Grade:** TBD · **Tests:** 104+ · **Coverage:** 80%+
