@@ -67,6 +67,11 @@ def find_top_jobs(
             "Geolocation filter '%s': %d → %d jobs",
             geo_preference, len(jobs), len(filtered)
         )
+        # Guard against filter emptying the list: fall back to unfiltered (nationwide)
+        if not filtered:
+            logger.info("Geo filter '%s' removed all %d jobs — keeping unfiltered (nationwide fallback)",
+                        geo_preference, len(jobs))
+            return jobs[:n]
         return filtered[:n]
 
     return jobs[:n]

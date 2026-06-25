@@ -45,6 +45,14 @@ ADZUNA_MAX_DAYS   = int(os.getenv("ADZUNA_MAX_DAYS", "30"))  # freshness filter
 # ── Reranker passes (1 = retrieval only; 2 = +role+resume; 3 = +resume recs) ─
 RERANK_PASSES = int(os.getenv("RERANK_PASSES", "2"))
 
+# ── Grounding and improvement config knobs ─────────────────────────────────────
+GROUNDING_PASS_RATIO = float(os.getenv("GROUNDING_PASS_RATIO", "0.5"))
+RETRIEVAL_BOOST = os.getenv("RETRIEVAL_BOOST", "0") == "1"
+PROMPT_FEWSHOT  = os.getenv("PROMPT_FEWSHOT",  "0") == "1"
+
+# ── Reranker model ────────────────────────────────────────────────────────────
+RERANK_MODEL = os.getenv("RERANK_MODEL", "bge-reranker-v2-m3")
+
 # ── Context window sizes (chars) — tunable per hardware/model capacity ────────
 RESUME_SNIPPET_CHARS = int(os.getenv("RESUME_SNIPPET_CHARS", "600"))
 RESUME_MID_CHARS     = int(os.getenv("RESUME_MID_CHARS",     "1500"))

@@ -68,7 +68,7 @@ def _read_resume(path):
 
 
 def build_rows(smoke: bool, variant: str = "switching"):
-    """(persona_obj_or_demo, dataset, role, geo, resume_text) tuples.
+    """(persona_obj_or_demo, dataset, role, geo, resume_text, variant) tuples.
 
     variant="switching"  -> persona pivots to analytics (existing variant[0])
     variant="stayinfield"-> persona searches its own profession (geo=None, nationwide)
@@ -81,13 +81,14 @@ def build_rows(smoke: bool, variant: str = "switching"):
         else:
             v = p.search_variants[0]
             role, geo = v.role_description, v.geo_preference
-        rows.append((p, "synthetic", role, geo, _read_resume(p.resume_path)))
+        rows.append((p, "synthetic", role, geo, _read_resume(p.resume_path), variant))
     # demo row (uses the demo resume + demo jobs ingested into the same collection)
     rows.append((
         _DemoPersona(), "demo",
         "Data Engineer AI/ML Python Flask ChromaDB federal government contractor",
         "Washington DC",
         _read_resume(ROOT / "data" / "demo" / "demo_resume.txt"),
+        variant,
     ))
     return rows
 
@@ -102,7 +103,7 @@ def submetrics(scores):
     return tangible_pct, avg_cites, grounded_pct
 
 
-def run_row(scn, persona, dataset, role, geo, resume_text):
+def run_row(scn, persona, dataset, role, geo, resume_text, variant="switching"):
     """One pipeline run under one scenario → one CSV-row dict."""
     base.LAST_TIMING.clear()
     t0 = time.monotonic()
@@ -115,7 +116,8 @@ def run_row(scn, persona, dataset, role, geo, resume_text):
         d = {"top_jobs": [], "resume_recs": [], "blind_spots": [], "agent_validation": {}, "raw_agent_output": {}}
     elapsed = round(time.monotonic() - t0, 2)
 
-    scores = ResultEvaluator.evaluate_search_result(d, persona)
+    # ponytail: pass variant to scoring so it uses appropriate targets
+    scores = ResultEvaluator.evaluate_search_result(d, persona, variant)
     tangible_pct, avg_cites, grounded_pct = submetrics(scores)
 
     av = d.get("agent_validation", {})
@@ -200,11 +202,11 @@ def main():
             cfg.AGENT_MODEL    = scn["model"]
             cfg.OLLAMA_NUM_GPU = scn["num_gpu"]
             cfg.OLLAMA_NUM_THREAD = scn["num_thread"]
-            for persona, dataset, role, geo, resume in rows_spec:
+            for persona, dataset, role, geo, resume, variant in rows_spec:
                 i += 1
                 who = getattr(persona, "name", "?")
                 print(f"[{i}/{total}] scn{scn['id']} {scn['gpu']} {scn['model']} | {dataset}/{who} ...", flush=True)
-                row = run_row(scn, persona, dataset, role, geo, resume)
+                row = run_row(scn, persona, dataset, role, geo, resume, variant)
                 w.writerow(row); f.flush()
                 tag = row["error_message"] or f"{row['overall_score']} ({row['quality_label']}) {row['execution_time_sec']}s {row['tokens_per_sec']}tok/s"
                 print(f"      -> {tag}")

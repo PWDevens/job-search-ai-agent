@@ -7,6 +7,47 @@ import re
 from dataclasses import dataclass
 
 
+def targets_for(persona: Any, variant: str = "switching") -> Tuple[List[str], List[str]]:
+    """
+    Return (target_job_titles, blind_spots) for a persona based on variant.
+
+    variant="switching"   -> use analytics-pivot targets (default behavior)
+    variant="stayinfield" -> use same-profession targets if available, else fall back
+
+    ponytail: minimal helper to thread variant through scoring without duplicating scorer.
+    """
+    titles = getattr(persona, "target_job_titles", [])
+    spots = getattr(persona, "expected_blind_spots", [])
+
+    if variant == "stayinfield":
+        # Use stay-in-field targets if available
+        if hasattr(persona, 'stay_in_field_titles') and persona.stay_in_field_titles:
+            titles = persona.stay_in_field_titles
+        if hasattr(persona, 'stay_in_field_blind_spots') and persona.stay_in_field_blind_spots:
+            spots = persona.stay_in_field_blind_spots
+
+    return titles, spots
+
+
+def _job_text(job: Dict[str, Any]) -> str:
+    """Job body lives under 'document' (matcher) or 'description' (legacy/tests)."""
+    return (job.get("document") or job.get("description") or "").lower()
+
+
+def _skill_from_display(s: str) -> str:
+    """Extract skill from a display string like '[HIGH] Python: add ...' -> 'Python'."""
+    # Remove [PRIORITY] prefix if present
+    s = re.sub(r'^\s*\[[^\]]*\]\s*', '', s)
+    # Split on colon and take first part
+    return s.split(':', 1)[0].strip()
+
+
+def _rec_text(r: Dict[str, Any]) -> str:
+    """Join grounded fields for company/skill citation visibility."""
+    parts = [r.get("title", ""), r.get("fix", ""), r.get("why", ""), r.get("impact", "")]
+    return " — ".join(p for p in parts if p).strip()
+
+
 @dataclass
 class RecommendationScore:
     """Score for a single recommendation"""
@@ -158,7 +199,7 @@ class EvaluationRubric:
         # Check if skill appears in top jobs
         job_citations = sum(
             1 for job in top_jobs[:10]
-            if skill_lower in job.get("description", "").lower()
+            if skill_lower in _job_text(job)
         )
 
         # Check if it's a real/recognized skill
@@ -205,7 +246,7 @@ class EvaluationRubric:
 
         title = job.get("title", "")
         company = job.get("company", "")
-        description = job.get("description", "").lower()
+        description = _job_text(job)
         score_val = job.get("score", 0)
 
         # Check if job matches persona's target fields
@@ -253,29 +294,50 @@ class ResultEvaluator:
     def evaluate_search_result(
         result: Dict[str, Any],
         persona: Any,
+        variant: str = "switching",
     ) -> Dict[str, Any]:
-        """Comprehensive evaluation of search results for a persona"""
+        """Comprehensive evaluation of search results for a persona.
+
+        variant="switching" or "stayinfield" determines which targets to use for scoring.
+        """
 
         top_jobs = result.get("top_jobs", [])
         resume_recs = result.get("resume_recs", [])
         blind_spots = result.get("blind_spots", [])
 
+        # Use appropriate targets based on variant
+        target_titles, _ = targets_for(persona, variant)
+
         # Score job matches
         job_scores = [
-            EvaluationRubric.score_job_match(job, persona.target_job_titles)
+            EvaluationRubric.score_job_match(job, target_titles)
             for job in top_jobs[:5]
         ]
 
+        # C1: Score structured fields from raw_agent_output, fall back to display strings
+        raw = result.get("raw_agent_output", {}) or {}
+
+        # Resume recommendations: prefer structured data
+        strat = raw.get("career_strategy") or {}
+        struct_spots = strat.get("blind_spots") or []
+        spot_inputs = ([b.get("skill", "") for b in struct_spots]
+                       if struct_spots else [_skill_from_display(s) for s in blind_spots])
+
+        recs_raw = raw.get("resume_recs") or {}
+        struct_recs = recs_raw.get("recommendations") or []
+        rec_inputs = ([_rec_text(r) for r in struct_recs]
+                      if struct_recs else list(resume_recs))
+
         # Score recommendations
         rec_scores = [
-            EvaluationRubric.score_recommendation(rec, top_jobs)
-            for rec in resume_recs
+            EvaluationRubric.score_recommendation(t, top_jobs)
+            for t in rec_inputs
         ]
 
         # Score blind spots
         spot_scores = [
-            EvaluationRubric.score_blind_spot(spot, top_jobs)
-            for spot in blind_spots
+            EvaluationRubric.score_blind_spot(skill, top_jobs)
+            for skill in spot_inputs
         ]
 
         # Calculate averages

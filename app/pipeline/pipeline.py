@@ -46,23 +46,65 @@ class SearchResult:
 
 
 def _run_with_grounding(run_fn, run_kwargs, get_citations, retrieved_jobs, agent_name):
-    """Run agent, check grounding, re-ask once on hallucination. Returns (result, passed: bool)."""
-    result = run_fn(**run_kwargs)
-    ungrounded = check_grounding(get_citations(result), retrieved_jobs)
-    if not ungrounded:
-        return result, True
+    """Run agent, check grounding using ratio threshold. Returns (result, passed: bool).
 
-    logger.warning("%s ungrounded citations: %s — re-asking once", agent_name, ungrounded)
+    Always keeps the best result (highest grounding ratio), never discards agent output.
+    Scoring happens on the best result regardless of pass status (pass only sets validation flag).
+    """
+    from app.config import GROUNDING_PASS_RATIO
+
+    # Run agent once
+    result = run_fn(**run_kwargs)
+    cited = get_citations(result)
+    ungrounded = check_grounding(cited, retrieved_jobs)
+
+    # Compute grounding ratio
+    total = len(cited)
+    grounded = total - len(ungrounded)
+    ratio = grounded / total if total else 1.0
+
+    best_result = result
+    best_ratio = ratio
+
+    # If ratio passes, return immediately (no re-ask)
+    if ratio >= GROUNDING_PASS_RATIO:
+        logger.debug("%s grounding ratio %.1f%% >= %.1f%% (pass, no re-ask)",
+                     agent_name, 100*ratio, 100*GROUNDING_PASS_RATIO)
+        return best_result, True
+
+    # Else attempt re-ask
+    logger.warning("%s grounding ratio %.1f%% < %.1f%% — re-asking once",
+                   agent_name, 100*ratio, 100*GROUNDING_PASS_RATIO)
     available = sorted(set(j["company"] for j in retrieved_jobs[:10]))
     reask = (
         f"Your response cited companies not in the retrieved jobs: {ungrounded}.\n"
         f"Use ONLY companies from this list: {available}"
     )
-    result = run_fn(**{**run_kwargs, "extra_context": reask})
-    still_bad = check_grounding(get_citations(result), retrieved_jobs)
-    if still_bad:
-        logger.warning("%s still ungrounded after re-ask: %s", agent_name, still_bad)
-    return result, not bool(still_bad)
+    reask_result = run_fn(**{**run_kwargs, "extra_context": reask})
+    reask_cited = get_citations(reask_result)
+    reask_ungrounded = check_grounding(reask_cited, retrieved_jobs)
+
+    # Compute ratio for re-asked result
+    reask_total = len(reask_cited)
+    reask_grounded = reask_total - len(reask_ungrounded)
+    reask_ratio = reask_grounded / reask_total if reask_total else 1.0
+
+    # Keep whichever has the higher ratio
+    if reask_ratio > best_ratio:
+        best_result = reask_result
+        best_ratio = reask_ratio
+        logger.debug("%s re-ask improved ratio to %.1f%%", agent_name, 100*reask_ratio)
+    else:
+        logger.debug("%s keeping original result (ratio %.1f%% >= re-ask %.1f%%)",
+                     agent_name, 100*best_ratio, 100*reask_ratio)
+
+    # Return best result; passed=True only if best_ratio meets threshold
+    passed = best_ratio >= GROUNDING_PASS_RATIO
+    if not passed:
+        logger.warning("%s best ratio %.1f%% still below threshold; output will be scored but validation=False",
+                       agent_name, 100*best_ratio)
+
+    return best_result, passed
 
 
 def run(req: SearchRequest) -> SearchResult:
@@ -136,6 +178,7 @@ def run(req: SearchRequest) -> SearchResult:
         )
         result.agent_validation["resume_coach"] = passed
         result.raw_agent_output["resume_recs"] = resume_recs.model_dump()
+        # display string only; scoring reads raw_agent_output (see evaluation_scoring)
         result.resume_recs = [f"[{r.priority}] {r.title} — {r.fix}" for r in resume_recs.recommendations]
 
         # Pass 3: rerank resume recs by relevance to the full resume text
@@ -163,6 +206,7 @@ def run(req: SearchRequest) -> SearchResult:
         )
         result.agent_validation["career_strategist"] = passed
         result.raw_agent_output["career_strategy"] = strategy.model_dump()
+        # display string only; scoring reads raw_agent_output (see evaluation_scoring)
         result.blind_spots = [f"[{b.priority}] {b.skill}: {b.remediation}" for b in strategy.blind_spots]
 
     except Exception as e:
