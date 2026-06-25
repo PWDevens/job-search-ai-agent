@@ -83,6 +83,38 @@ def test_c1_recommendation_scoring():
     print("[PASS] C1 recommendation_scoring finds company citations")
 
 
+def test_c4_grounded_nontech_skill_scores():
+    """C4: a grounded non-tech skill (not in the tech whitelist) must score, not 0.
+
+    'ACLS' is not in TECH_SKILLS/SOFT_SKILLS; under the old is_realistic gate it
+    scored 0 even when present in the matched jobs. Now grounding => real => scores.
+    """
+    nursing_jobs = [
+        {"company": "Mercy", "document": "registered nurse with acls certification and epic ehr"},
+        {"company": "Kaiser", "document": "charge nurse, acls required, bls preferred"},
+    ]
+    s = EvaluationRubric.score_blind_spot("acls", nursing_jobs)
+    assert s.job_citations >= 2, f"ACLS should be cited in both jobs, got {s.job_citations}"
+    assert s.is_realistic, "Grounded skill must be treated as realistic (C4)"
+    assert s.score >= 3, f"Grounded-in-2 non-tech skill should score >=3, got {s.score}"
+    # An invented skill absent from postings still scores 0.
+    bogus = EvaluationRubric.score_blind_spot("quantum welding telepathy", nursing_jobs)
+    assert bogus.score == 0, "Ungrounded, unrecognized skill must score 0"
+    print("[PASS] C4/C5 grounded non-tech skill scores; invented skill scores 0")
+
+
+def test_c5_grounding_drives_full_scale():
+    """C5: grounding drives the 0-4 scale; 1 citation beats 0, 3+ reaches 4."""
+    one = [{"company": "A", "document": "needs conduit bending"}]
+    three = [{"company": "A", "document": "conduit"}, {"company": "B", "document": "conduit work"},
+             {"company": "C", "document": "conduit bending"}]
+    s1 = EvaluationRubric.score_blind_spot("conduit", one)
+    s3 = EvaluationRubric.score_blind_spot("conduit", three)
+    assert s1.score == 2, f"1 citation should score 2, got {s1.score}"
+    assert s3.score == 4, f"3 citations should score 4, got {s3.score}"
+    print("[PASS] C5 grounding drives full 0-4 scale (1->2, 3+->4)")
+
+
 def test_c2_city_state_extraction():
     """C2: _city_state extracts city and state from normalized location."""
     city, state = _city_state("Chicago, IL")
@@ -168,6 +200,8 @@ if __name__ == "__main__":
         test_c1_rec_text,
         test_c1_blind_spot_scoring,
         test_c1_recommendation_scoring,
+        test_c4_grounded_nontech_skill_scores,
+        test_c5_grounding_drives_full_scale,
         test_c2_city_state_extraction,
         test_c2_remote_matches_all,
         test_c2_remote_job_matches_specific_city,

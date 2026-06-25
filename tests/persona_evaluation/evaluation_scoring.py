@@ -202,34 +202,43 @@ class EvaluationRubric:
             if skill_lower in _job_text(job)
         )
 
-        # Check if it's a real/recognized skill
-        is_realistic = (
+        # Recognized in the known vocabulary (kept only as a fallback for plausible
+        # but ungrounded skills — NOT a gate on grounded ones).
+        in_vocab = (
             skill_lower in EvaluationRubric.TECH_SKILLS or
             skill_lower in EvaluationRubric.SOFT_SKILLS or
             any(keyword in skill_lower for keyword in ["learning", "data", "analytics", "design"])
         )
+        # C4: a skill that literally appears in the matched jobs is real by definition.
+        # The old tech-skill whitelist scored grounded trade/clinical/finance skills
+        # (e.g. "ACLS", "conduit", "NEC") as 0 — penalizing correctly-grounded output.
+        is_realistic = job_citations > 0 or in_vocab
 
-        # Check for learning path indicators (course, time, resource mention)
+        # Learning-path signal (the skill string rarely carries it; kept for the record,
+        # not used to gate the score).
         has_learning_path = bool(
             re.search(r'course|tutorial|learn|free|udemy|coursera|certification|hours|weeks', skill_lower)
         )
 
-        # Scoring logic (0-4 scale)
+        # C5: full 0-4 scale, grounding-driven. A blind spot grounded in even one real
+        # posting is a genuine market gap and must outscore an ungrounded guess — on
+        # diverse real (Adzuna) corpora most grounded skills hit exactly one job, so the
+        # old "1 citation == 1 point" floor made real-data grounding invisible.
         if not is_realistic:
-            score = 0  # Poor: not a real skill
-            reasoning = f"'{skill}' not recognized as real skill (0/4)"
+            score = 0  # made up: absent from every posting and unrecognized
+            reasoning = f"'{skill}' not grounded in jobs and not a recognized skill (0/4)"
         elif job_citations == 0:
-            score = 1  # Fair: real skill, no job relevance
-            reasoning = f"Real skill but not found in top jobs (1/4)"
-        elif job_citations >= 3 and has_learning_path:
-            score = 3  # Excellent: realistic + cited + has learning path
-            reasoning = f"Strong blind spot - {job_citations} job citations, learning path provided (3/4)"
+            score = 1  # plausible/recognized skill, but absent from these postings
+            reasoning = "Recognized skill but not found in matched jobs (1/4)"
+        elif job_citations >= 3:
+            score = 4  # appears across many postings — a clear market-wide gap
+            reasoning = f"Strong market-wide gap - {job_citations} job citations (4/4)"
         elif job_citations >= 2:
-            score = 2  # Good: cited in multiple jobs
-            reasoning = f"Good blind spot - {job_citations} job citations (2/4)"
-        else:
-            score = 1  # Fair: minimal job relevance
-            reasoning = f"Minimal job relevance - {job_citations} citations (1/4)"
+            score = 3  # grounded in multiple postings
+            reasoning = f"Grounded in multiple jobs - {job_citations} citations (3/4)"
+        else:  # exactly one citation
+            score = 2  # grounded in a real posting
+            reasoning = "Grounded in a matched job (2/4)"
 
         return BlindSpotScore(
             skill=skill,
