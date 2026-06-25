@@ -256,36 +256,35 @@ class EvaluationRubric:
         title = job.get("title", "")
         company = job.get("company", "")
         description = _job_text(job)
-        score_val = job.get("score", 0)
+        score_val = job.get("score", 0) or 0  # matcher cosine similarity (1 = perfect)
 
-        # Check if job matches persona's target fields
-        field_match = any(field in description for field in persona_fields)
+        # MJ3: token-based field alignment. The old check tested whether a whole target
+        # TITLE string ("Healthcare Data Analyst") appeared verbatim in the description —
+        # almost never true, so field_match was ~always False and capped every job at 1.
+        # Tokenize the titles and drop ultra-generic words so a match means "this job is
+        # in the persona's field", not "contains the word data".
+        generic = {"data", "senior", "junior", "manager", "analyst", "specialist",
+                   "associate", "lead", "role", "experience", "engineer"}
+        field_tokens = {w for f in persona_fields
+                        for w in re.findall(r"[a-z]+", f.lower())
+                        if len(w) > 3 and w not in generic}
+        field_match = any(tok in description for tok in field_tokens)
 
-        # Check for experience level alignment
-        experience_level = ""
-        if "senior" in title.lower() or "lead" in title.lower() or "manager" in title.lower():
-            experience_level = "senior"
-        elif "junior" in title.lower() or "associate" in title.lower():
-            experience_level = "junior"
+        # MJ3: score on the matcher's REAL semantic relevance instead of gating on
+        # field_match. Observed top-5 retrieval cosine range ~0.61-0.80; thresholds are
+        # that distribution's quartiles (p25 0.67 / median 0.70 / p75 0.74) so the job
+        # dimension actually differentiates retrieval quality instead of pinning at 1.0.
+        if score_val >= 0.74:
+            base = 3
+        elif score_val >= 0.68:
+            base = 2
+        elif score_val >= 0.62:
+            base = 1
         else:
-            experience_level = "mid"
-
-        # Scoring (0-3 scale)
-        if not field_match and score_val < 0.5:
-            score = 0  # Not relevant
-            reasoning = f"Not relevant to persona field ({score_val:.2f} semantic match)"
-        elif not field_match and score_val < 0.7:
-            score = 1  # Tangential match
-            reasoning = f"Tangentially relevant, weak semantic match ({score_val:.2f})"
-        elif field_match and score_val >= 0.75:
-            score = 3  # Excellent match
-            reasoning = f"Strong match - field aligned, semantic match {score_val:.2f}"
-        elif field_match:
-            score = 2  # Good match
-            reasoning = f"Good match - field aligned, semantic match {score_val:.2f}"
-        else:
-            score = 1  # Fair
-            reasoning = f"Fair match, experience level: {experience_level}"
+            base = 0
+        # Field alignment lifts a semantically-borderline job by one (capped at 3).
+        score = min(3, base + 1) if (field_match and base < 3) else base
+        reasoning = f"semantic={score_val:.2f}, field_match={field_match} ({score}/3)"
 
         return JobMatchScore(
             title=title,

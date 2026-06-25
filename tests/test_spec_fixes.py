@@ -103,6 +103,25 @@ def test_c4_grounded_nontech_skill_scores():
     print("[PASS] C4/C5 grounded non-tech skill scores; invented skill scores 0")
 
 
+def test_mj3_job_score_reflects_semantic_relevance():
+    """MJ3: job score uses the matcher's real cosine score, not the broken whole-title
+    gate that capped every job at 1."""
+    fields = ["Charge Nurse", "ICU Nurse"]
+    strong = {"title": "ICU Charge Nurse", "company": "Mercy",
+              "document": "icu charge nurse, acls", "score": 0.78}
+    weak = {"title": "Barista", "company": "Cafe", "document": "make coffee", "score": 0.55}
+    s_strong = EvaluationRubric.score_job_match(strong, fields)
+    s_weak = EvaluationRubric.score_job_match(weak, fields)
+    assert s_strong.score == 3, f"strong+field job should score 3, got {s_strong.score}"
+    assert s_weak.score == 0, f"low-relevance off-field job should score 0, got {s_weak.score}"
+    # A relevant retrieved job with NO title-token match still scores on semantics (not capped at 1).
+    semantic_only = {"title": "Clinical Care Coordinator", "company": "X",
+                     "document": "patient care unit", "score": 0.72}
+    assert EvaluationRubric.score_job_match(semantic_only, fields).score >= 2, \
+        "semantically strong job must not be pinned at 1 without a title-token match"
+    print("[PASS] MJ3 job score reflects semantic relevance, not the whole-title gate")
+
+
 def test_c5_grounding_drives_full_scale():
     """C5: grounding drives the 0-4 scale; 1 citation beats 0, 3+ reaches 4."""
     one = [{"company": "A", "document": "needs conduit bending"}]
@@ -201,6 +220,7 @@ if __name__ == "__main__":
         test_c1_blind_spot_scoring,
         test_c1_recommendation_scoring,
         test_c4_grounded_nontech_skill_scores,
+        test_mj3_job_score_reflects_semantic_relevance,
         test_c5_grounding_drives_full_scale,
         test_c2_city_state_extraction,
         test_c2_remote_matches_all,
