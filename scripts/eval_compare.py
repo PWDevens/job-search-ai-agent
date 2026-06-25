@@ -71,7 +71,7 @@ def run_comparison(scn, rows_spec, repeats, configs, label):
             # Accumulate metrics for this repeat
             repeat_metrics = defaultdict(list)
 
-            for persona, dataset, role, geo, resume in rows_spec:
+            for persona, dataset, role, geo, resume, row_variant in rows_spec:
                 run_count += 1
                 who = getattr(persona, "name", "?")
                 print(
@@ -80,7 +80,7 @@ def run_comparison(scn, rows_spec, repeats, configs, label):
                     flush=True,
                 )
 
-                row = run_row(scn, persona, dataset, role, geo, resume)
+                row = run_row(scn, persona, dataset, role, geo, resume, row_variant)
 
                 # ponytail: reuse the existing 'label' column to tag config+repeat so we don't widen CSV_FIELDS.
                 row["label"] = f"compare-{config}-r{repeat+1}"
