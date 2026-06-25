@@ -65,10 +65,26 @@ def test_nonsense_returns_empty():
     print("[PASS] nonsense -> empty / None")
 
 
+def test_graph_degrades_without_data():
+    # Tier-2 occupation graph needs the ESCO occupation files (a runtime data drop);
+    # without them every lookup must degrade to [] rather than raising. Simulate the
+    # unbuilt state so the test is deterministic even after a local graph build.
+    import sqlite3
+    from app.config import SKILLS_DB_PATH
+    from app.skills import graph as G
+    con = sqlite3.connect(SKILLS_DB_PATH)
+    con.executescript("DROP TABLE IF EXISTS occupation_aliases; DROP TABLE IF EXISTS occupation_skills;")
+    con.commit(); con.close()
+    G._occ_alias_map.cache_clear()
+    assert G.essential_skills_for("registered nurse") == [], \
+        "essential_skills_for must return [] when the occupation graph isn't built"
+    print("[PASS] occupation graph degrades gracefully when unbuilt")
+
+
 if __name__ == "__main__":
     tests = [test_build, test_exact_extraction, test_synonym_normalization,
              test_semantic_paraphrase, test_semantic_ambiguous_falls_back,
-             test_nonsense_returns_empty]
+             test_nonsense_returns_empty, test_graph_degrades_without_data]
     passed = failed = 0
     for t in tests:
         try:
