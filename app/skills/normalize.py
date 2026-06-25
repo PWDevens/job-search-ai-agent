@@ -66,8 +66,15 @@ def _semantic(query: str, n: int):
         return []
 
 
-def extract_skill_ids(text: str, max_skills: int = 30) -> list[dict]:
-    """Skills mentioned in `text` -> [{skill_id, name, type, match, score}]."""
+def extract_skill_ids(text: str, max_skills: int = 30, semantic: bool = False) -> list[dict]:
+    """Skills mentioned in `text` -> [{skill_id, name, type, match, score}].
+
+    Exact token-boundary alias matching only, by default. The whole-text embedding
+    pass is OFF for extraction: querying a long job description against a large
+    taxonomy (e.g. ESCO's ~14k skills) surfaces spurious near-neighbours
+    ("electricity principles", "morality" on a nursing post). Semantic matching
+    stays where it's precise — normalize_one() on a single short skill phrase.
+    """
     if not text:
         return []
     low = text.lower()
@@ -86,8 +93,7 @@ def extract_skill_ids(text: str, max_skills: int = 30) -> list[dict]:
             found[sid] = {"skill_id": sid, "name": m.get("name", sid),
                           "type": m.get("type"), "match": "exact", "score": 1.0}
 
-    # Semantic pass — recall for paraphrased skills not caught above.
-    if amap:  # only if the store exists
+    if semantic and amap:  # opt-in only; noisy on large taxonomies (see docstring)
         for sid, score in _semantic(text, n=max_skills):
             if sid in found or score < SKILL_MATCH_FLOOR:
                 continue

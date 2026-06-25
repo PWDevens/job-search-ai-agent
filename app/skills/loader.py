@@ -42,6 +42,25 @@ def detect_source(header: list[str]) -> str:
     return "sample"  # safest default — assumes our own schema
 
 
+# Generic job-prose words that are NOT skills but appear as short ESCO aliases
+# (e.g. "CALL" -> Computer Assisted Language Learning matching "call" in a nursing post).
+# Kept deliberately small to avoid dropping real single-word skills (leadership, python, sql).
+_GENERIC_ALIASES = {
+    "call", "work", "staff", "team", "help", "care", "plan", "role", "time", "area",
+    "level", "group", "order", "value", "system", "process", "service", "report",
+    "review", "run", "need", "make", "set", "meet", "follow", "support", "use", "user",
+    "task", "unit", "field", "type", "part", "site", "case", "data", "test", "lead",
+}
+
+
+def _usable_alias(a: str) -> bool:
+    """Keep multi-word aliases (specific enough); drop single tokens that are <=2 chars
+    or a generic non-skill word — those cause exact-match false positives."""
+    if " " in a:
+        return True
+    return len(a) > 2 and a not in _GENERIC_ALIASES
+
+
 def _split(val: str, seps=("|", "\n", ";")) -> list[str]:
     """Split a multi-value cell on any of the common separators."""
     out = [val]
@@ -83,8 +102,10 @@ def load_rows(path: Path) -> list[dict]:
                 continue
             if not sid:
                 sid = "sk_" + name.lower().replace(" ", "_")
-            # canonical name is always an alias too
-            alias_set = {name.lower(), *(a.lower() for a in aliases)}
+            # canonical name is always an alias too; filter generic/short single-word
+            # aliases that cause exact-match false positives.
+            alias_set = {a for a in {name.lower(), *(a.lower() for a in aliases)}
+                         if _usable_alias(a)}
             rows.append({"skill_id": sid, "name": name, "type": typ,
                          "source": source, "aliases": sorted(alias_set)})
     return rows
@@ -124,12 +145,12 @@ def build(path=None) -> int:
 
     # Embed canonical names for the semantic-fallback match.
     delete_collection(CHROMA_SKILLS_COL)
-    upsert_documents(
-        CHROMA_SKILLS_COL,
-        ids=[r["skill_id"] for r in rows],
-        documents=[r["name"] for r in rows],
-        metadatas=[{"name": r["name"], "type": r["type"] or ""} for r in rows],
-    )
+    ids   = [r["skill_id"] for r in rows]
+    docs  = [r["name"] for r in rows]
+    metas = [{"name": r["name"], "type": r["type"] or ""} for r in rows]
+    BATCH = 5000  # ChromaDB caps a single upsert (~5461); chunk for full taxonomies (ESCO ~14k)
+    for i in range(0, len(rows), BATCH):
+        upsert_documents(CHROMA_SKILLS_COL, ids[i:i + BATCH], docs[i:i + BATCH], metas[i:i + BATCH])
     logger.info("Built skills store from %s: %d skills", src.name, len(rows))
     return len(rows)
 

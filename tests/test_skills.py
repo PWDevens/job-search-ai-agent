@@ -16,7 +16,7 @@ def _fresh_store():
     # Clear cached alias/meta maps so each run reflects the freshly-built DB.
     normalize._alias_map.cache_clear()
     normalize._meta_map.cache_clear()
-    n = loader.build()  # defaults to data/skills/sample_skills.csv
+    n = loader.build(loader.SAMPLE)  # force the committed sample (ignore any raw/ drop)
     normalize._alias_map.cache_clear()
     normalize._meta_map.cache_clear()
     return n
