@@ -3,7 +3,7 @@ app/routes.py — Flask Routes
 =============================
 
 GET  /               → Search form (index.html)
-POST /search         → Run CrewAI pipeline, render results, merge into user file
+POST /search         → Run agent pipeline, render results, merge into user file
 POST /ingest         → Upload and ingest jobs CSV/XLSX or resume PDF/TXT
 GET  /health         → Docker liveness probe
 GET  /pipeline       → Download internal pipeline XLSX
@@ -327,7 +327,7 @@ def ingest():
     """
     Standalone ingestion endpoint.
     Accepts a jobs CSV/XLSX or resume file and loads it into ChromaDB without
-    running the full CrewAI pipeline. Useful for pre-loading data.
+    running the full agent pipeline. Useful for pre-loading data.
     """
     geo_filter = request.form.get("geo_filter", "").strip() or None
     messages   = []

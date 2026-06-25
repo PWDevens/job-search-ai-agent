@@ -1,46 +1,53 @@
 # Deployment Checklist
 
-**Status:** Ready for PHASE 1 + PHASE 2 Deployment  
-**Last Updated:** 2026-06-16  
-**Deployment Target:** Staging → Production
+**Status:** Production Ready (v2.0)  
+**Last Updated:** 2026-06-24  
+**Deployment Target:** Local Stack or Cloud Deployment
 
 ---
 
 ## Pre-Deployment: Environment & Dependencies
 
 ### System Requirements
-- [ ] Python 3.9+
-- [ ] Docker & Docker Compose (for ChromaDB, Ollama)
-- [ ] 4GB RAM minimum (8GB recommended)
-- [ ] 20GB disk space (for Ollama models)
+- [ ] Python 3.10+
+- [ ] Ollama running locally (or remote via `OLLAMA_BASE_URL`)
+- [ ] 4GB RAM minimum (8GB recommended for full models)
+- [ ] 20GB disk space (for Ollama models + ChromaDB data)
 - [ ] Linux/macOS/Windows with WSL2
 
 ### Dependencies
 - [ ] `pip install -r requirements.txt` completed without errors
 - [ ] Virtual environment activated
 - [ ] All imports work: `python -c "from app import create_app"`
-- [ ] Flask, ChromaDB, CrewAI, Ollama packages available
+- [ ] Flask, ChromaDB (embedded), Ollama packages available
 
 ### Environment Configuration
-- [ ] `.env` file exists with all required variables:
+- [ ] `.env` file exists (optional; sensible defaults provided):
   ```
-  CHROMA_HOST=chromadb
-  CHROMA_PORT=8000
-  CHROMA_TIMEOUT=10
-  OLLAMA_BASE_URL=http://ollama:11434
-  OLLAMA_MODEL=llama3
+  # Model selection (auto-selects CPU→phi4-mini, GPU→llama3.1:8b)
+  AGENT_MODEL=phi4-mini          # or AGENT_MODEL=llama3.1:8b for GPU
+  HARDWARE_TIER=cpu               # or gpu
+  
+  # Ollama
+  OLLAMA_BASE_URL=http://localhost:11434
+  OLLAMA_NUM_CTX=8192             # context window (required for agents)
+  
+  # Flask
   FLASK_HOST=0.0.0.0
   FLASK_PORT=5000
   FLASK_DEBUG=false
-  SECRET_KEY=<random-value-NOT-change-me-in-production>
+  SECRET_KEY=<random-value>
+  
+  # ChromaDB (embedded; no server needed)
+  CHROMA_DB_PATH=chroma_data/
+  
+  # Email (optional; for scheduler notifications)
   SMTP_HOST=smtp.gmail.com
-  SMTP_PORT=587
   SMTP_USER=<your-email>
   SMTP_PASS=<app-password>
-  EMAIL_TO=<recipient-email>
   ```
-- [ ] `SECRET_KEY` is cryptographically random (not default)
-- [ ] SMTP credentials are valid (test with separate script)
+- [ ] `AGENT_MODEL` specified or hardware detected correctly
+- [ ] `OLLAMA_NUM_CTX=8192` honored (app default if unset)
 - [ ] No sensitive data in git (check `.gitignore`)
 
 ---
@@ -78,15 +85,24 @@ pytest tests/ -v --cov=app --cov-report=html
 
 ## Application Startup & Health Checks
 
-### Docker Services
+### Services & Verification
 ```bash
-docker-compose up -d
+# Ollama (required)
+ollama serve
+
+# In another terminal: start Flask app
+python run.py
+
+# Test (in third terminal)
+python scripts/e2e_smoke.py --mock    # CPU-only, no Ollama needed
+python scripts/e2e_smoke.py           # Full test with LLM
 ```
 
 **Verification:**
-- [ ] ChromaDB running: `curl http://localhost:8000/api/v1/heartbeat`
 - [ ] Ollama running: `curl http://localhost:11434/api/tags`
-- [ ] Flask app running: `curl http://localhost:5000/`
+- [ ] Flask app running: `curl http://localhost:5000/` → 200 OK
+- [ ] ChromaDB embedded: `chroma_data/` directory exists with data
+- [ ] E2E test: `python scripts/e2e_smoke.py --mock` → [PASS]
 
 ### Application Health Check
 ```bash

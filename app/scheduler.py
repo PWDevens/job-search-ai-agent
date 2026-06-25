@@ -1,6 +1,6 @@
 """
 APScheduler-based weekly job-search pipeline scheduler.
-Runs the full CrewAI pipeline Mon–Fri at 08:00 America/New_York (configurable).
+Runs the full agent pipeline Mon–Fri at 08:00 America/New_York (configurable).
 Sends email summary via SMTP after each run.
 
 Usage (standalone):
