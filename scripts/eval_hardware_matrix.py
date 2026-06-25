@@ -42,6 +42,7 @@ def scenarios(phi4_8gb_layers: int):
         {"id": 6, "gpu": "GPU",               "model": "gemma4:12b-it-q4_K_M","num_gpu": None,   "num_thread": None, "vram_mode": "full"},  # bake-off: gemma4 12B dense (fails career_strategist)
         {"id": 7, "gpu": "GPU",               "model": "gemma3:12b-it-q4_K_M","num_gpu": None,   "num_thread": None, "vram_mode": "full"},  # bake-off: gemma3 12B dense
         {"id": 8, "gpu": "GPU",               "model": "gemma4:26b-a4b-it-qat","num_gpu": None,  "num_thread": None, "vram_mode": "full"}, # bake-off: gemma4 26B MoE (4B active)
+        {"id": 9, "gpu": "GPU",               "model": "llama3.1:8b","num_gpu": None,            "num_thread": None, "vram_mode": "full"},  # production GPU model (bake-off winner)
     ]
 
 CSV_FIELDS = [
