@@ -2,8 +2,11 @@
 Shared primitives for agent communication with Ollama.
 - load_skill: reads .md skill files and appends grounding
 - chat: calls Ollama /api/chat with JSON schema validation
+- transport: a local/pod Ollama server, or (if RUNPOD_ENDPOINT_ID is set) a
+  RunPod serverless endpoint that wraps the same /api/chat payload.
 """
 import logging
+import time
 from pathlib import Path
 import httpx
 from pydantic import BaseModel, ValidationError
@@ -83,6 +86,46 @@ def load_skill(name: str) -> str:
     return f"{skill_body}\n\n---\n{grounding_body}"
 
 
+def _call_runpod_serverless(request_body: dict) -> dict:
+    """Run the Ollama /api/chat payload on a RunPod serverless endpoint.
+
+    Wraps the body as {"input": <payload>}, submits to /run, polls /status until the
+    job finishes, and returns the worker's "output" (which is the raw Ollama /api/chat
+    response — same shape the direct path returns). Polling (not runsync) so the
+    ~60-90s job_matcher generations that exceed runsync's 90s window still work.
+    """
+    base = f"https://api.runpod.ai/v2/{cfg.RUNPOD_ENDPOINT_ID}"
+    headers = {"Authorization": f"Bearer {cfg.RUNPOD_API_KEY}"}
+    with httpx.Client(timeout=cfg.OLLAMA_TIMEOUT) as client:
+        sub = client.post(f"{base}/run", json={"input": request_body}, headers=headers)
+        sub.raise_for_status()
+        job_id = sub.json()["id"]
+
+        deadline = time.monotonic() + cfg.RUNPOD_POLL_TIMEOUT
+        while time.monotonic() < deadline:
+            st = client.get(f"{base}/status/{job_id}", headers=headers)
+            st.raise_for_status()
+            data = st.json()
+            status = data.get("status")
+            if status == "COMPLETED":
+                return data.get("output") or {}
+            if status in ("FAILED", "CANCELLED", "TIMED_OUT"):
+                raise ValueError(f"RunPod job {job_id} {status}: {data.get('error') or data}")
+            time.sleep(cfg.RUNPOD_POLL_INTERVAL)
+        raise TimeoutError(f"RunPod job {job_id} did not complete in {cfg.RUNPOD_POLL_TIMEOUT}s")
+
+
+def _call_ollama(request_body: dict) -> dict:
+    """Return the Ollama /api/chat response dict — via a RunPod serverless endpoint
+    if configured (RUNPOD_ENDPOINT_ID + RUNPOD_API_KEY), else the direct server."""
+    if cfg.RUNPOD_ENDPOINT_ID and cfg.RUNPOD_API_KEY:
+        return _call_runpod_serverless(request_body)
+    with httpx.Client(timeout=cfg.OLLAMA_TIMEOUT) as client:
+        response = client.post(f"{cfg.OLLAMA_BASE_URL}/api/chat", json=request_body)
+        response.raise_for_status()
+        return response.json()
+
+
 def chat(system: str, user: str, schema: type[BaseModel]) -> BaseModel:
     """Call Ollama /api/chat with JSON schema validation.
 
@@ -100,7 +143,6 @@ def chat(system: str, user: str, schema: type[BaseModel]) -> BaseModel:
         ValueError: JSON parsing failed
     """
     # Read config dynamically so the eval harness can vary model / GPU / temp per run.
-    url = f"{cfg.OLLAMA_BASE_URL}/api/chat"
     options = {
         "temperature": cfg.OLLAMA_TEMPERATURE,
         "num_ctx": cfg.OLLAMA_NUM_CTX,
@@ -121,14 +163,11 @@ def chat(system: str, user: str, schema: type[BaseModel]) -> BaseModel:
         "options": options,
     }
 
-    logger.debug(f"Calling Ollama {url} with model {cfg.AGENT_MODEL} options={options}")
+    transport = "runpod" if (cfg.RUNPOD_ENDPOINT_ID and cfg.RUNPOD_API_KEY) else "ollama"
+    logger.debug(f"chat via {transport} | model {cfg.AGENT_MODEL} options={options}")
 
     try:
-        with httpx.Client(timeout=120.0) as client:
-            response = client.post(url, json=request_body)
-            response.raise_for_status()
-
-        response_json = response.json()
+        response_json = _call_ollama(request_body)
         content = response_json.get("message", {}).get("content", "")
 
         # Capture inference perf (Ollama returns nanosecond durations).

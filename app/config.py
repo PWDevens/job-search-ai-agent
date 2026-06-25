@@ -36,6 +36,17 @@ OLLAMA_NUM_GPU    = _int_or_none(os.getenv("OLLAMA_NUM_GPU"))     # None=auto, 0
 OLLAMA_NUM_THREAD = _int_or_none(os.getenv("OLLAMA_NUM_THREAD"))  # cap CPU threads to mimic an average CPU
 OLLAMA_NUM_CTX    = int(os.getenv("OLLAMA_NUM_CTX",      "8192"))  # 4096 truncates the ~5.2k-tok job_matcher prompt → agents fail; 8192 needed for llama3.1/gemma
 OLLAMA_TEMPERATURE= float(os.getenv("OLLAMA_TEMPERATURE", "0.2")) # set 0.0 for greedy/reproducible eval baselines
+OLLAMA_TIMEOUT    = float(os.getenv("OLLAMA_TIMEOUT",    "300"))  # per-request HTTP timeout (long-context generation)
+
+# ── RunPod Serverless (optional) ──────────────────────────────────────────────
+# Set both to route the agents' Ollama /api/chat calls at a RunPod serverless
+# endpoint instead of a local/pod Ollama (base.py wraps the request as
+# {"input": <chat payload>} → POST /run → poll /status → unwrap "output").
+# Leave RUNPOD_ENDPOINT_ID empty to use the direct OLLAMA_BASE_URL path.
+RUNPOD_ENDPOINT_ID   = os.getenv("RUNPOD_ENDPOINT_ID", "")
+RUNPOD_API_KEY       = os.getenv("RUNPOD_API_KEY", "")              # account API key (Settings → API Keys)
+RUNPOD_POLL_TIMEOUT  = int(os.getenv("RUNPOD_POLL_TIMEOUT",  "600"))  # max seconds to wait for a job
+RUNPOD_POLL_INTERVAL = float(os.getenv("RUNPOD_POLL_INTERVAL", "2"))  # seconds between /status polls
 
 # ── Embedding (single backend: sentence-transformers) ─────────────────────────
 EMBED_MODEL       = os.getenv("EMBED_MODEL", "BAAI/bge-small-en-v1.5")
