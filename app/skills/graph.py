@@ -17,6 +17,7 @@ Everything degrades to [] if the graph isn't built — no hard dependency.
 """
 import csv
 import logging
+import re
 import sqlite3
 from collections import defaultdict
 from functools import lru_cache
@@ -110,7 +111,14 @@ def _occ_alias_map() -> dict:
 
 
 def match_occupation(title: str) -> str | None:
-    """Map a job title to an ESCO occupation URI: exact alias, else best token overlap."""
+    """Map a job title / role description to an ESCO occupation URI.
+
+    Exact alias first; else the occupation whose NAME is best *contained* in the
+    text. Containment (covered / alias-size), not Jaccard — a verbose query like
+    "Registered nurse with ICU experience seeking charge nurse role" must still
+    match the short occupation "registered nurse" (Jaccard would dilute it to ~0).
+    Score rewards covering more specific tokens so "registered nurse" beats "nurse".
+    """
     if not title:
         return None
     amap = _occ_alias_map()
@@ -119,18 +127,22 @@ def match_occupation(title: str) -> str | None:
     low = title.strip().lower()
     if low in amap:
         return amap[low]
-    toks = {t for t in low.replace("/", " ").split() if t not in _STOP and len(t) > 2}
-    if not toks:
+    qtoks = {t for t in re.split(r"[^a-z0-9]+", low) if t not in _STOP and len(t) > 2}
+    if not qtoks:
         return None
-    best, best_score = None, 0
+    best, best_score = None, 0.0
     for alias, occ in amap.items():            # ponytail: linear scan; index if this gets hot
         atoks = {t for t in alias.split() if t not in _STOP and len(t) > 2}
         if not atoks:
             continue
-        overlap = len(toks & atoks) / len(toks | atoks)  # Jaccard
-        if overlap > best_score:
-            best, best_score = occ, overlap
-    return best if best_score >= 0.34 else None
+        covered = qtoks & atoks
+        coverage = len(covered) / len(atoks)   # fraction of the occupation name present
+        if coverage < 0.6:
+            continue
+        score = len(covered) * coverage        # prefer fully-covered, more specific names
+        if score > best_score:
+            best, best_score = occ, score
+    return best
 
 
 def essential_skills_for(title: str, n: int = 15) -> list[str]:

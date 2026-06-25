@@ -27,10 +27,26 @@ def run(role_description: str, resume_text: str, matched_jobs: list[dict],
                    + fmt_jobs(matched_jobs, max_count=8, detail=True))
     recs_summary = "\n".join(resume_recs[:5]) if resume_recs else "(no resume recs)"
 
+    # skills: a vetted candidate pool — the ESCO occupation graph's essential skills
+    # for this target role. Field-accurate (electrician -> electrical wiring plans;
+    # nurse -> specialist nursing care), so blind spots are grounded in real role
+    # requirements instead of free generation. Empty/skipped if the graph isn't built.
+    try:
+        from app.skills.graph import essential_skills_for
+        essential = essential_skills_for(role_description, n=12)
+    except Exception as e:
+        logger.debug("occupation-essential lookup unavailable: %s", e)
+        essential = []
+    essential_block = (
+        "Essential skills for this target role (occupation taxonomy):\n"
+        + ", ".join(essential) + "\n\n"
+    ) if essential else ""
+
     user_message = (
         f"Candidate Profile:\nRole: {role_description}\n"
         f"Resume: {fmt_resume(resume_text, RESUME_MID_CHARS)}\n\n"
         f"{jobs_block}\n\n"
+        f"{essential_block}"
         f"Resume improvements identified:\n{recs_summary}\n\n"
         f"{ats_block}\n\n"
         f"Please identify {n_blind} critical blind spots (skill gaps, missing experience, ATS blindspots) "
@@ -38,7 +54,9 @@ def run(role_description: str, resume_text: str, matched_jobs: list[dict],
         f"GROUNDING RULE (critical): each blind spot's `skill` MUST be a specific term that literally "
         f"appears in the Target opportunity descriptions above — copy a tool, certification, technology, "
         f"or named skill exactly as written in the postings. Do NOT list a skill the postings don't mention, "
-        f"and do NOT default to data/analytics skills unless the postings name them.\n"
+        f"and do NOT default to data/analytics skills unless the postings name them. "
+        f"Prefer skills that are BOTH in the postings AND in the Essential-skills list above (when provided) "
+        f"and are missing from the resume — those are the highest-value, best-grounded gaps.\n"
         f"For each: skill name, why it matters (cite 2-3 target roles), remediation path, "
         f"time-to-proficiency, and priority.\n"
         f"Then provide 3-4 strategic recommendations with evidence and concrete actions."
