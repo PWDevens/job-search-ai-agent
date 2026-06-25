@@ -21,7 +21,10 @@ def run(role_description: str, resume_text: str, matched_jobs: list[dict],
         logger.warning("Failed to retrieve ATS knowledge: %s", e)
         ats_block = "(ATS knowledge unavailable)"
 
-    jobs_block  = "Target opportunities:\n" + fmt_jobs(matched_jobs, max_count=8)
+    # detail=True so the strategist actually SEES each posting's skills/keywords —
+    # without it the agent only got "Title at Company" and could not ground blind spots.
+    jobs_block  = ("Target opportunities (read the required skills/keywords in each):\n"
+                   + fmt_jobs(matched_jobs, max_count=8, detail=True))
     recs_summary = "\n".join(resume_recs[:5]) if resume_recs else "(no resume recs)"
 
     user_message = (
@@ -32,6 +35,10 @@ def run(role_description: str, resume_text: str, matched_jobs: list[dict],
         f"{ats_block}\n\n"
         f"Please identify {n_blind} critical blind spots (skill gaps, missing experience, ATS blindspots) "
         f"that limit this candidate's competitiveness.\n"
+        f"GROUNDING RULE (critical): each blind spot's `skill` MUST be a specific term that literally "
+        f"appears in the Target opportunity descriptions above — copy a tool, certification, technology, "
+        f"or named skill exactly as written in the postings. Do NOT list a skill the postings don't mention, "
+        f"and do NOT default to data/analytics skills unless the postings name them.\n"
         f"For each: skill name, why it matters (cite 2-3 target roles), remediation path, "
         f"time-to-proficiency, and priority.\n"
         f"Then provide 3-4 strategic recommendations with evidence and concrete actions."
