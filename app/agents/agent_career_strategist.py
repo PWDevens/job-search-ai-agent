@@ -6,7 +6,7 @@ import logging
 from app.agents.base import load_skill, chat, fmt_resume, fmt_jobs
 from app.agents.models import CareerStrategy
 from app.agents.rag_knowledge import query_ats_knowledge
-from app.config import TOP_BLIND_SPOTS, RESUME_MID_CHARS, PROMPT_FEWSHOT
+from app.config import TOP_BLIND_SPOTS, RESUME_MID_CHARS, PROMPT_FEWSHOT, STRATEGIST_USE_OCCUPATION_SKILLS
 
 logger = logging.getLogger(__name__)
 
@@ -27,16 +27,18 @@ def run(role_description: str, resume_text: str, matched_jobs: list[dict],
                    + fmt_jobs(matched_jobs, max_count=8, detail=True))
     recs_summary = "\n".join(resume_recs[:5]) if resume_recs else "(no resume recs)"
 
-    # skills: a vetted candidate pool — the ESCO occupation graph's essential skills
-    # for this target role. Field-accurate (electrician -> electrical wiring plans;
-    # nurse -> specialist nursing care), so blind spots are grounded in real role
-    # requirements instead of free generation. Empty/skipped if the graph isn't built.
-    try:
-        from app.skills.graph import essential_skills_for
-        essential = essential_skills_for(role_description, n=12)
-    except Exception as e:
-        logger.debug("occupation-essential lookup unavailable: %s", e)
-        essential = []
+    # skills: optional candidate pool from the ESCO occupation graph. OFF by default
+    # — an A/B showed ESCO's verbose competence labels HURT grounding on real postings
+    # (see config.STRATEGIST_USE_OCCUPATION_SKILLS). Enable only with a posting-style
+    # vocabulary whose labels match how postings actually name skills.
+    essential = []
+    if STRATEGIST_USE_OCCUPATION_SKILLS:
+        try:
+            from app.skills.graph import essential_skills_for
+            essential = essential_skills_for(role_description, n=12)
+        except Exception as e:
+            logger.debug("occupation-essential lookup unavailable: %s", e)
+            essential = []
     essential_block = (
         "Essential skills for this target role (occupation taxonomy):\n"
         + ", ".join(essential) + "\n\n"

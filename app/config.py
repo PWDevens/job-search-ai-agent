@@ -43,6 +43,14 @@ OLLAMA_TIMEOUT    = float(os.getenv("OLLAMA_TIMEOUT",    "300"))  # per-request 
 # endpoint instead of a local/pod Ollama (base.py wraps the request as
 # {"input": <chat payload>} → POST /run → poll /status → unwrap "output").
 # Leave RUNPOD_ENDPOINT_ID empty to use the direct OLLAMA_BASE_URL path.
+# Inject ESCO occupation-essential skills into the career-strategist prompt.
+# OFF by default: a 2026-06 A/B (stay-field Adzuna) showed it HURT grounding
+# (3.6%->1.8%) and raised fallback (55%->82%) — ESCO's verbose competence labels
+# ("specialist nursing care") don't match crisp posting tokens ("RN"), steering
+# the agent toward ungroundable phrasings. Re-enable only with a posting-derived
+# vocabulary (e.g. Lightcast) whose labels match real postings.
+STRATEGIST_USE_OCCUPATION_SKILLS = os.getenv("STRATEGIST_USE_OCCUPATION_SKILLS", "").lower() in ("1", "true", "yes")
+
 RUNPOD_ENDPOINT_ID   = os.getenv("RUNPOD_ENDPOINT_ID", "")
 RUNPOD_API_KEY       = os.getenv("RUNPOD_API_KEY", "")              # account API key (Settings → API Keys)
 RUNPOD_POLL_TIMEOUT  = int(os.getenv("RUNPOD_POLL_TIMEOUT",  "600"))  # max seconds to wait for a job
