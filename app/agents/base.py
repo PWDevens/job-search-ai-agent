@@ -12,7 +12,7 @@ from app.config import JOB_CONTEXT_CHARS
 
 logger = logging.getLogger(__name__)
 
-SKILLS = Path(__file__).parent / "skills"
+SKILLS = Path(__file__).parent / "agent_skills"
 
 # Perf telemetry from the most recent Ollama call (read by the eval harness).
 # Updated on every successful chat(); tokens_per_sec = eval_count / eval_duration.
@@ -54,7 +54,7 @@ def fmt_jobs(jobs: list[dict], max_count: int = 10, detail: bool = False) -> str
 def load_skill(name: str) -> str:
     """Load a skill file and append grounding.
 
-    Reads skills/<name>.md and skills/_grounding.md.
+    Reads agent_skills/<name>.md and agent_skills/_grounding.md.
     Strips YAML frontmatter (lines from --- to second ---).
     Returns: skill_body + "\n\n---\n" + grounding_body
     """

@@ -140,7 +140,7 @@ This application will be thoroughly tested, secured, and documented:
 - **Zero external APIs** — everything runs in Docker on your laptop
 - **ChromaDB** (embedded, on-disk) stores job embeddings, resume chunks, and ATS knowledge articles
 - **Local embeddings** via Sentence Transformers (`BAAI/bge-small-en-v1.5`)
-- **Framework-free agents** — plain Python orchestration (`app/pipeline/pipeline.py`), no heavy agent framework, with skill prompts in markdown (`app/agents/skills/`)
+- **Framework-free agents** — plain Python orchestration (`app/pipeline/pipeline.py`), no heavy agent framework, with agent-skill prompts in markdown (`app/agents/agent_skills/`)
 - **Auto hardware detection** picks the best Ollama model for your CPU/GPU
 - **Multi-pass reranker** (1–3 passes) sorts results by relevance
 - **Agent validation** prevents hallucination by grounding outputs in actual job data
