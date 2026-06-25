@@ -48,20 +48,68 @@ B) Strategy recommendations (aim for the depth in the exemplar). Each:
 
 ## Exemplars (from career-search.md)
 
+Blind spots — one per field family. Mirror this Evidence -> Action shape, and
+keep each blind spot to a skill/credential that literally appears in the matched
+jobs. These span fields on purpose: pick the lane that fits the candidate; do
+not default to the technical example for non-technical candidates.
+
+Technical (data / analytics):
+```
+ZERO CLOUD PLATFORM CREDENTIALS
+Evidence: cloud platforms appear in an estimated 50%+ of senior data/AI postings;
+no AWS/GCP/Azure cert is on the resume.
+Action: AWS Cloud Practitioner (~2-3 weeks, ~$150 exam) or Google Professional
+Data Engineer. One cloud cert materially improves match rates.
+```
+Trade (electrical):
+```
+NO MASTER ELECTRICIAN LICENSE
+Evidence: 4 of 6 matched supervisor roles require a Master license; resume shows
+Journeyman only and no recent NEC code-update training.
+Action: Sit the state Master exam (NEC 2023 prep, ~60 hrs self-study) and take a
+code-update course at the local IBEW/JATC. Unlocks supervisory pay bands.
+```
+Clinical (nursing):
 ```
 MISSING ACLS CERTIFICATION
-Evidence: 7 of 9 matched healthcare positions require active ACLS (Advanced
-Cardiac Life Support). Your resume shows lapsed certification (expired 2021).
-Action: Renew ACLS through American Heart Association (1 day, ~$120). This is
-table-stakes for RN roles and improves clinical-job match rates immediately.
+Evidence: 7 of 9 matched healthcare positions require active ACLS; resume shows
+lapsed certification (expired 2021).
+Action: Renew ACLS through the American Heart Association (1 day, ~$120).
+Table-stakes for RN roles; improves clinical match rates immediately.
 ```
+Finance / accounting:
 ```
 LACK OF ERP SYSTEM EXPERIENCE
-Evidence: 5 of 6 matched accounting controller roles mention NetSuite or SAP
-expertise. You have desktop-accounting tools only. Gap: enterprise accounting
-system fluency.
-Action: Pursue NetSuite OpenSuite training (NetSuite University, ~40 hours
-self-paced, free). Real-world project in GL, AP, consolidations in a trial org.
+Evidence: 5 of 6 matched controller roles list NetSuite or SAP; resume shows
+desktop-accounting tools only.
+Action: NetSuite training (NetSuite University, ~40 hrs, free) with a GL/AP/
+consolidations project in a trial org.
+```
+Program / project management:
+```
+NO PMP CERTIFICATION
+Evidence: 6 of 8 matched PM roles require or prefer PMP; resume shows project
+leadership but no credential.
+Action: PMP through PMI (35 contact hrs + exam, ~$555 member). Pair it with a
+documented cross-functional project to satisfy the experience hours.
+```
+Supply chain & logistics:
+```
+MISSING APICS CSCP / LEAN SIX SIGMA
+Evidence: 4 of 7 matched operations roles list CSCP or Lean Six Sigma; resume
+shows process improvement without a recognized credential.
+Action: Lean Six Sigma Green Belt (~$300, ~30 hrs) or APICS CSCP, anchored to a
+quantified cost/throughput win from your own history.
+```
+
+Strategy recommendation (output type B) — positioning/lane insight, not a single
+skill. Field-neutral; adapt to the candidate's sector:
+```
+YOU ARE MISSING A CLEAR SECTOR LANE
+Evidence: your resume reads as a generalist, but the matched jobs cluster in one
+high-growth sub-sector where you already have adjacent experience.
+Action: Reframe the headline and top third of the resume around that lane, and
+name 4-5 real employers in it (drawn from the matched jobs) as direct targets.
 ```
 
 ## Rules specific to this agent
