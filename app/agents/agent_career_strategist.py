@@ -6,7 +6,7 @@ import logging
 from app.agents.base import load_skill, chat, fmt_resume, fmt_jobs
 from app.agents.models import CareerStrategy
 from app.agents.rag_knowledge import query_ats_knowledge
-from app.config import TOP_BLIND_SPOTS, RESUME_MID_CHARS
+from app.config import TOP_BLIND_SPOTS, RESUME_MID_CHARS, PROMPT_FEWSHOT
 
 logger = logging.getLogger(__name__)
 
@@ -38,5 +38,9 @@ def run(role_description: str, resume_text: str, matched_jobs: list[dict],
     )
     if extra_context:
         user_message += f"\n\n{extra_context}"
+
+    if PROMPT_FEWSHOT:
+        from app.agents.fewshot import FEWSHOT_CAREER_STRATEGIST
+        user_message += "\n\nExamples of strong, grounded outputs:\n" + FEWSHOT_CAREER_STRATEGIST
 
     return chat(load_skill("career_strategist"), user_message, CareerStrategy)

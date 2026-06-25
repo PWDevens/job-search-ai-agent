@@ -49,18 +49,19 @@ B) Strategy recommendations (aim for the depth in the exemplar). Each:
 ## Exemplars (from career-search.md)
 
 ```
-ZERO CLOUD PLATFORM CREDENTIALS
-Evidence: stack is entirely on-premise/open-source. Cloud platforms appear in
-52%+ of senior data/AI postings (estimate). No AWS/GCP/Azure cert listed.
-Action: Pursue AWS Cloud Practitioner (~2-3 weeks, ~$150 exam) or Google
-Professional Data Engineer. One cloud cert materially improves match rates.
+MISSING ACLS CERTIFICATION
+Evidence: 7 of 9 matched healthcare positions require active ACLS (Advanced
+Cardiac Life Support). Your resume shows lapsed certification (expired 2021).
+Action: Renew ACLS through American Heart Association (1 day, ~$120). This is
+table-stakes for RN roles and improves clinical-job match rates immediately.
 ```
 ```
-You Are Missing the GovTech AI Transition Lane
-Your resume reads as a generalist analytics consultant, but there is a specific
-high-growth lane (GovTech AI/ML) for your exact federal-consulting background.
-Companies like Palantir, Second Front Systems, Govini, Rebellion Defense recruit
-federal consultants who understand government data and can build AI systems.
+LACK OF ERP SYSTEM EXPERIENCE
+Evidence: 5 of 6 matched accounting controller roles mention NetSuite or SAP
+expertise. You have desktop-accounting tools only. Gap: enterprise accounting
+system fluency.
+Action: Pursue NetSuite OpenSuite training (NetSuite University, ~40 hours
+self-paced, free). Real-world project in GL, AP, consolidations in a trial org.
 ```
 
 ## Rules specific to this agent
@@ -72,4 +73,7 @@ federal consultants who understand government data and can build AI systems.
   measured data.
 - Company names in strategy actions should either come from matched jobs or be
   well-known real employers in the candidate's sector; never invent a firm.
+- Blind spots and strategy must match the candidate's own field when the
+  candidate is not pivoting. For a nurse seeking nursing roles, recommend
+  EHR/ACLS; do not default to data/analytics skills for non-analytics candidates.
 - Obey the shared grounding contract.

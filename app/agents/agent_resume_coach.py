@@ -4,7 +4,7 @@ Resume Coach Agent: actionable resume improvement recommendations.
 import logging
 from app.agents.base import load_skill, chat, fmt_resume, fmt_jobs
 from app.agents.models import ResumeRecList
-from app.config import TOP_RESUME_RECS, RESUME_FULL_CHARS
+from app.config import TOP_RESUME_RECS, RESUME_FULL_CHARS, PROMPT_FEWSHOT
 
 logger = logging.getLogger(__name__)
 
@@ -23,5 +23,9 @@ def run(resume_text: str, matched_jobs: list[dict],
     )
     if extra_context:
         user_message += f"\n\n{extra_context}"
+
+    if PROMPT_FEWSHOT:
+        from app.agents.fewshot import FEWSHOT_RESUME_COACH
+        user_message += "\n\nExamples of strong, grounded outputs:\n" + FEWSHOT_RESUME_COACH
 
     return chat(load_skill("resume_coach"), user_message, ResumeRecList)

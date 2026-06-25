@@ -27,6 +27,8 @@ class Persona:
     search_variants: List[SearchVariant]
     target_job_titles: List[str]  # What "good match" looks like
     expected_blind_spots: List[str]  # Known skill gaps to validate
+    stay_in_field_titles: List[str] = None  # Realistic same-profession target roles
+    stay_in_field_blind_spots: List[str] = None  # Realistic same-profession skill gaps
 
 
 # Load resume files from synthetic data directory
@@ -77,6 +79,13 @@ NURSE = Persona(
         "Population Health Analyst",
     ],
     expected_blind_spots=["Python", "SQL", "machine learning", "statistical analysis"],
+    stay_in_field_titles=[
+        "ICU Registered Nurse",
+        "Charge Nurse",
+        "Nurse Manager",
+        "Clinical Nurse Educator",
+    ],
+    stay_in_field_blind_spots=["patient", "nursing", "care", "assessment"],
 )
 
 TEACHER = Persona(
@@ -114,6 +123,13 @@ TEACHER = Persona(
         "Instructional Designer Analyst",
     ],
     expected_blind_spots=["Python", "SQL", "machine learning", "statistical software"],
+    stay_in_field_titles=[
+        "High School Mathematics Teacher",
+        "Curriculum Developer",
+        "Instructional Coach",
+        "Department Chair",
+    ],
+    stay_in_field_blind_spots=["curriculum", "classroom", "instruction", "coaching"],
 )
 
 CONSULTANT = Persona(
@@ -152,6 +168,13 @@ CONSULTANT = Persona(
         "Analytics Consultant",
     ],
     expected_blind_spots=["Python", "SQL", "machine learning", "data engineering"],
+    stay_in_field_titles=[
+        "Management Consultant",
+        "Strategy Manager",
+        "Engagement Manager",
+        "Operations Consultant",
+    ],
+    stay_in_field_blind_spots=["strategy", "engagement", "client", "consulting"],
 )
 
 ENGINEER = Persona(
@@ -190,6 +213,13 @@ ENGINEER = Persona(
         "Infrastructure Analytics Manager",
     ],
     expected_blind_spots=["Python", "SQL", "machine learning", "data engineering", "cloud platforms"],
+    stay_in_field_titles=[
+        "Structural Engineer",
+        "Transportation Engineer",
+        "Water Resources Engineer",
+        "Civil Project Manager",
+    ],
+    stay_in_field_blind_spots=["AutoCAD", "scheduling", "structural", "permitting"],
 )
 
 DESIGNER = Persona(
@@ -228,6 +258,13 @@ DESIGNER = Persona(
         "Analytics Engineer",
     ],
     expected_blind_spots=["Python", "SQL", "machine learning", "data engineering"],
+    stay_in_field_titles=[
+        "UX Designer",
+        "Product Designer",
+        "Senior UX Researcher",
+        "Design Lead",
+    ],
+    stay_in_field_blind_spots=["Figma", "user research", "design systems", "prototyping"],
 )
 
 
@@ -267,6 +304,13 @@ ACCOUNTANT = Persona(
         "Corporate Finance Manager",
     ],
     expected_blind_spots=["power bi", "sql", "python", "business intelligence", "data analytics"],
+    stay_in_field_titles=[
+        "Staff Accountant",
+        "Senior Accountant",
+        "Controller",
+        "Cost Accountant",
+    ],
+    stay_in_field_blind_spots=["GAAP", "reconciliation", "audit", "variance"],
 )
 
 SALES_MANAGER = Persona(
@@ -305,6 +349,13 @@ SALES_MANAGER = Persona(
         "Area Sales Manager",
     ],
     expected_blind_spots=["sql", "tableau", "power bi", "python", "data analytics"],
+    stay_in_field_titles=[
+        "Account Executive",
+        "Regional Sales Manager",
+        "Business Development Manager",
+        "Enterprise Account Executive",
+    ],
+    stay_in_field_blind_spots=["enterprise sales", "pipeline", "negotiation", "forecasting"],
 )
 
 ELECTRICIAN = Persona(
@@ -343,6 +394,13 @@ ELECTRICIAN = Persona(
         "Plant Electrician",
     ],
     expected_blind_spots=["cad", "autocad", "python", "project management software"],
+    stay_in_field_titles=[
+        "Journeyman Electrician",
+        "Master Electrician",
+        "Electrical Foreman",
+        "Industrial Electrician",
+    ],
+    stay_in_field_blind_spots=["NEC code", "electrical installation", "troubleshooting", "conduit"],
 )
 
 HR_MANAGER = Persona(
@@ -381,6 +439,13 @@ HR_MANAGER = Persona(
         "Employee Relations Manager",
     ],
     expected_blind_spots=["tableau", "power bi", "sql", "python", "data analytics"],
+    stay_in_field_titles=[
+        "HR Generalist",
+        "HR Business Partner",
+        "Corporate Recruiter",
+        "Talent Acquisition Manager",
+    ],
+    stay_in_field_blind_spots=["talent", "employee relations", "recruiting", "benefits"],
 )
 
 OPERATIONS_MANAGER = Persona(
@@ -419,6 +484,13 @@ OPERATIONS_MANAGER = Persona(
         "Logistics Coordinator",
     ],
     expected_blind_spots=["tableau", "power bi", "sql", "python", "advanced analytics"],
+    stay_in_field_titles=[
+        "Operations Manager",
+        "Supply Chain Manager",
+        "Logistics Coordinator",
+        "Process Improvement Manager",
+    ],
+    stay_in_field_blind_spots=["process improvement", "inventory", "supply chain", "logistics"],
 )
 
 TECHNICAL_WRITER = Persona(
@@ -457,6 +529,13 @@ TECHNICAL_WRITER = Persona(
         "Instructional Design Writer",
     ],
     expected_blind_spots=["tableau", "sql", "python", "data analytics"],
+    stay_in_field_titles=[
+        "Technical Writer",
+        "Senior Technical Writer",
+        "Documentation Manager",
+        "API Documentation Specialist",
+    ],
+    stay_in_field_blind_spots=["documentation", "technical writing", "editing", "content strategy"],
 )
 
 # Collection of all personas for testing
