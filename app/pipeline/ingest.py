@@ -233,6 +233,13 @@ def ingest_jobs(
             df = df[mask]
             logger.info("Geo filter '%s' → %d rows retained", geo_filter, len(df))
 
+    # skills: tag each job with canonical skill IDs at ingest (best-effort; the
+    # skills store may not be built yet, in which case extraction is skipped).
+    try:
+        from app.skills.normalize import extract_skill_ids
+    except Exception:
+        extract_skill_ids = None
+
     ids, docs, metas = [], [], []
     for _, row in df.iterrows():
         title   = _clean(row.get("title",       ""))
@@ -256,6 +263,15 @@ def ingest_jobs(
                 meta[col] = normalise_status(_clean(raw)) if _clean(raw) else ""
             else:
                 meta[col] = _clean(raw)
+
+        # skills: comma-joined IDs (Chroma metadata must be scalar, not a list).
+        if extract_skill_ids:
+            try:
+                sk = extract_skill_ids(f"{title} {desc}")
+                meta["skill_ids"]   = ",".join(s["skill_id"] for s in sk)
+                meta["skill_names"] = ",".join(s["name"] for s in sk)
+            except Exception as e:
+                logger.debug("skill extraction failed for a job: %s", e)
 
         ids.append(doc_id)
         docs.append(doc)

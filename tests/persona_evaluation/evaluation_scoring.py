@@ -48,6 +48,34 @@ def _rec_text(r: Dict[str, Any]) -> str:
     return " — ".join(p for p in parts if p).strip()
 
 
+def _job_skill_ids(job: Dict[str, Any]) -> set:
+    """Canonical skill IDs tagged on a job at ingest (comma-joined string in metadata)."""
+    raw = job.get("skill_ids")
+    if raw is None:
+        raw = (job.get("metadata") or {}).get("skill_ids")
+    return {s for s in (raw or "").split(",") if s}
+
+
+def _id_citations(skill: str, top_jobs: List[Dict[str, Any]]):
+    """skills: citations via canonical skill-ID match (robust to paraphrase).
+
+    Returns None to signal 'fall back to substring' — when the skills layer isn't
+    built, the skill isn't in the taxonomy, or the corpus carries no skill_ids
+    (so nothing regresses on legacy/un-normalized data).
+    """
+    try:
+        from app.skills.normalize import normalize_one
+    except Exception:
+        return None
+    sid = normalize_one(skill)
+    if not sid:
+        return None
+    job_sets = [_job_skill_ids(j) for j in top_jobs[:10]]
+    if not any(job_sets):
+        return None
+    return sum(1 for s in job_sets if sid in s)
+
+
 @dataclass
 class RecommendationScore:
     """Score for a single recommendation"""
@@ -196,11 +224,15 @@ class EvaluationRubric:
 
         skill_lower = skill.lower()
 
-        # Check if skill appears in top jobs
-        job_citations = sum(
-            1 for job in top_jobs[:10]
-            if skill_lower in _job_text(job)
-        )
+        # skills: prefer canonical skill-ID grounding (robust to the prose/paraphrase
+        # mismatch that kept Adzuna grounding low); fall back to substring when the
+        # skills layer isn't built or the corpus isn't skill-tagged.
+        job_citations = _id_citations(skill, top_jobs)
+        if job_citations is None:
+            job_citations = sum(
+                1 for job in top_jobs[:10]
+                if skill_lower in _job_text(job)
+            )
 
         # Recognized in the known vocabulary (kept only as a fallback for plausible
         # but ungrounded skills — NOT a gate on grounded ones).

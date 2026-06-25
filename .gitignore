@@ -1,3 +1,7 @@
+# Skills taxonomy build artifacts (rebuilt from data/skills/sample_skills.csv or a raw drop)
+data/skills/skills.db
+data/skills/raw/
+
 # Python
 __pycache__/
 *.py[cod]

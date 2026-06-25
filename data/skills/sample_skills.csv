@@ -1,0 +1,60 @@
+skill_id,name,type,aliases
+sk_python,Python,hard,python|python programming
+sk_sql,SQL,hard,sql|structured query language
+sk_r,R,hard,r programming|rstats
+sk_machine_learning,Machine Learning,hard,machine learning|ml|predictive modeling
+sk_tableau,Tableau,hard,tableau
+sk_power_bi,Power BI,hard,power bi|powerbi
+sk_excel,Advanced Excel,hard,advanced excel|excel|pivot tables|vlookup
+sk_aws,AWS,hard,aws|amazon web services
+sk_data_analytics,Data Analytics,hard,data analytics|data analysis|analytics
+sk_etl,ETL,hard,etl|data pipelines|data engineering
+sk_statistics,Statistics,hard,statistics|statistical analysis
+sk_acls,ACLS,certification,acls|advanced cardiac life support|acls certification
+sk_bls,BLS,certification,bls|basic life support
+sk_ccrn,CCRN,certification,ccrn|critical care nursing certification
+sk_epic_ehr,Epic EHR,hard,epic|epic ehr|electronic health record|ehr
+sk_charge_nurse,Charge Nurse,soft,charge nurse|nurse manager|nursing unit lead|shift lead nurse
+sk_patient_care,Patient Care,soft,patient care|patient care coordination|clinical care
+sk_rn_license,RN License,license,registered nurse license|rn license|nursing license
+sk_nec_code,NEC Code,hard,nec|nec code|national electrical code|code update
+sk_plc,PLC,hard,plc|programmable logic controller|plc controls
+sk_conduit,Conduit Bending,hard,conduit|conduit bending|conduit installation
+sk_osha30,OSHA 30,certification,osha 30|osha 30 certification
+sk_master_electrician,Master Electrician License,license,master electrician|master electrician license
+sk_solar_pv,Solar PV,certification,solar|solar pv|photovoltaic|pv installation
+sk_cpa,CPA,license,cpa|certified public accountant|cpa license
+sk_gaap,GAAP,hard,gaap|generally accepted accounting principles|asc standards
+sk_netsuite,NetSuite,hard,netsuite|oracle netsuite
+sk_sap,SAP,hard,sap|sap erp
+sk_erp,ERP Systems,hard,erp|enterprise resource planning|erp systems
+sk_financial_reporting,Financial Reporting,hard,financial reporting|financial statements|reporting
+sk_audit,Auditing,hard,audit|auditing|internal audit
+sk_pmp,PMP,certification,pmp|project management professional|pmp certification
+sk_project_management,Project Management,soft,project management|program management
+sk_agile,Agile,hard,agile|scrum|kanban
+sk_cscp,APICS CSCP,certification,cscp|apics cscp|certified supply chain professional
+sk_lean_six_sigma,Lean Six Sigma,certification,lean six sigma|six sigma|green belt|black belt
+sk_supply_chain,Supply Chain Management,hard,supply chain|supply chain management|logistics
+sk_inventory,Inventory Management,hard,inventory|inventory management|warehouse management
+sk_figma,Figma,hard,figma
+sk_user_research,User Research,hard,user research|ux research|usability testing
+sk_design_systems,Design Systems,hard,design systems|component library
+sk_prototyping,Prototyping,hard,prototyping|wireframing|rapid prototyping
+sk_autocad,AutoCAD,hard,autocad|auto cad
+sk_structural,Structural Design,hard,structural|structural design|structural analysis
+sk_permitting,Permitting,hard,permitting|permit|zoning approval
+sk_gis,GIS,hard,gis|arcgis|geospatial
+sk_salesforce,Salesforce,hard,salesforce|sfdc|crm
+sk_account_management,Account Management,soft,account management|enterprise accounts|key accounts
+sk_business_development,Business Development,soft,business development|bd|partnerships
+sk_recruiting,Talent Acquisition,hard,recruiting|talent acquisition|sourcing
+sk_employee_relations,Employee Relations,soft,employee relations|labor relations
+sk_compensation,Compensation Analysis,hard,compensation|comp analysis|benefits administration
+sk_hris,HRIS,hard,hris|workday|hr information system
+sk_technical_writing,Technical Writing,hard,technical writing|documentation|api documentation
+sk_content_strategy,Content Strategy,hard,content strategy|information architecture
+sk_curriculum,Curriculum Development,hard,curriculum|curriculum development|instructional design
+sk_classroom_management,Classroom Management,soft,classroom management|classroom instruction
+sk_leadership,Leadership,soft,leadership|team leadership|people management
+sk_communication,Communication,soft,communication|written communication|verbal communication

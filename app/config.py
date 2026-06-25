@@ -11,6 +11,11 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 CHROMA_DB_PATH     = os.getenv("CHROMA_DB_PATH", str(BASE_DIR / "data" / "chroma"))
 CHROMA_JOBS_COL    = os.getenv("CHROMA_JOBS_COLLECTION",   "jobs")
 CHROMA_RESUME_COL  = os.getenv("CHROMA_RESUME_COLLECTION", "resume_chunks")
+CHROMA_SKILLS_COL  = os.getenv("CHROMA_SKILLS_COLLECTION", "skills")
+
+# ── Skills taxonomy layer (occupation competencies; see app/skills/) ──────────
+SKILLS_DB_PATH     = os.getenv("SKILLS_DB_PATH", str(BASE_DIR / "data" / "skills" / "skills.db"))
+SKILL_MATCH_FLOOR  = float(os.getenv("SKILL_MATCH_FLOOR", "0.70"))  # embedding-NN cosine floor (precision-first; calibrated 2026-06: correct matches land 0.72-0.94)
 
 # ── Hardware tier + model selection ──────────────────────────────────────────
 from app import hardware as _hw
