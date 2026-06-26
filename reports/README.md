@@ -31,14 +31,22 @@ Graph data = `app/skills/graph.py` loaded from the pre-joined `data/skills/raw/e
 Design: 4-way parallel **2×2** (switching/stay × synthetic/Adzuna) × condition, 1 repeat, n=11 personas/cell,
 serverless llama3.1:8b. Each cell isolated (own `data/chroma_ab_<cell>/` + `EVAL_OUT`).
 
-> **⚠️ Methodology note (2026-06-26).** Round 1 (`ab_*` files) ran at `OLLAMA_TEMPERATURE=0.2`
-> and the `_ret`/`_resume` conditions **reused a separately-generated `_off` baseline** that
-> proved unstable (one `_off` file was found rewritten mid-session). At temp 0.2 even a clean
-> off re-run is stochastic, so those deltas mix the lever with sampling noise. **Only the
-> Round-1 bundled `_off` vs `_on` table is paired/reliable.** Round 2 (`ab2_*` files) fixes this:
-> every condition is regenerated **paired with its own off baseline in the same run, at
-> `OLLAMA_TEMPERATURE=0`** (greedy → reproducible). Script: `.secrets/_ab_map_temp0.sh`.
-> **`ab2_*` is canonical; Round-1 `_ret`/`_resume` numbers below are indicative only.**
+> **⚠️ Methodology note (2026-06-26).** Round 1 (`ab_*`) was contaminated by **zombie processes**:
+> `eval_compare` already runs greedy (`--temp` default 0.0), so temperature was *not* the issue —
+> but each time a background A/B was stopped, the `&`-backgrounded bash subshells and their python
+> children were **orphaned, not killed** (`TaskStop` only kills the bash parent). 11 stray subshells +
+> several python writers kept running, hitting serverless and **overwriting shared output files** —
+> one was caught rewriting `ab_switch_adz_off.csv` mid-session (a re-run that, on a *different* GPU
+> in the heterogeneous fleet, produced different greedy output). So Round-1 `_off` baselines drifted,
+> and the `_ret`/`_resume` deltas (which reused those baselines) are unreliable. **Only the Round-1
+> bundled `_off` vs `_on` table — generated paired in one clean run — is trustworthy.**
+>
+> Round 2 (`ab2_*`) fixes it: **(1)** all zombies killed first; **(2)** every condition regenerated
+> **paired with its own off baseline in the same run**; **(3)** explicit `--temp 0`; **(4)** clean
+> `ab2_` namespace. Residual caveat: the GPU fleet is heterogeneous, so greedy isn't bit-reproducible
+> across workers — large effects (retrieval job-dim, prompt grounding) are robust; sub-0.1 deltas are noise.
+> Script: `.secrets/_ab_map_temp0.sh`. **Operational rule: kill stray `eval_compare` bash+python before
+> any new run; don't rely on `TaskStop` alone.** **`ab2_*` is canonical; Round-1 `_ret`/`_resume` are void.**
 
 Scripts: `.secrets/_ab_graph_par.sh` (round 1 off/on), `_ab_retonly.sh`, `_ab_resume.sh`, `_ab_map_temp0.sh` (round 2).
 
