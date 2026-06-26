@@ -184,7 +184,8 @@ def run(req: SearchRequest) -> SearchResult:
         logger.info("Running resume_coach agent...")
         resume_recs, passed = _run_with_grounding(
             run_resume_coach,
-            dict(resume_text=req.resume_text or "", matched_jobs=result.top_jobs),
+            dict(resume_text=req.resume_text or "", matched_jobs=result.top_jobs,
+                 role_description=req.role_description),
             lambda r: extract_citations(r.recommendations, "why"),
             result.top_jobs, "resume_coach",
         )

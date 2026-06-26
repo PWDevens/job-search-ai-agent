@@ -60,6 +60,10 @@ STRATEGIST_USE_OCCUPATION_SKILLS = os.getenv("STRATEGIST_USE_OCCUPATION_SKILLS",
 USE_GRAPH_DATA = os.getenv("USE_GRAPH_DATA", "").lower() in ("1", "true", "yes")
 GRAPH_RETRIEVAL = USE_GRAPH_DATA or os.getenv("GRAPH_RETRIEVAL", "").lower() in ("1", "true", "yes")
 GRAPH_PROMPT_CONTEXT = USE_GRAPH_DATA or os.getenv("GRAPH_PROMPT_CONTEXT", "").lower() in ("1", "true", "yes")
+# Resume-coach graph context — separate lever. Coach's task is "what skills to add",
+# so occupation-essential-missing-from-resume is its native use case (no posting-
+# grounding requirement like blind spots). A/B-tested independently.
+GRAPH_RESUME_CONTEXT = os.getenv("GRAPH_RESUME_CONTEXT", "").lower() in ("1", "true", "yes")
 
 RUNPOD_ENDPOINT_ID   = os.getenv("RUNPOD_ENDPOINT_ID", "")
 RUNPOD_API_KEY       = os.getenv("RUNPOD_API_KEY", "")              # account API key (Settings → API Keys)
