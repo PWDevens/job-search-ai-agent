@@ -194,7 +194,7 @@ def test_config_constants():
     from app.config import GROUNDING_PASS_RATIO, RETRIEVAL_BOOST, PROMPT_FEWSHOT, RERANK_MODEL
     assert GROUNDING_PASS_RATIO == 0.5
     assert RETRIEVAL_BOOST is False
-    assert PROMPT_FEWSHOT is True   # improvement-loop iter3: default ON (+0.061 overall, generalizes)
+    assert PROMPT_FEWSHOT is False  # opt-in (iter4: gain within measurement noise)
     assert RERANK_MODEL == "bge-reranker-v2-m3"
     print("[PASS] All config constants present with correct defaults")
 

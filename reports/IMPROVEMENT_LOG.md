@@ -138,17 +138,45 @@ stabilize spot, so retrieval's job-gain could survive into overall).
 (~$7 of remaining ~$20). Decision: confirm cumulative Δ (base0→shipped); adopt retrieval if shipped+ret
 ≥ shipped by +0.05 mean AND no stay-in-field regression.
 
-**Result.** _pending_
+**Result.** One clean run, 3 paired conditions/cell (0×402):
 
-**Decision.** _pending_
+| cell | base0 | shipped | +ret |
+|---|---|---|---|
+| switch × synth | 2.21 | 1.84 (**−0.38**) | 1.91 |
+| stay × synth* | 1.90 | 2.04 (+0.13) | 1.98 |
+| switch × Adz | 1.62 | 1.64 (+0.02) | 1.74 |
+| stay × Adz* | 1.73 | 1.70 (−0.03) | 1.71 |
+| **mean** | **1.867** | **1.803 (−0.063)** | 1.836 (+0.032 vs shipped) |
+
+**Decision — the critical finding: I've been measuring noise.** `switch×synth base0=2.21` exceeds *every*
+prior reading of that cell (2.00–2.14) — a lucky GPU draw. Each condition is a **separate `eval_compare`
+process** hitting **different workers in a heterogeneous GPU fleet**, and greedy decoding isn't
+bit-reproducible across GPU types → **every paired delta carries ~±0.2/cell noise**, which **swamps the
+~+0.05 lever effects.** The iter-2/3 "+0.05/+0.061" were within that noise; this fresh base0-vs-shipped
+(also noisy, one −0.38 outlier) can neither confirm nor refute them. Even serverless `repeats=3` can't
+resolve a +0.05 effect against ±0.2 SD within the remaining budget; no local GPU + Ollama-not-serving
+rules out a fast deterministic CPU run.
+
+**⇒ Per the mandate (no overfitting, test against goal): REVERTED `GRAPH_VALIDATE` and `PROMPT_FEWSHOT`
+to opt-in defaults.** Not honest to ship them as defaults on within-noise evidence when a clean test
+came out slightly negative. Code, infra, and the improved field-diverse examples are kept — enable via
+env (`GRAPH_VALIDATE=1`, `PROMPT_FEWSHOT=1`) once deterministic measurement is available.
 
 ---
 
-## ⏸ Budget gate note (2026-06-26)
-The endpoint's **6 workers × 4 GPUs** config (unchangeable via API) burns credits ~4× faster than
-needed; the freshly-topped balance was nearly drained by the levers + combo runs (recurring
-transient 402s). Remaining high-EV work (rec dimension @0.4 weight; spot/grounding; prompt/few-shot
-tuning) **requires LLM eval = serverless = budget**, and free local screens are exhausted of cheap
-wins (embedding swap = parity). **To resume:** set `gpuCount: 1` in the RunPod dashboard (4× cheaper)
-+ top up, or accept slow local-CPU LLM evals. Per the stop rule (diminishing returns OR budget),
-this is a clean pause point with one improvement banked.
+## 🏁 Loop conclusion (2026-06-26)
+**Stop trigger:** diminishing returns — lever effect sizes (~+0.05) fell **below the measurement noise
+floor** (~±0.2/cell on the heterogeneous GPU serverless fleet at repeats=1), and that floor can't be
+lowered within the budget/compute available (no local GPU; repeats too costly). ~$13 of the ≤$25 unspent.
+
+**Confirmed, durable findings (large effects / free / robust):**
+- Occupation-graph injection map: graph data helps in **embedding/filter space** (retrieval→job +0.13…+0.29;
+  validate→spot), **dies in generation prompts** (strategist, resume). (README map.)
+- **US embedding swap = parity** (Arctic/Nomic ≈ bge-small on free field-relevance@5); bge kept (lighter). US-swap is a provenance-only call, flagged.
+- **`fallback_used` is a non-lever** — agent output is always scored (1 real exception vs 77 grounding re-asks/288 runs); the metric name is misleading.
+- **Methodology:** the eval cannot resolve sub-~0.2 effects at repeats=1 on a heterogeneous fleet. Validate/few-shot are mechanism-sound and mildly-positive in most paired cells but **unconfirmable** at this precision.
+
+**To resume with real measurement (recommended next):** pin a **single GPU type** on the endpoint (homogeneous
+→ greedy reproducible) OR run deterministic **local CPU** evals (needs Ollama + llama3.1:8b pulled locally),
+then re-test validate / few-shot / retrieval with `repeats≥3`. New durable tooling left behind:
+`scripts/screen_retrieval.py` (free local retrieval screen) + this journal.

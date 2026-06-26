@@ -76,7 +76,7 @@ GRAPH_RERANK   = os.getenv("GRAPH_RERANK", "").lower() in ("1", "true", "yes")
 # lifts the spot dimension by filtering off-target blind spots to occupation-relevant ones.
 # No-op when the occupation graph isn't built (degrades to normal blind-spot generation),
 # so it's safe as a default. Disable with GRAPH_VALIDATE=0.
-GRAPH_VALIDATE = os.getenv("GRAPH_VALIDATE", "1").lower() in ("1", "true", "yes")
+GRAPH_VALIDATE = os.getenv("GRAPH_VALIDATE", "").lower() in ("1", "true", "yes")  # opt-in: +0.05 paired (iter2) but unconfirmable vs GPU-fleet noise (iter4); mechanism-sound, enable to use
 
 RUNPOD_ENDPOINT_ID   = os.getenv("RUNPOD_ENDPOINT_ID", "")
 RUNPOD_API_KEY       = os.getenv("RUNPOD_API_KEY", "")              # account API key (Settings → API Keys)
@@ -99,7 +99,7 @@ RERANK_PASSES = int(os.getenv("RERANK_PASSES", "2"))
 # ── Grounding and improvement config knobs ─────────────────────────────────────
 GROUNDING_PASS_RATIO = float(os.getenv("GROUNDING_PASS_RATIO", "0.5"))
 RETRIEVAL_BOOST = os.getenv("RETRIEVAL_BOOST", "0") == "1"
-PROMPT_FEWSHOT  = os.getenv("PROMPT_FEWSHOT",  "1") == "1"  # default ON: +0.061 mean overall (iter3), generalizes to non-tech cells
+PROMPT_FEWSHOT  = os.getenv("PROMPT_FEWSHOT",  "0") == "1"  # opt-in: +0.061 paired (iter3) but within GPU-fleet noise (iter4); field-diverse examples kept
 
 # ── Reranker model ────────────────────────────────────────────────────────────
 RERANK_MODEL = os.getenv("RERANK_MODEL", "bge-reranker-v2-m3")
