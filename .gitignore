@@ -48,8 +48,9 @@ RUNPOD-SSH.txt.pub
 .claude/
 .pipeline/
 
-# Generated reports / eval output
-reports/
+# Generated reports / eval output (keep the tracking doc, ignore the artifacts)
+reports/*
+!reports/README.md
 
 # Old docs archive
 docs/archive/
