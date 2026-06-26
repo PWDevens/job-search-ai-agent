@@ -92,6 +92,21 @@ only (its standalone tentative-adopt) and flag interference.
 
 ---
 
+## Iteration 3 — Field-diverse few-shot exemplars
+**Status:** in progress. **Serverless budget from here: ≤$25, then CPU.** (Idle burn check: `workersMin=0` already → no always-on billing; `gpuCount=4`/worker is dashboard-locked, can't reduce via API; only lever is run size. ~$4–6 per 8-eval 2×2 → ~4 runs affordable.)
+
+**Discover.** Composite drag = spot (lowest dim) + 45–73% Adzuna fallback (agents' output discarded → heuristic scored). `PROMPT_FEWSHOT` exemplars exist but were **tech-biased** (AWS/K8s/ML) — a generalization hazard for non-tech stay-in-field personas. Rewrote them **field-diverse** (tech + healthcare + trades + finance), modelling grounded-output *structure* (cite the postings, name the gap, remediation, timeline), generic employers only — not persona answers.
+
+**Hypothesis H3.** Enabling field-diverse few-shot (on top of the validate default) teaches the agents to ground/cite better → **lower fallback** and higher rec/spot quality, **generalizing** across both switching (tech) and stay-in-field (non-tech) cells. Falsifiable: if overall Δ ≤ ~0, or if it helps switching but hurts stay-in-field (bias not fixed), reject.
+
+**Method.** Serverless 2×2, paired **off (validate default) vs few-shot** (`PROMPT_FEWSHOT=1`), greedy, `ab5_` namespace, 8 evals (~$5; run 1 of ≤$25). Decision: adopt if overall Δ ≥ +0.05 mean AND not negative on any stay-in-field cell (generalization guard).
+
+**Result.** _pending_
+
+**Decision.** _pending_
+
+---
+
 ## ⏸ Loop paused — budget gate (2026-06-26)
 The endpoint's **6 workers × 4 GPUs** config (unchangeable via API) burns credits ~4× faster than
 needed; the freshly-topped balance was nearly drained by the levers + combo runs (recurring
