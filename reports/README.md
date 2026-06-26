@@ -29,7 +29,18 @@ Graph data = `app/skills/graph.py` loaded from the pre-joined `data/skills/raw/e
 `GRAPH_RESUME_CONTEXT` (and `USE_GRAPH_DATA` = all-on, for the bundled A/B).
 
 Design: 4-way parallel **2×2** (switching/stay × synthetic/Adzuna) × condition, 1 repeat, n=11 personas/cell,
-serverless llama3.1:8b. Each cell isolated (own `data/chroma_ab_<cell>/` + `EVAL_OUT`). Scripts: `.secrets/_ab_graph_par.sh` (off vs on), `_ab_retonly.sh`, `_ab_resume.sh`.
+serverless llama3.1:8b. Each cell isolated (own `data/chroma_ab_<cell>/` + `EVAL_OUT`).
+
+> **⚠️ Methodology note (2026-06-26).** Round 1 (`ab_*` files) ran at `OLLAMA_TEMPERATURE=0.2`
+> and the `_ret`/`_resume` conditions **reused a separately-generated `_off` baseline** that
+> proved unstable (one `_off` file was found rewritten mid-session). At temp 0.2 even a clean
+> off re-run is stochastic, so those deltas mix the lever with sampling noise. **Only the
+> Round-1 bundled `_off` vs `_on` table is paired/reliable.** Round 2 (`ab2_*` files) fixes this:
+> every condition is regenerated **paired with its own off baseline in the same run, at
+> `OLLAMA_TEMPERATURE=0`** (greedy → reproducible). Script: `.secrets/_ab_map_temp0.sh`.
+> **`ab2_*` is canonical; Round-1 `_ret`/`_resume` numbers below are indicative only.**
+
+Scripts: `.secrets/_ab_graph_par.sh` (round 1 off/on), `_ab_retonly.sh`, `_ab_resume.sh`, `_ab_map_temp0.sh` (round 2).
 
 ### File map
 | Files | Condition |
@@ -64,9 +75,9 @@ prompt-context half flipped the bundled net (negative) to positive — the decom
 ### Findings so far (the injection-point map)
 | # | Injection point | Mechanism | Verdict |
 |---|---|---|---|
-| 1 | Retrieval (query expansion) | embedding space | **HELPS (confirmed)** — overall +0.08…+0.13 in 3/4, job +0.29 Adzuna |
-| 2 | Career-strategist prompt | generation/grounding | **HURTS** — gnd ↓, fb 18%→82% |
-| 3 | Resume-coach prompt | generation | running (`*_resume.csv`) |
+| 1 | Retrieval (query expansion) | embedding space | **HELPS (indicative)** — R1 overall +0.08…+0.13 in 3/4, job +0.29 Adzuna; temp-0 re-run pending |
+| 2 | Career-strategist prompt | generation/grounding | **HURTS** — gnd ↓, fb 18%→82% (R1 bundled, paired) |
+| 3 | Resume-coach prompt | generation | R1 inconclusive (drifted baseline); temp-0 re-run pending |
 | 4 | Job-matcher agent prompt | generation/ranking | planned |
 | 5 | Rerank by skill overlap | scoring space | planned |
 | 6 | Graph-as-validator (post-hoc, semantic) | filter, not prompt | planned |
