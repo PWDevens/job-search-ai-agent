@@ -280,8 +280,11 @@ def main():
     # Print table
     print_comparison_table(results, want_configs, args.variant, args.repeats, scn, len(rows_spec))
 
-    # Write CSV (one row per repeat-config-persona run)
-    out = ROOT / "reports" / f"eval_compare_{args.variant}.csv"
+    # Write CSV (one row per repeat-config-persona run). EVAL_OUT lets parallel
+    # runs (same variant, different corpus) write to distinct files without racing.
+    import os
+    out = Path(os.environ["EVAL_OUT"]) if os.environ.get("EVAL_OUT") \
+        else ROOT / "reports" / f"eval_compare_{args.variant}.csv"
     out.parent.mkdir(parents=True, exist_ok=True)
     with open(out, "w", newline="") as f:
         w = csv.DictWriter(f, fieldnames=CSV_FIELDS)

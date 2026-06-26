@@ -125,7 +125,7 @@ def run(req: SearchRequest) -> SearchResult:
         # graph experiment: skill-aware retrieval — expand the query with the
         # occupation's essential + adjacent skills so retrieval is skill-driven.
         search_query = req.role_description
-        if cfg.USE_GRAPH_DATA:
+        if cfg.GRAPH_RETRIEVAL:
             try:
                 from app.skills.graph import role_skill_context
                 ess, adj = role_skill_context(req.role_description)

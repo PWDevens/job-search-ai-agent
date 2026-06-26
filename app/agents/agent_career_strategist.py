@@ -7,7 +7,7 @@ from app.agents.base import load_skill, chat, fmt_resume, fmt_jobs
 from app.agents.models import CareerStrategy
 from app.agents.rag_knowledge import query_ats_knowledge
 from app.config import (TOP_BLIND_SPOTS, RESUME_MID_CHARS, PROMPT_FEWSHOT,
-                        STRATEGIST_USE_OCCUPATION_SKILLS, USE_GRAPH_DATA)
+                        STRATEGIST_USE_OCCUPATION_SKILLS, GRAPH_PROMPT_CONTEXT)
 
 logger = logging.getLogger(__name__)
 
@@ -33,7 +33,7 @@ def run(role_description: str, resume_text: str, matched_jobs: list[dict],
     # (see config.STRATEGIST_USE_OCCUPATION_SKILLS). Enable only with a posting-style
     # vocabulary whose labels match how postings actually name skills.
     essential, adjacent = [], []
-    if STRATEGIST_USE_OCCUPATION_SKILLS or USE_GRAPH_DATA:
+    if STRATEGIST_USE_OCCUPATION_SKILLS or GRAPH_PROMPT_CONTEXT:
         try:
             from app.skills.graph import role_skill_context
             essential, adjacent = role_skill_context(role_description, n_essential=12, n_adjacent=8)

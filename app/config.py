@@ -51,10 +51,15 @@ OLLAMA_TIMEOUT    = float(os.getenv("OLLAMA_TIMEOUT",    "300"))  # per-request 
 # vocabulary (e.g. Lightcast) whose labels match real postings.
 STRATEGIST_USE_OCCUPATION_SKILLS = os.getenv("STRATEGIST_USE_OCCUPATION_SKILLS", "").lower() in ("1", "true", "yes")
 
-# Master A/B flag for the occupation-graph experiment: when on, inject graph data
-# (occupation essential + skill-adjacent skills) into retrieval AND the resume-coach
-# and career-strategist prompts. Default off; toggled for the with/without comparison.
+# Occupation-graph levers, split after the 2026-06 2x2 A/B decomposed them:
+#  - retrieval expansion (skill-aware query) lifts the job dimension (+0.31 on
+#    switching x Adzuna) and embeddings tolerate ESCO's verbose labels — KEEP.
+#  - prompt context (essential skills into the strategist) reconfirmed the #1
+#    regression: grounding down, fallback up (18%->82%) — leave OFF.
+# USE_GRAPH_DATA stays as a convenience that turns on BOTH (back-compat / A/B).
 USE_GRAPH_DATA = os.getenv("USE_GRAPH_DATA", "").lower() in ("1", "true", "yes")
+GRAPH_RETRIEVAL = USE_GRAPH_DATA or os.getenv("GRAPH_RETRIEVAL", "").lower() in ("1", "true", "yes")
+GRAPH_PROMPT_CONTEXT = USE_GRAPH_DATA or os.getenv("GRAPH_PROMPT_CONTEXT", "").lower() in ("1", "true", "yes")
 
 RUNPOD_ENDPOINT_ID   = os.getenv("RUNPOD_ENDPOINT_ID", "")
 RUNPOD_API_KEY       = os.getenv("RUNPOD_API_KEY", "")              # account API key (Settings → API Keys)
