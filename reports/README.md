@@ -95,6 +95,10 @@ prompt-context half flipped the bundled net (negative) to positive — the decom
 | 1 | Retrieval (query expansion) | embedding space | **HELPS job-match (+0.13…+0.29), ~NEUTRAL overall** — expanding the query shifts which jobs the strategist grounds against, offsetting via spot |
 | 2 | Career-strategist prompt | generation/grounding | **HURTS** — overall −0.11…−0.14, spot ↓ all 4 cells |
 | 3 | Resume-coach prompt | generation | **NEUTRAL→HURTS** — rec dimension not improved; "coach is the exception" hypothesis FALSE |
+| 4 | Rerank-by-skill (`GRAPH_RERANK`) | scoring space | **PENDING** — `ab3_*` run VOID (endpoint hit `402 Payment Required` mid-run → mass fallback). Re-run after RunPod top-up |
+| 5 | Graph-as-validator (`GRAPH_VALIDATE`) | post-hoc filter | **PENDING** — same void run. Code built/tested; re-run `.secrets/_ab_levers2.sh` after top-up |
+
+> **Note:** `reports/ab3_*` files are invalid (RunPod ran out of credits ~partway, 162–189 × 402 per cell → agents fell back to the matcher). Delete/ignore them; canonical `ab2_*` (0 × 402) is unaffected.
 | 4 | Job-matcher agent prompt | generation/ranking | planned |
 | 5 | Rerank by skill overlap | scoring space | planned |
 | 6 | Graph-as-validator (post-hoc, semantic) | filter, not prompt | planned |
