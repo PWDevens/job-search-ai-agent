@@ -65,6 +65,15 @@ GRAPH_PROMPT_CONTEXT = USE_GRAPH_DATA or os.getenv("GRAPH_PROMPT_CONTEXT", "").l
 # grounding requirement like blind spots). A/B-tested independently.
 GRAPH_RESUME_CONTEXT = os.getenv("GRAPH_RESUME_CONTEXT", "").lower() in ("1", "true", "yes")
 
+# Embedding/scoring-space levers (where ESCO labels work, unlike prompts):
+#  GRAPH_RERANK   — cross-encoder rerank the final jobs by relevance to the role's
+#                   essential+adjacent skills (changes the top-5 the rubric scores).
+#  GRAPH_VALIDATE — strategist over-generates blind spots, then selects the top-N by
+#                   semantic relevance to occupation-essential skills (graph as a
+#                   post-hoc filter, NOT a prompt input — sidesteps the label toxicity).
+GRAPH_RERANK   = os.getenv("GRAPH_RERANK", "").lower() in ("1", "true", "yes")
+GRAPH_VALIDATE = os.getenv("GRAPH_VALIDATE", "").lower() in ("1", "true", "yes")
+
 RUNPOD_ENDPOINT_ID   = os.getenv("RUNPOD_ENDPOINT_ID", "")
 RUNPOD_API_KEY       = os.getenv("RUNPOD_API_KEY", "")              # account API key (Settings → API Keys)
 RUNPOD_POLL_TIMEOUT  = int(os.getenv("RUNPOD_POLL_TIMEOUT",  "600"))  # max seconds to wait for a job

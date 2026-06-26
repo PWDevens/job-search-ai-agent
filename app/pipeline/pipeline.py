@@ -179,6 +179,18 @@ def run(req: SearchRequest) -> SearchResult:
         logger.warning("Job matcher agent failed: %s — falling back to matcher", e)
         result.agent_validation["job_matcher"] = False
 
+    # Graph rerank (A/B): cross-encoder re-order the final jobs by relevance to the
+    # role's essential+adjacent skills, so the top-5 the rubric scores are skill-aligned.
+    if cfg.GRAPH_RERANK and result.top_jobs:
+        try:
+            from app.skills.graph import role_skill_context
+            ess, adj = role_skill_context(req.role_description)
+            if ess or adj:
+                result.top_jobs = rerank(", ".join(ess + adj), result.top_jobs, top_n=len(result.top_jobs))
+                logger.info("Graph rerank: reordered %d jobs by skill relevance", len(result.top_jobs))
+        except Exception as e:
+            logger.debug("graph rerank skipped: %s", e)
+
     # Step 3: Resume coach agent
     try:
         logger.info("Running resume_coach agent...")
