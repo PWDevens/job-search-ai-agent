@@ -101,13 +101,34 @@ only (its standalone tentative-adopt) and flag interference.
 
 **Method.** Serverless 2×2, paired **off (validate default) vs few-shot** (`PROMPT_FEWSHOT=1`), greedy, `ab5_` namespace, 8 evals (~$5; run 1 of ≤$25). Decision: adopt if overall Δ ≥ +0.05 mean AND not negative on any stay-in-field cell (generalization guard).
 
-**Result.** _pending_
+**Result.** Paired off (validate default) vs few-shot, clean (0×402):
 
-**Decision.** _pending_
+| cell | off | few-shot | Δ |
+|---|---|---|---|
+| switch × synth | 2.00 | 1.98 | −0.02 |
+| stay × synth* | 1.95 | 2.10 | **+0.16** |
+| switch × Adz | 1.57 | 1.58 | +0.01 |
+| stay × Adz* | 1.66 | 1.76 | **+0.10** |
+| **mean** | 1.795 | **1.856** | **+0.061** |
+
+(* = non-tech stay-in-field, generalization guard.)
+
+**Decision: ADOPT — `PROMPT_FEWSHOT` default ON.** +0.061 mean overall; **generalization guard passed** — the non-tech cells are the *biggest* gainers (+0.16/+0.10), confirming the field-diverse rewrite removed the tech bias; no cell regressed (switch×synth −0.02 = noise). Cost: few-shot tokens add ~small per-call context (acceptable for the gain). Cumulative loop gain so far ≈ **+0.11 overall** (validate +0.05 → few-shot +0.061 on top). Spend: ~$5 (run 1 of ≤$25); ~$20 left.
+
+**Outcome:** second win banked. Feed back → Iteration 4 targets the structural fallback drag (45–73% on Adzuna → LLM output discarded for heuristic).
 
 ---
 
-## ⏸ Loop paused — budget gate (2026-06-26)
+## Iteration 4 — _scoping_ (fallback gate)
+Discover next: the Adzuna fallback rate (45–73%) means most Adzuna rows score the matcher
+heuristic, not the (now-improved) LLM agents. If the grounding gate has **false negatives**
+(rejecting genuinely-grounded output), fixing them is a legitimate, high-EV lift (not Goodhart).
+Investigating `app/pipeline/pipeline.py::_run_with_grounding` + `app/agents/grounding.py` (free,
+local) before spending a serverless run.
+
+---
+
+## ⏸ Budget gate note (2026-06-26)
 The endpoint's **6 workers × 4 GPUs** config (unchangeable via API) burns credits ~4× faster than
 needed; the freshly-topped balance was nearly drained by the levers + combo runs (recurring
 transient 402s). Remaining high-EV work (rec dimension @0.4 weight; spot/grounding; prompt/few-shot

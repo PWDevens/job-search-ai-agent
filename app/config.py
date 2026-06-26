@@ -99,7 +99,7 @@ RERANK_PASSES = int(os.getenv("RERANK_PASSES", "2"))
 # ── Grounding and improvement config knobs ─────────────────────────────────────
 GROUNDING_PASS_RATIO = float(os.getenv("GROUNDING_PASS_RATIO", "0.5"))
 RETRIEVAL_BOOST = os.getenv("RETRIEVAL_BOOST", "0") == "1"
-PROMPT_FEWSHOT  = os.getenv("PROMPT_FEWSHOT",  "0") == "1"
+PROMPT_FEWSHOT  = os.getenv("PROMPT_FEWSHOT",  "1") == "1"  # default ON: +0.061 mean overall (iter3), generalizes to non-tech cells
 
 # ── Reranker model ────────────────────────────────────────────────────────────
 RERANK_MODEL = os.getenv("RERANK_MODEL", "bge-reranker-v2-m3")
