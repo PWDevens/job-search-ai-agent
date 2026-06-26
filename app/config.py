@@ -72,7 +72,11 @@ GRAPH_RESUME_CONTEXT = os.getenv("GRAPH_RESUME_CONTEXT", "").lower() in ("1", "t
 #                   semantic relevance to occupation-essential skills (graph as a
 #                   post-hoc filter, NOT a prompt input — sidesteps the label toxicity).
 GRAPH_RERANK   = os.getenv("GRAPH_RERANK", "").lower() in ("1", "true", "yes")
-GRAPH_VALIDATE = os.getenv("GRAPH_VALIDATE", "").lower() in ("1", "true", "yes")
+# GRAPH_VALIDATE default ON (improvement loop Iteration 2): +0.05 mean overall, 3/4 cells,
+# lifts the spot dimension by filtering off-target blind spots to occupation-relevant ones.
+# No-op when the occupation graph isn't built (degrades to normal blind-spot generation),
+# so it's safe as a default. Disable with GRAPH_VALIDATE=0.
+GRAPH_VALIDATE = os.getenv("GRAPH_VALIDATE", "1").lower() in ("1", "true", "yes")
 
 RUNPOD_ENDPOINT_ID   = os.getenv("RUNPOD_ENDPOINT_ID", "")
 RUNPOD_API_KEY       = os.getenv("RUNPOD_API_KEY", "")              # account API key (Settings → API Keys)

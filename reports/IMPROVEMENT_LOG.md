@@ -76,6 +76,27 @@ interfere rather than compose.
 both as defaults if combined overall Δ ≥ +0.05 mean AND positive in ≥3/4 cells; else keep validate
 only (its standalone tentative-adopt) and flag interference.
 
-**Result.** _pending_
+**Result.** Paired off vs retrieval+validate (clean, 0 persistent 402; transient 402s recovered by retry):
 
-**Decision.** _pending_
+| cell | off | combo | Δ |
+|---|---|---|---|
+| switch_synth | 2.01 | 2.13 | +0.12 |
+| stay_synth | 1.87 | 2.04 | +0.17 |
+| switch_adz | 1.62 | 1.50 | −0.12 |
+| stay_adz | 1.66 | 1.69 | +0.03 |
+| **mean** | | | **+0.05** |
+
+**Decision.** H2 partially supported: combo is +0.05 / 3-of-4 — but **equal to validate-alone**, not additive. Retrieval's job-gain doesn't survive into the composite (spot coupling + variance; switch×Adz −0.12). **Adopt `GRAPH_VALIDATE` as default** (commit pending) — the loop's one validated win (+0.05 mean overall, consistent across two runs, lifts spot, no-op without the graph). **Keep `GRAPH_RETRIEVAL` opt-in** — it genuinely improves job-match retrieval quality (a real product good) but is neutral on `overall`, so not defaulted. ⚑ Flag: +0.05 sits near the GPU-noise floor; firm up with repeats when budget allows.
+
+**Outcome:** landed +0.05 mean overall (validate default-on). Loop now **budget-gated** — see below.
+
+---
+
+## ⏸ Loop paused — budget gate (2026-06-26)
+The endpoint's **6 workers × 4 GPUs** config (unchangeable via API) burns credits ~4× faster than
+needed; the freshly-topped balance was nearly drained by the levers + combo runs (recurring
+transient 402s). Remaining high-EV work (rec dimension @0.4 weight; spot/grounding; prompt/few-shot
+tuning) **requires LLM eval = serverless = budget**, and free local screens are exhausted of cheap
+wins (embedding swap = parity). **To resume:** set `gpuCount: 1` in the RunPod dashboard (4× cheaper)
++ top up, or accept slow local-CPU LLM evals. Per the stop rule (diminishing returns OR budget),
+this is a clean pause point with one improvement banked.
