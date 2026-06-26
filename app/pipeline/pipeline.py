@@ -15,6 +15,7 @@ from app.pipeline.matcher import find_top_jobs, find_resume_recommendations, fin
 from app.pipeline.audit import log_search_run
 from app.retrieval.rerank import rerank
 from app.config import RERANK_PASSES
+import app.config as cfg
 
 logger = logging.getLogger(__name__)
 
@@ -121,8 +122,19 @@ def run(req: SearchRequest) -> SearchResult:
 
     # Step 1: Matcher (ground truth; Pass 1 rerank happens inside find_top_jobs)
     try:
+        # graph experiment: skill-aware retrieval — expand the query with the
+        # occupation's essential + adjacent skills so retrieval is skill-driven.
+        search_query = req.role_description
+        if cfg.USE_GRAPH_DATA:
+            try:
+                from app.skills.graph import role_skill_context
+                ess, adj = role_skill_context(req.role_description)
+                if ess or adj:
+                    search_query = req.role_description + " Relevant skills: " + ", ".join(ess + adj)
+            except Exception as e:
+                logger.debug("graph retrieval expansion skipped: %s", e)
         logger.info("Finding top jobs for: %s", req.role_description)
-        jobs = find_top_jobs(req.role_description, req.geo_preference, req.resume_text)
+        jobs = find_top_jobs(search_query, req.geo_preference, req.resume_text)
         result.top_jobs = jobs
         logger.info("Matcher returned %d jobs", len(jobs))
     except Exception as e:

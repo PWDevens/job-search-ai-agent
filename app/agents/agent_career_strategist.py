@@ -6,7 +6,8 @@ import logging
 from app.agents.base import load_skill, chat, fmt_resume, fmt_jobs
 from app.agents.models import CareerStrategy
 from app.agents.rag_knowledge import query_ats_knowledge
-from app.config import TOP_BLIND_SPOTS, RESUME_MID_CHARS, PROMPT_FEWSHOT, STRATEGIST_USE_OCCUPATION_SKILLS
+from app.config import (TOP_BLIND_SPOTS, RESUME_MID_CHARS, PROMPT_FEWSHOT,
+                        STRATEGIST_USE_OCCUPATION_SKILLS, USE_GRAPH_DATA)
 
 logger = logging.getLogger(__name__)
 
@@ -31,17 +32,18 @@ def run(role_description: str, resume_text: str, matched_jobs: list[dict],
     # — an A/B showed ESCO's verbose competence labels HURT grounding on real postings
     # (see config.STRATEGIST_USE_OCCUPATION_SKILLS). Enable only with a posting-style
     # vocabulary whose labels match how postings actually name skills.
-    essential = []
-    if STRATEGIST_USE_OCCUPATION_SKILLS:
+    essential, adjacent = [], []
+    if STRATEGIST_USE_OCCUPATION_SKILLS or USE_GRAPH_DATA:
         try:
-            from app.skills.graph import essential_skills_for
-            essential = essential_skills_for(role_description, n=12)
+            from app.skills.graph import role_skill_context
+            essential, adjacent = role_skill_context(role_description, n_essential=12, n_adjacent=8)
         except Exception as e:
-            logger.debug("occupation-essential lookup unavailable: %s", e)
-            essential = []
+            logger.debug("occupation-skill lookup unavailable: %s", e)
     essential_block = (
         "Essential skills for this target role (occupation taxonomy):\n"
-        + ", ".join(essential) + "\n\n"
+        + ", ".join(essential)
+        + (("\nRelated skills: " + ", ".join(adjacent)) if adjacent else "")
+        + "\n\n"
     ) if essential else ""
 
     user_message = (

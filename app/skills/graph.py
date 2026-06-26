@@ -1,25 +1,22 @@
 """
-Tier-2: the ESCO occupation -> skill graph.
+Tier-2: the ESCO occupation/skill graph.
 
-skills_en.csv alone is a flat vocabulary; the relationship files turn it into a
-graph. This loads occupation -> essential/optional skill links so we can answer
-"what skills does this occupation require?" — field-accurate, curated priors that
-seed persona targets, give the career-strategist a real candidate pool, and let
-the rubric check whether a blind spot is essential for the target role.
+Loads two kinds of edges:
+  occupation -> skill   (essential | optional)   — "what does this role require?"
+  skill -> skill        (essential | optional)   — adjacency, for retrieval expansion
 
-Source files (from an extracted ESCO classification zip):
-  occupations_en.csv             occupation title + altLabels -> URI
-  occupationSkillRelations_en.csv occupation URI -> skill URI (essential|optional)
-  skills_en.csv                  skill URI -> preferred name
+Preferred source: a single pre-joined edge list `esco_relations.csv`
+  (relationKind, relationType, sourceUri/Label/Type, targetUri/Label/Type)
+plus `occupations_en.csv` for occupation altLabels (needed for title matching).
+Falls back to the 3-file layout (occupationSkillRelations + skills_en) if the
+relations file isn't present. Everything degrades to [] if nothing is built.
 
-Build: python -m app.skills.graph [esco_dir]   (defaults to data/skills/raw/ then _esco_extract/)
-Everything degrades to [] if the graph isn't built — no hard dependency.
+Build: python -m app.skills.graph
 """
 import csv
 import logging
 import re
 import sqlite3
-from collections import defaultdict
 from functools import lru_cache
 from pathlib import Path
 
@@ -35,44 +32,55 @@ _STOP = {"and", "the", "of", "for", "a", "an", "in", "to", "senior", "junior",
          "lead", "manager", "specialist", "officer", "assistant", "worker"}
 
 
-def _esco_dir(d=None) -> Path | None:
-    if d:
-        return Path(d)
+def _find(name: str) -> Path | None:
     for c in _CANDIDATE_DIRS:
-        if (c / "occupationSkillRelations_en.csv").exists():
-            return c
+        if (c / name).exists():
+            return c / name
     return None
 
 
 def build_graph(esco_dir=None) -> int:
-    """Load occupation -> skill links into the skills DB. Returns #occupations with skills."""
-    d = _esco_dir(esco_dir)
-    if not d:
-        logger.warning("No ESCO occupation files found; graph not built.")
+    """(Re)build the occupation/skill graph in the skills DB. Returns #occupations linked."""
+    occ_name, occ_aliases = {}, []   # uri->name ; (alias, uri)
+    occ_file = (Path(esco_dir) / "occupations_en.csv") if esco_dir else _find("occupations_en.csv")
+    if occ_file and occ_file.exists():
+        with open(occ_file, encoding="utf-8-sig") as f:
+            for r in csv.DictReader(f):
+                uri = r["conceptUri"]
+                occ_name[uri] = r["preferredLabel"]
+                for lbl in [r["preferredLabel"], *r.get("altLabels", "").split("\n")]:
+                    a = lbl.strip().lower()
+                    if a:
+                        occ_aliases.append((a, uri))
+
+    occ_links = []   # (occ_uri, skill_name, relation)
+    skill_rel = []   # (src_name_lc, tgt_name)
+    rel = _find("esco_relations.csv")
+    if rel:
+        with open(rel, encoding="utf-8-sig") as f:
+            for r in csv.DictReader(f):
+                kind = r["relationKind"]
+                if kind == "occupation-skill" and r["targetLabel"]:
+                    occ_links.append((r["sourceUri"], r["targetLabel"], r["relationType"]))
+                elif kind == "skill-skill":
+                    s, t = r["sourceLabel"].strip().lower(), r["targetLabel"].strip()
+                    if s and t:
+                        skill_rel.append((s, t))
+    else:
+        # fallback: occupationSkillRelations + skills_en (no skill-skill edges)
+        rels = _find("occupationSkillRelations_en.csv")
+        sk = _find("skills_en.csv")
+        if rels and sk:
+            skn = {r["conceptUri"]: r["preferredLabel"]
+                   for r in csv.DictReader(open(sk, encoding="utf-8-sig"))}
+            for r in csv.DictReader(open(rels, encoding="utf-8-sig")):
+                name = skn.get(r["skillUri"])
+                if name:
+                    occ_links.append((r["occupationUri"], name, r["relationType"]))
+
+    if not occ_links and not occ_aliases:
+        logger.warning("No ESCO graph sources found; graph not built.")
         return 0
-
-    skn = {}  # skill URI -> name
-    with open(d / "skills_en.csv", encoding="utf-8-sig") as f:
-        for r in csv.DictReader(f):
-            skn[r["conceptUri"]] = r["preferredLabel"]
-
-    occ_name, occ_aliases = {}, []      # URI -> name ; (alias, URI)
-    with open(d / "occupations_en.csv", encoding="utf-8-sig") as f:
-        for r in csv.DictReader(f):
-            uri = r["conceptUri"]
-            occ_name[uri] = r["preferredLabel"]
-            labels = [r["preferredLabel"], *r.get("altLabels", "").split("\n")]
-            for lbl in labels:
-                a = lbl.strip().lower()
-                if a:
-                    occ_aliases.append((a, uri))
-
-    links = []  # (occ_uri, skill_name, relation)
-    with open(d / "occupationSkillRelations_en.csv", encoding="utf-8-sig") as f:
-        for r in csv.DictReader(f):
-            name = skn.get(r["skillUri"])
-            if name:
-                links.append((r["occupationUri"], name, r["relationType"]))
 
     con = sqlite3.connect(SKILLS_DB_PATH)
     try:
@@ -80,20 +88,25 @@ def build_graph(esco_dir=None) -> int:
             DROP TABLE IF EXISTS occupations;
             DROP TABLE IF EXISTS occupation_aliases;
             DROP TABLE IF EXISTS occupation_skills;
+            DROP TABLE IF EXISTS skill_relations;
             CREATE TABLE occupations (occ_id TEXT PRIMARY KEY, name TEXT);
             CREATE TABLE occupation_aliases (alias TEXT, occ_id TEXT);
             CREATE TABLE occupation_skills (occ_id TEXT, skill_name TEXT, relation TEXT);
+            CREATE TABLE skill_relations (src_lc TEXT, tgt TEXT);
             CREATE INDEX idx_occ_alias ON occupation_aliases(alias);
             CREATE INDEX idx_occ_skill ON occupation_skills(occ_id);
+            CREATE INDEX idx_skill_rel ON skill_relations(src_lc);
         """)
         con.executemany("INSERT OR REPLACE INTO occupations VALUES (?,?)", occ_name.items())
         con.executemany("INSERT INTO occupation_aliases VALUES (?,?)", occ_aliases)
-        con.executemany("INSERT INTO occupation_skills VALUES (?,?,?)", links)
+        con.executemany("INSERT INTO occupation_skills VALUES (?,?,?)", occ_links)
+        con.executemany("INSERT INTO skill_relations VALUES (?,?)", skill_rel)
         con.commit()
     finally:
         con.close()
-    n = len({l[0] for l in links})
-    logger.info("Built occupation graph: %d occupations, %d skill links", n, len(links))
+    n = len({l[0] for l in occ_links})
+    logger.info("Built graph: %d occupations, %d occ-skill links, %d skill-skill edges",
+                n, len(occ_links), len(skill_rel))
     return n
 
 
@@ -114,10 +127,8 @@ def match_occupation(title: str) -> str | None:
     """Map a job title / role description to an ESCO occupation URI.
 
     Exact alias first; else the occupation whose NAME is best *contained* in the
-    text. Containment (covered / alias-size), not Jaccard — a verbose query like
-    "Registered nurse with ICU experience seeking charge nurse role" must still
-    match the short occupation "registered nurse" (Jaccard would dilute it to ~0).
-    Score rewards covering more specific tokens so "registered nurse" beats "nurse".
+    text (containment, not Jaccard — a verbose query must still match a short
+    occupation name). Score rewards covering more specific tokens.
     """
     if not title:
         return None
@@ -136,10 +147,10 @@ def match_occupation(title: str) -> str | None:
         if not atoks:
             continue
         covered = qtoks & atoks
-        coverage = len(covered) / len(atoks)   # fraction of the occupation name present
+        coverage = len(covered) / len(atoks)
         if coverage < 0.6:
             continue
-        score = len(covered) * coverage        # prefer fully-covered, more specific names
+        score = len(covered) * coverage
         if score > best_score:
             best, best_score = occ, score
     return best
@@ -163,7 +174,33 @@ def essential_skills_for(title: str, n: int = 15) -> list[str]:
     return [r[0] for r in rows][:n]
 
 
+def adjacent_skills(skill_names, n: int = 20) -> list[str]:
+    """Skills related (skill->skill edges) to any of `skill_names`. [] if unavailable."""
+    names = [s.strip().lower() for s in skill_names if s and s.strip()]
+    if not names:
+        return []
+    try:
+        con = sqlite3.connect(SKILLS_DB_PATH)
+        try:
+            ph = ",".join("?" * len(names))
+            rows = con.execute(f"SELECT DISTINCT tgt FROM skill_relations WHERE src_lc IN ({ph})",
+                               names).fetchall()
+        finally:
+            con.close()
+    except sqlite3.OperationalError:
+        return []
+    seen = set(names)
+    return [r[0] for r in rows if r[0].lower() not in seen][:n]
+
+
+def role_skill_context(role: str, n_essential: int = 10, n_adjacent: int = 8):
+    """(essential_skills, adjacent_skills) for a role — the graph context for an agent."""
+    ess = essential_skills_for(role, n=n_essential)
+    adj = adjacent_skills(ess, n=n_adjacent) if ess else []
+    return ess, adj
+
+
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)
     n = build_graph()
-    print(f"Built occupation graph for {n} occupations into {SKILLS_DB_PATH}")
+    print(f"Built graph for {n} occupations into {SKILLS_DB_PATH}")

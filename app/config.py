@@ -51,6 +51,11 @@ OLLAMA_TIMEOUT    = float(os.getenv("OLLAMA_TIMEOUT",    "300"))  # per-request 
 # vocabulary (e.g. Lightcast) whose labels match real postings.
 STRATEGIST_USE_OCCUPATION_SKILLS = os.getenv("STRATEGIST_USE_OCCUPATION_SKILLS", "").lower() in ("1", "true", "yes")
 
+# Master A/B flag for the occupation-graph experiment: when on, inject graph data
+# (occupation essential + skill-adjacent skills) into retrieval AND the resume-coach
+# and career-strategist prompts. Default off; toggled for the with/without comparison.
+USE_GRAPH_DATA = os.getenv("USE_GRAPH_DATA", "").lower() in ("1", "true", "yes")
+
 RUNPOD_ENDPOINT_ID   = os.getenv("RUNPOD_ENDPOINT_ID", "")
 RUNPOD_API_KEY       = os.getenv("RUNPOD_API_KEY", "")              # account API key (Settings → API Keys)
 RUNPOD_POLL_TIMEOUT  = int(os.getenv("RUNPOD_POLL_TIMEOUT",  "600"))  # max seconds to wait for a job

@@ -89,3 +89,7 @@ TESTING_GUIDE.md
 
 # Live job-search snapshots (generated)
 data/adzuna/
+
+# ESCO bulk download (runtime data drop, not committed)
+data/skills/*.zip
+data/skills/_esco_extract/
