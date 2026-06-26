@@ -119,12 +119,28 @@ only (its standalone tentative-adopt) and flag interference.
 
 ---
 
-## Iteration 4 — _scoping_ (fallback gate)
-Discover next: the Adzuna fallback rate (45–73%) means most Adzuna rows score the matcher
-heuristic, not the (now-improved) LLM agents. If the grounding gate has **false negatives**
-(rejecting genuinely-grounded output), fixing them is a legitimate, high-EV lift (not Goodhart).
-Investigating `app/pipeline/pipeline.py::_run_with_grounding` + `app/agents/grounding.py` (free,
-local) before spending a serverless run.
+## Iteration 4 — fallback is a non-lever (discovery) → confirm stack + retest retrieval
+**Discover finding (free, code+log read).** `_run_with_grounding` **never discards agent output** —
+it keeps the best result and scores it; grounding-ratio<0.5 only sets a validation flag. Only true
+agent **exceptions** swap in the heuristic. Measured in the clean iter-3 set: **1 real exception vs
+77 grounding re-asks across 288 agent runs** → "fallback_used" (45–73%) is ~entirely a grounding-quality
+flag, NOT output-discard. **⇒ reducing fallback would not move `overall`** (output already scored).
+Fallback-gate iteration abandoned before spend. (Flag: `fallback_used` is a misleading metric name —
+it's "≥1 agent had imperfect grounding," not "heuristic used.")
+
+**Hypothesis H4.** (a) The chained cumulative gain (validate +0.05 → few-shot +0.061, measured on
+different noisy baselines) holds up when measured **original-baseline vs shipped-stack in one clean run**;
+(b) retrieval, neutral on the *old* baseline, may now compose on the improved stack (few-shot/validate
+stabilize spot, so retrieval's job-gain could survive into overall).
+
+**Method.** One serverless 2×2, 3 paired conditions per cell — `base0` (`GRAPH_VALIDATE=0 PROMPT_FEWSHOT=0`),
+`shipped` (current defaults), `shipped+ret` (`GRAPH_RETRIEVAL=1`) — greedy, `ab6_` namespace, 12 evals
+(~$7 of remaining ~$20). Decision: confirm cumulative Δ (base0→shipped); adopt retrieval if shipped+ret
+≥ shipped by +0.05 mean AND no stay-in-field regression.
+
+**Result.** _pending_
+
+**Decision.** _pending_
 
 ---
 
