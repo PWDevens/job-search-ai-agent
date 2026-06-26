@@ -36,7 +36,7 @@ serverless llama3.1:8b. Each cell isolated (own `data/chroma_ab_<cell>/` + `EVAL
 |---|---|
 | `ab_{cell}_off.csv` | baseline — no graph data (the comparison baseline for every condition) |
 | `ab_{cell}_on.csv` | `USE_GRAPH_DATA=1` — retrieval expansion **+** strategist prompt context (bundled) |
-| `ab_{cell}_ret.csv` | `GRAPH_RETRIEVAL=1` — retrieval expansion only *(run in progress)* |
+| `ab_{cell}_ret.csv` | `GRAPH_RETRIEVAL=1` — retrieval expansion only |
 | `ab_{cell}_resume.csv` | `GRAPH_RESUME_CONTEXT=1` — resume-coach prompt context only *(pending)* |
 | `ab_{cell}.log`, `*_ret.log`, `*_resume.log` | raw run logs (debug; ChromaDB telemetry noise is harmless) |
 
@@ -50,12 +50,23 @@ serverless llama3.1:8b. Each cell isolated (own `data/chroma_ab_<cell>/` + `EVAL
 | switching × **Adzuna** | −0.02 | **+0.31** | −0.33 | −10.9 | **+63.6** |
 | stay × **Adzuna** | −0.03 | −0.04 | +0.05 | 0.0 | +27.3 |
 
+### Results — retrieval-only vs off (Δ = ret − off) — CONFIRMATION
+| Cell (n=11) | overall | **job** | spot | rec |
+|---|:--:|:--:|:--:|:--:|
+| switching × synthetic | **+0.12** | +0.15 | +0.25 | −0.01 |
+| stay × synthetic | −0.03 | +0.01 | +0.05 | −0.13 |
+| switching × Adzuna | **+0.08** | **+0.29** | −0.09 | +0.05 |
+| stay × Adzuna | **+0.13** | **+0.29** | +0.09 | +0.04 |
+
+Net-positive overall in 3/4 cells; **job up in all 4** (+0.29 both Adzuna). Removing the
+prompt-context half flipped the bundled net (negative) to positive — the decomposition holds.
+
 ### Findings so far (the injection-point map)
 | # | Injection point | Mechanism | Verdict |
 |---|---|---|---|
-| 1 | Retrieval (query expansion) | embedding space | **HELPS** — job ↑, +0.31 switching×Adzuna |
+| 1 | Retrieval (query expansion) | embedding space | **HELPS (confirmed)** — overall +0.08…+0.13 in 3/4, job +0.29 Adzuna |
 | 2 | Career-strategist prompt | generation/grounding | **HURTS** — gnd ↓, fb 18%→82% |
-| 3 | Resume-coach prompt | generation | pending (`*_resume.csv`) |
+| 3 | Resume-coach prompt | generation | running (`*_resume.csv`) |
 | 4 | Job-matcher agent prompt | generation/ranking | planned |
 | 5 | Rerank by skill overlap | scoring space | planned |
 | 6 | Graph-as-validator (post-hoc, semantic) | filter, not prompt | planned |
