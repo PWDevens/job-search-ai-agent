@@ -80,12 +80,21 @@ Scripts: `.secrets/_ab_graph_par.sh` (round 1 off/on), `_ab_retonly.sh`, `_ab_re
 Net-positive overall in 3/4 cells; **job up in all 4** (+0.29 both Adzuna). Removing the
 prompt-context half flipped the bundled net (negative) to positive — the decomposition holds.
 
-### Findings so far (the injection-point map)
+### Results — Round 2 `ab2_*` CANONICAL (paired off baseline, greedy, zombie-free)
+Δ vs each cell's own off baseline. Cells: switch×synth / stay×synth / switch×Adz / stay×Adz.
+
+| Lever | job Δ | overall Δ | spot Δ | notes |
+|---|---|---|---|---|
+| **retrieval** | **+0.13 / +0.03 / +0.29 / +0.29** | +0.07 / +0.01 / −0.10 / +0.04 | +0.02 / 0 / −0.45 / −0.16 | job ↑ robust; overall ~neutral |
+| **prompt (strategist)** | ~0 | −0.11 / −0.11 / −0.14 / +0.05 | −0.27 / −0.49 / −0.35 / −0.11 | hurts; spot ↓ all 4 |
+| **resume** | ~0 | +0.01 / −0.12 / −0.01 / −0.05 | +0.01 / −0.38 / +0.25 / −0.16 | neutral→hurts; rec not improved |
+
+### Findings so far (the injection-point map) — canonical
 | # | Injection point | Mechanism | Verdict |
 |---|---|---|---|
-| 1 | Retrieval (query expansion) | embedding space | **HELPS (indicative)** — R1 overall +0.08…+0.13 in 3/4, job +0.29 Adzuna; temp-0 re-run pending |
-| 2 | Career-strategist prompt | generation/grounding | **HURTS** — gnd ↓, fb 18%→82% (R1 bundled, paired) |
-| 3 | Resume-coach prompt | generation | R1 inconclusive (drifted baseline); temp-0 re-run pending |
+| 1 | Retrieval (query expansion) | embedding space | **HELPS job-match (+0.13…+0.29), ~NEUTRAL overall** — expanding the query shifts which jobs the strategist grounds against, offsetting via spot |
+| 2 | Career-strategist prompt | generation/grounding | **HURTS** — overall −0.11…−0.14, spot ↓ all 4 cells |
+| 3 | Resume-coach prompt | generation | **NEUTRAL→HURTS** — rec dimension not improved; "coach is the exception" hypothesis FALSE |
 | 4 | Job-matcher agent prompt | generation/ranking | planned |
 | 5 | Rerank by skill overlap | scoring space | planned |
 | 6 | Graph-as-validator (post-hoc, semantic) | filter, not prompt | planned |
