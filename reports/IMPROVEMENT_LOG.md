@@ -54,3 +54,28 @@ falsifiable **hypothesis**, its **rationale**, the **method**, the **result**, a
 **Decision: KEEP bge-small (defer the US swap).** Rationale: (1) **no eval gain** — all US candidates tie-or-slightly-below on the confound-free metric; (2) bge-small is **4× lighter** (33M) → best honors the *hard* "non-compute-heavy / local-CPU" constraint; (3) a parity swap costs threshold recalibration + re-ingest churn for $0 metric movement. **⚑ FLAG for user:** this trades against your US-provenance preference. If US-provenance is a *hard* requirement, **Nomic** is the cleanest swap (cosine scale ≈ bge, least recalibration) at retrieval parity + heavier compute — say the word and I'll wire it. **Parked:** prefer US models for any future component where they're ≥ incumbent. (Not pursued: per-model query-prefix tuning — possible small upside, low priority vs budget.)
 
 **Outcome:** iteration produced no eval improvement (valid negative). Embedding is not the lever. Feed back → Iteration 2 targets rec/spot headroom. Screen tool + baseline retained for all future retrieval experiments.
+
+---
+
+## Iteration 2 — Combine retrieval + validate
+**Status:** in progress.
+
+**Discover.** The completed levers run (clean, 0×402) closed the injection-point map:
+graph data helps in embedding/filter space — **retrieval expansion → job ↑** (+0.13…+0.29),
+**graph-as-validator → spot ↑** (+0.16/+0.15/−0.05/+0.11, +0.05 mean overall) — and dies in
+generation prompts. Crucially, retrieval-alone's overall gain was *eaten by a spot drop*
+(changing retrieved jobs perturbs strategist grounding); validate independently *lifts* spot.
+
+**Hypothesis H2.** Enabling **`GRAPH_RETRIEVAL` + `GRAPH_VALIDATE` together** nets a real overall
+gain across the 2×2: retrieval raises job, validate raises spot and offsets retrieval's spot
+coupling. Falsifiable: if combined overall Δ vs off is ≤ ~0 or below validate-alone, the levers
+interfere rather than compose.
+
+**Method.** Serverless 2×2, **paired off vs retrieval+validate** in one run (greedy, `--temp 0`,
+`ab4_` namespace), 8 evals (economical — 2 conditions not 4). Zombie-swept first. Decision: adopt
+both as defaults if combined overall Δ ≥ +0.05 mean AND positive in ≥3/4 cells; else keep validate
+only (its standalone tentative-adopt) and flag interference.
+
+**Result.** _pending_
+
+**Decision.** _pending_
