@@ -362,3 +362,58 @@ blind spots (feature working); switching → 0% (target matches < MIN_CONF, inje
 **Remaining gap = career-changer occupation matching** (reported-title anchors) — unlocks the feature for
 switchers (the [0,_,0,_] half). Bug fix to onet_requirements also improves the authoritative layer generally.
 Loop spend ≈ $21-23. Raw outputs banked (authv3_*.raw.jsonl) → future rubric tweaks re-score for $0.
+
+---
+
+## Iteration 7 — backlog P0 (context-engineering foundation) (2026-06-27)
+
+Per the JTBD-alignment audit (PathForward §4-5). All local/$0; pod retest pending.
+
+**A0 — posting section parser / data dictionary** (`app/pipeline/sections.py`). Postings are formulaic;
+parse into company/responsibilities/required-quals/preferred/benefits (regex over canonical headers +
+positional fallback). Stored in Chroma metadata at ingest (parse from RAW description — `_clean` collapses
+the newlines the parser needs), propagated onto job dicts. The substrate the context fixes want.
+
+**A1 — resume_coach sees requirements** (was blind: `fmt_jobs(detail=False)` → title+company only, yet its
+prompt promised posting text). Now shows each job's parsed `requirements_text` + injects the target
+occupation's authoritative O*NET requirements missing from the resume. Fixes the highest-weighted dim (rec=0.4).
+
+**A2 — target occupation from matched jobs, not the role sentence.** The switcher `[0,_,0,_]` auth gap was
+query construction, not the matcher: the strategist/coach matched on the role_description SENTENCE, which for
+a career-changer leads with the CURRENT role ("home health aide … seeking CNA") → occupation_for picks Home
+Health Aides (0.778, gated) → no injection. Fix: derive the target from the matched jobs' clean titles.
+Validated: sentence→Home Health Aides (gated, []); matched title "Nursing Assistant"→Nursing Assistants
+(0.964)→real target reqs (Epic, MEDITECH).
+- **Negative result (documented):** reported-title anchors (7,953 O*NET aliases) were tried first and
+  REJECTED — they raise confidence but add confident-WRONG matches (Operations Coordinator→Brokerage Clerks
+  1.0; a top-K vote regressed Data Scientist→Biostatisticians). Reverted to the clean iter6 matcher.
+
+**Pre-existing infra issue flagged:** `pytest_asyncio` hijacks the `tmp_path` fixture
+(`'WindowsPath' has no attribute 'mktemp'`) → 30 errors in test_matcher at *setup* (not from these changes).
+Test-infra cleanup item.
+
+**Next:** consolidated pod retest of the P0 context block (rec dim + switcher auth%), then backlog P1.
+
+### Iteration 7 — context-block retest (mode-aware A0+A1+A2), deterministic pod ~$1
+AUTHORITATIVE_GAPS off vs on, rubric_v2, 14 personas, mode-from-variant, on the parsed-sections pipeline.
+
+| cell | overall off->on | auth% off->on |
+|---|---|---|
+| switch_synth | 1.89->2.45 (+0.554) | 12->72 |
+| stay_synth   | 1.76->2.36 (+0.598) | 12->85 |
+| switch_adz   | 1.59->1.84 (+0.255) | 7->44 |
+| stay_adz     | 1.70->1.94 (+0.249) | 9->60 |
+| MEAN | 1.73->2.15 (+0.414) | |
+
+**The switcher gap is CLOSED.** switch-cell auth% 9->72 (synth) / 16->44 (Adzuna); the [0,_,0,_] fingerprint
+is gone. switch_synth overall +0.81, spot +2.13. The stay/switch MODE (user idea) + A2 matched-title target
+together made the feature fire for career-changers — it now helps the whole market.
+
+**Feature benefit more than doubled.** Same AUTHORITATIVE_GAPS feature, measured across the alignment work:
+v1/toy −0.038 -> v2/toy +0.071 -> v2/realistic +0.198 -> **v2/realistic+context-block+mode +0.414**.
+
+**Caveat:** rec lifted on switch cells (2.0->2.3) but flat on stay — the rec metric still scores tangibility/
+citations, not gap-closing, so A1's value is partly invisible (same as spot pre-rubric_v2). B5 (rec scored on
+gap-closing) captures it and is re-scorable on banked authv4 outputs for $0.
+
+Commits: A0 (sections), A1 (resume_coach reqs), A2 (matched-title target), mode (stay/switch). Loop spend ~$24.
