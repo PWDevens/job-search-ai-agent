@@ -180,3 +180,34 @@ lowered within the budget/compute available (no local GPU; repeats too costly). 
 → greedy reproducible) OR run deterministic **local CPU** evals (needs Ollama + llama3.1:8b pulled locally),
 then re-test validate / few-shot / retrieval with `repeats≥3`. New durable tooling left behind:
 `scripts/screen_retrieval.py` (free local retrieval screen) + this journal.
+
+---
+
+## ✅ Deterministic confirmation — DEFINITIVE (2026-06-26, dedicated pod)
+The noise floor WAS beaten. After three dead ends — heterogeneous serverless (noisy), single-GPU
+serverless (Low-stock A4000 → allocation scarcity; fresh-endpoint cold-start churn even on High-stock
+4090), and local CPU (phi4-mini too slow on 5k-token prompts) — the working instrument was a
+**dedicated single-GPU pod**: `ollama/ollama` image on 1× RTX 4090, `OLLAMA_HOST=0.0.0.0`, port 11434,
+`ollama pull llama3.1:8b` via the proxy, eval pointed at `OLLAMA_BASE_URL=https://<pod>-11434.proxy.runpod.net`.
+A pod **pulls once and stays up** (no worker cycling) and is **one fixed GPU** (greedy bit-reproducible —
+verified: two identical calls → identical output). Run: sequential, **0 fallbacks across all 88+88 personas**.
+
+**Per-lever attribution (Δ overall vs off, deterministic, scenario 9 / llama3.1:8b):**
+| cell | off | Δ validate | Δ few-shot | Δ both |
+|---|---|---|---|---|
+| switch×synth | 2.205 | −0.242 | −0.177 | −0.086 |
+| stay×synth | 2.200 | +0.045 | −0.085 | +0.127 |
+| switch×Adz | 1.600 | −0.011 | +0.104 | +0.043 |
+| stay×Adz | 1.671 | +0.022 | +0.010 | +0.051 |
+| **MEAN** | | **−0.047** | **−0.037** | **+0.034** |
+
+**The finding (only visible with clean data): a synergistic interaction.** Each lever ALONE *hurts*
+(validate −0.047, few-shot −0.037); only TOGETHER do they help (+0.034) — few-shot's grounding structure +
+validate's relevance-filtering combine to yield grounded *and* on-target blind spots. Switching-synthetic
+still regresses even combined (−0.086).
+
+**Definitive verdict — `GRAPH_VALIDATE` + `PROMPT_FEWSHOT` stay OPT-IN:** you cannot adopt either alone
+(each degrades overall), and the combined gain (+0.034) is marginal and non-uniform. The earlier
+conservative revert is now backed by clean per-lever proof, not a guess. **Reusable recipe:** the pod
+method above is the deterministic eval instrument for any future sub-0.1-effect A/B (deleted after use to
+stop billing; ~$0.69/hr, ~$4 total for the two pod runs). Total improvement-loop spend ≈ **$18–20**.

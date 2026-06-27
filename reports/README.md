@@ -96,7 +96,7 @@ prompt-context half flipped the bundled net (negative) to positive — the decom
 | 2 | Career-strategist prompt | generation/grounding | **HURTS** — overall −0.11…−0.14, spot ↓ all 4 cells |
 | 3 | Resume-coach prompt | generation | **NEUTRAL→HURTS** — rec dimension not improved; "coach is the exception" hypothesis FALSE |
 | 4 | Rerank-by-skill (`GRAPH_RERANK`) | scoring space | **REJECT** — net-neutral, high variance (overall +0.18/−0.21/−0.06/+0.06; can evict title-matched jobs from top-5, job −0.44 one cell) |
-| 5 | Graph-as-validator (`GRAPH_VALIDATE`) | post-hoc filter | **OPT-IN** — +0.05 paired (iter2), but within ±0.2/cell GPU-fleet noise; not adopted as default (see IMPROVEMENT_LOG iter4 + conclusion) |
+| 5 | Graph-as-validator (`GRAPH_VALIDATE`) | post-hoc filter | **OPT-IN (deterministically confirmed)** — alone HURTS (−0.047); only synergistic with few-shot (+0.034 combined, marginal/non-uniform). Measured on a dedicated-pod instrument, 0 noise. See IMPROVEMENT_LOG "Deterministic confirmation" |
 
 **Map conclusion:** graph data helps in **embedding/filter space** (retrieval → job; validate → spot), is dead in **generation prompts** (strategist, resume); rerank-by-reorder doesn't help. Clean `ab3_*` re-run (0×402) on the funded endpoint. Next: **combine** retrieval (job↑) + validate (spot↑) — see `IMPROVEMENT_LOG.md` Iteration 2.
 
