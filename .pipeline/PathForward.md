@@ -4,8 +4,9 @@
 > finished tool (sourcing, models, agents, evaluation). Updated as the improvement loop progresses.
 > Last updated: 2026-06-27.
 >
-> **Status: direction CONFIRMED by user (2026-06-27).** This is the agreed target architecture; the
-> open items in §4 are the active workstream. Polished diagram: [`architecture.svg`](architecture.svg).
+> **Status: direction CONFIRMED.** Iter6 complete (rubric_v2 + O*NET-grounded regen + Tier-1 personas,
+> AUTHORITATIVE_GAPS off→on +0.198). A full JTBD-alignment audit (§4) + prioritized backlog (§5) were
+> folded in 2026-06-27. **§5 is the active workstream.** Polished diagram: [`architecture.svg`](architecture.svg).
 
 ---
 
@@ -177,10 +178,125 @@ flowchart TB
 
 ---
 
-## 4. Open questions / next steps
-- **Regenerate synthetic** as O*NET-grounded, full-length, labeled postings (in progress) → rerun A/B → re-evaluate gaps.
-- **Career-changer occupation matching**: add reported-title anchors so aspirational/switching titles clear the confidence gate (currently the authoritative layer misfires for switchers).
-- **Wire CareerOneStop certs/licenses** for non-tech credential gaps (RN license, ACLS, Journeyman).
-- **Decide blend-vs-replace** for grounding long-term, and whether to extend rubric_v2 to `rec` (R3) and `job` fit/winnability (R2).
-- **Full-text sourcing** (USAJOBS / ATS) only if employer-specific must-haves prove necessary beyond O*NET requirements.
-- **US-model alignment**: evaluate Arctic/Nomic embeddings vs bge if the quality tradeoff is acceptable.
+## 4. JTBD-alignment audit (2026-06-27)
+
+Full audit of every component that trains, tests, builds, or deploys the tool, vs the JTBD.
+
+### 4.1 Component verdicts
+| Component | Verdict | Core misalignment |
+|---|---|---|
+| Agent orchestration (3 agents) | 🟡 Partial | grounding is *company-citation*, not requirement-based |
+| Embedding / retrieval | 🟡 Partial | query is thin (role + 400c resume); "relevance" ≠ "fit/winnability" |
+| Personas / synthetic data | 🟢 Mostly | switcher-title bias (orig 11) + auth% circularity risk |
+| Eval metrics | 🟡 Partial | only `spot` is JTBD-aligned; `job` & `rec` are not |
+| Tests | 🟡 Partial | unit-level only; no JTBD-behavioral assertions |
+| **Build / deploy (the product)** | 🔴 **Misaligned** | the shipped Flask app makes the user *upload* jobs — it ranks, doesn't *find* |
+
+### 4.2 The product–eval gap (the biggest finding)
+The good logic — Adzuna discovery, O*NET authoritative requirements, occupation matching, CareerOneStop
+certs — lives in the **eval/research path, not the shipped product**. The live Flask app (`routes.py` →
+`/search`) requires the user to **upload a jobs CSV**, then ranks it. It does not reduce the friction of
+*finding* what to apply to — half the JTBD. `AUTHORITATIVE_GAPS` is also opt-in/off in the live pipeline.
+
+### 4.3 Agent context-engineering misalignments (the prompts/data we feed agents)
+The orchestration *topology* is right (3 agents → 2 JTBD jobs); the **context fed to them is not**:
+- **resume_coach is blind to job requirements.** `agent_resume_coach.py` passes `fmt_jobs(..., detail=False)`
+  → only "title at company," no posting text — yet its system prompt *promises* "posting text" and tells it
+  to "only claim a skill is required if it appears in a matched job's posting." The highest-weighted dim
+  (`rec`=0.4) is structurally unable to do gap-closing. (Same `detail=False` blindness that was fixed for the
+  strategist; never fixed here.)
+- **We re-truncate the postings we un-truncated.** `JOB_CONTEXT_CHARS=400` clips the ~1,450c postings — and
+  the requirements section comes *after* responsibilities, so it's exactly what gets cut. The context layer
+  throws away the requirements the data layer produces.
+- **job_matcher is told not to prioritize.** Its prompt: "Your job is NOT to find jobs… select, order,
+  explain." With a 600c resume snippet, the actual prioritization is embedding similarity; the agent narrates
+  it. The candidate's real skills (needed for *fit*) never enter the decision.
+- **Tech-biased skill-file exemplars** ("AI/ML Data Scientist — Guidehouse") *train* generation toward
+  analytics, wrong for market-rep personas. (The few-shots in `fewshot.py` are field-diverse; the skill files
+  aren't.)
+
+### 4.4 The foundational fix: a posting "data dictionary" / section parser
+Postings are formulaic: **about-company → role summary → responsibilities → required qualifications →
+preferred qualifications → compensation/benefits → EEO**. A section taxonomy + deterministic parser is the
+substrate every other fix reaches for:
+- **Retrieval becomes fit-aligned** — embed/weight the *qualifications* section, so candidate skills match
+  against *requirements* (real "fit"), not a blob diluted by company fluff.
+- **The 400c truncation dissolves** — pass the parsed *requirements* section (compact + exactly what matters)
+  instead of "first 400 chars" (which grabs the company blurb and misses requirements).
+- **Grounding gets precise** and the dictionary becomes the **shared producer/consumer contract** (generator,
+  retrieval, 3 agents, rubric all agree what "requirements" means).
+- Deterministic/free/local: regex over canonical headers (~70-80% of real postings) + positional fallback.
+  Our **synthetic corpus already emits sections + a `requirements` label**; the parser is for *real* postings
+  (Adzuna/uploads), making synthetic and real interchangeable downstream.
+
+### 4.5 Context-engineering best practices to adopt
+1. **Extract deterministically; let the LLM reason** (biggest lever for an 8B local model) — pre-compute skills,
+   sections, fit; hand the agent the *results*.
+2. **Structured/typed context over raw text dumps** — feed `requirements: [...]`, not a char-slice.
+3. **Deliberate context budgeting** — allocate the 8192 ctx; full requirements for top jobs, full candidate
+   *skills* (not a 600c prefix). The 400/600/1500/3000 caps were ad hoc.
+4. **Primacy** — surface the candidate's Skills section; don't bury it past the truncation point.
+5. **Separate retrieval-context (candidate skills) from generation-context (structured requirements).**
+6. **Pass structured artifacts between agents, not display strings** (cf. C1).
+7. **Schema fields that force grounding** — add a `requirement_cited` field to BlindSpot/ResumeRec.
+8. **Truthful system prompts** — the "Input you will be given" section must match what the agent actually gets.
+
+### 4.6 Eval-validity caveats
+- **Circularity:** `auth%` grades blind spots against the *same* O*NET requirements the synthetic corpus is
+  built from → synthetic auth% is partly tautological. **Lean on Adzuna** (independent of O*NET) as the unbiased
+  signal; `stay_adz +0.365` on real data is the trustworthy number.
+- **`job` dim** = retrieval-relevance to persona fields, not fit/winnability. **`rec` dim** = tangibility +
+  citations, not gap-closing.
+
+### 4.7 Agents — add roles? No (for now)
+3 agents map to the JTBD; the gaps are context + deterministic pre-processing, not a missing role. Don't add
+LLM agents for fit-scoring / parsing / profile-building — those are **deterministic**. One *future* role worth
+flagging: an **application-drafter** (cover letter / tailored bullets) — the unserved third of "frictionless"
+(help *do* the application), after the context fixes land. What we should regenerate is the **existing skill
+files** (§4.3/§4.5).
+
+---
+
+## 5. Prioritized action backlog (consolidated 2026-06-27)
+
+Tags: [prod]=shipped product · [ctx]=agent context · [eval] · [data] · [retr]=retrieval · [clean].
+**A0 is foundational** — most P0/P1 items want the section layer it provides.
+
+### P0 — foundational + highest-leverage (do first)
+- **A0 [data/retr]** Build the **posting section parser + structured job schema** (the data dictionary, §4.4).
+  Parse on ingest → store sections in Chroma metadata. Synthetic already conforms. *Unblocks A1, A4, B3, C1.*
+- **A1 [ctx]** **resume_coach: give it the requirements** — `detail=True` + inject `missing_requirements`;
+  drop/retire `JOB_CONTEXT_CHARS=400` in favor of the structured `requirements` field. Fixes the highest-weighted
+  dimension (`rec`=0.4) with a tiny change. *(depends on A0 for real postings; works today on synthetic.)*
+- **A2 [data]** **Career-changer occupation matching** — reported-title anchors so aspirational titles clear
+  `MIN_CONF`. Unblocks AUTHORITATIVE_GAPS for switchers (the proven `[0,_,0,_]` gap). Cheap, local.
+
+### P1 — close the product gap + finish context/grounding
+- **B1 [prod]** **Wire Adzuna discovery into `/search`** (role + geo → fetch postings) so the user supplies a
+  role, not a spreadsheet. Closes the biggest JTBD gap (*find*, not just rank).
+- **B2 [ctx]** **Replace company-citation grounding with requirement-grounding** in `_run_with_grounding`;
+  flip **`AUTHORITATIVE_GAPS` on by default** in production (proven +0.198).
+- **B3 [ctx/retr]** **job_matcher → fit, not narration** — build candidate context from a full-resume skills
+  extraction (not 600c); reframe prompt to rank by fit = candidate skills ∩ job requirements.
+- **B4 [ctx]** **Regenerate the 3 skill files** — truthful "Input you will be given" sections, field-neutral /
+  multi-sector exemplars, requirement-grounding `_grounding.md`; add a `requirement_cited` schema field.
+- **B5 [eval]** **Make `job` and `rec` dims JTBD-aligned** — add a fit dimension (R2) to job scoring; score
+  `rec` on gap-closing (R3). Re-score banked raw outputs for $0 where possible.
+
+### P2 — coverage, validity, cleanup
+- **C1 [prod/data]** **Wire CareerOneStop certs/licenses** — the non-tech credential path (CNA/CDL/ServSafe)
+  for the Tier-1 personas.
+- **C2 [eval]** Flag synthetic **auth% circularity**; weight Adzuna for the unbiased grounding signal.
+- **C3 [eval]** Add **JTBD-behavioral integration tests** (e.g., Nurse's top jobs are healthcare-adjacent;
+  blind spots occupation-grounded ≥ X%).
+- **C4 [data]** Rebalance the original 11 personas' switching targets to **realistic mobility** (not all
+  "→ analytics"); investigate the Software Developer `[40,0,0,0]` anomaly.
+- **C5 [clean]** Retire/migrate the **ESCO skills layer** to O*NET vocab; replace the tech-biased
+  `_SKILL_KEYWORDS` matcher fallback with `onet_requirements`.
+- **C6 [retr]** (flagged) Evaluate **US-developed embeddings** (Arctic/Nomic) vs bge.
+- **C7 [data]** (optional) **Tier-2 personas** (CDL driver, cook, HVAC tech) for fuller market coverage.
+
+### Throughline
+The **skill-gap half** ("improve hire chances") is now JTBD-aligned (iter6: rubric_v2 + regen, +0.198). The
+**prioritization half** ("what to apply to") and the **shipped product** are where alignment work remains — and
+**A0 (the section layer)** is the structural key that unlocks most of it.
