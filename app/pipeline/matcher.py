@@ -218,6 +218,9 @@ def _format_results(raw: Dict[str, Any], n: int) -> List[Dict[str, Any]]:
             "location":             meta.get("location", ""),
             "salary":               meta.get("salary",   ""),
             "url":                  meta.get("url",      ""),
+            # A0: parsed posting sections (targetable requirements vs the whole blob)
+            "requirements_text":      meta.get("requirements_text",      ""),
+            "responsibilities_text":  meta.get("responsibilities_text",  ""),
             # ── Date fields ───────────────────────────────────────────────────
             "date_posted":          meta.get("date_posted",         ""),
             "date_found":           meta.get("date_found",          ""),

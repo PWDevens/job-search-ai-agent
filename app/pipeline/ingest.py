@@ -35,6 +35,7 @@ import pandas as pd
 
 from app.retrieval.client import upsert_documents
 from app.config import CHROMA_JOBS_COL, CHROMA_RESUME_COL
+from app.pipeline.sections import requirements_text, responsibilities_text
 from app.pipeline.normalizer import (
     normalize_headers,
     fuzzy_remap,
@@ -244,7 +245,8 @@ def ingest_jobs(
     for _, row in df.iterrows():
         title   = _clean(row.get("title",       ""))
         company = _clean(row.get("company",     ""))
-        desc    = _clean(row.get("description", ""))
+        raw_desc = "" if pd.isna(row.get("description")) else str(row.get("description", ""))
+        desc    = _clean(raw_desc)  # collapsed for the embedded doc; sections parse from raw (keeps newlines)
 
         if not (title and company and desc):
             logger.debug("Skipping row with empty required field: %r / %r", title, company)
@@ -263,6 +265,11 @@ def ingest_jobs(
                 meta[col] = normalise_status(_clean(raw)) if _clean(raw) else ""
             else:
                 meta[col] = _clean(raw)
+
+        # A0: parse posting into sections so retrieval/agents can target the requirements
+        # (not the whole blob). Empty for headerless/truncated postings — callers fall back.
+        meta["requirements_text"]    = requirements_text(raw_desc)
+        meta["responsibilities_text"] = responsibilities_text(raw_desc)
 
         # skills: comma-joined IDs (Chroma metadata must be scalar, not a list).
         if extract_skill_ids:
