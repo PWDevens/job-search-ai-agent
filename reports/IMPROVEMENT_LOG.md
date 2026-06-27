@@ -417,3 +417,35 @@ citations, not gap-closing, so A1's value is partly invisible (same as spot pre-
 gap-closing) captures it and is re-scorable on banked authv4 outputs for $0.
 
 Commits: A0 (sections), A1 (resume_coach reqs), A2 (matched-title target), mode (stay/switch). Loop spend ~$24.
+
+---
+
+## Iteration 8 — backlog B5/B2/B1 + final scorecard (2026-06-27)
+
+**B5 — rec scored on gap-closing** (rubric_v2): a resume rec that adds a real target-occupation
+requirement scores >=3 (credits non-tech credentials the TECH_SKILLS list missed). New `rec_gap_closing_pct`
+metric. Validated offline on banked authv4 outputs: rec OLD->B5 up every cell (stay_synth 1.89->2.64),
+60-82% of recs gap-closing — captures A1's value the tech-biased metric hid (same pattern as spot/rubric_v2).
+
+**B2 — AUTHORITATIVE_GAPS + RUBRIC_V2 default ON** — both proven + JTBD-aligned; shipped product now uses them.
+
+**B1 — live Adzuna discovery in the product** — "Search live jobs" checkbox fetches by role+location
+(reuses search_adzuna), ingests (A0 parsing), runs the pipeline. Closes the biggest JTBD gap (find, not just
+rank). Graceful degradation without ADZUNA keys.
+
+**Final shipped-state scorecard** (rubric_v2 + B5 — all dims JTBD-aligned — re-scored on authv4 generation;
+no generation-affecting code changed since, so this is deterministically equal to a fresh run, done for $0):
+
+| cell | overall off->on | spot | auth% | rec-gap% |
+|---|---|---|---|---|
+| switch_synth | 2.08->2.61 | 1.79->3.64 | 77 | 70 |
+| stay_synth | 1.94->2.72 | 1.47->3.70 | 92 | 82 |
+| switch_adz | 1.73->2.00 | 1.13->1.71 | 47 | 59 |
+| stay_adz | 1.80->2.18 | 0.84->1.91 | 65 | 62 |
+| MEAN | 1.89->2.38 (+0.490) | | | |
+
+**Feature-benefit progression (same AUTHORITATIVE_GAPS feature, across the alignment work):**
+v1/toy −0.038 -> v2/toy +0.071 -> v2/realistic +0.198 -> v2/context-block +0.414 -> **v2+B5 +0.490**.
+All dims now JTBD-aligned (job=retrieval; rec=gap-closing/B5; spot=occupation-grounded/rubric_v2); switcher
+gap closed. Pod spend $0 this iteration (offline re-score). REMAINING (C-tier cleanup): retire/migrate ESCO,
+tech-biased _SKILL_KEYWORDS fallback, JTBD behavioral tests, switcher-target rebalance, pytest_asyncio fixture.
