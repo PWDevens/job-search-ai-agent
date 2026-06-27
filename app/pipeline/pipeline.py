@@ -26,6 +26,7 @@ class SearchRequest:
     geo_preference: str | None = None
     resume_text: str | None = None
     extra_context: str | None = None
+    mode: str = "stay"   # "stay" (advance in field) | "switch" (career change) — alters context engineering
 
 
 @dataclass
@@ -147,7 +148,7 @@ def run(req: SearchRequest) -> SearchResult:
         job_matches, passed = _run_with_grounding(
             run_job_matcher,
             dict(role_description=req.role_description, geo_preference=req.geo_preference or "",
-                 resume_text=req.resume_text or "", jobs=jobs),
+                 resume_text=req.resume_text or "", jobs=jobs, mode=req.mode),
             lambda r: [m.company for m in r.matches],
             jobs, "job_matcher",
         )
@@ -197,7 +198,7 @@ def run(req: SearchRequest) -> SearchResult:
         resume_recs, passed = _run_with_grounding(
             run_resume_coach,
             dict(resume_text=req.resume_text or "", matched_jobs=result.top_jobs,
-                 role_description=req.role_description),
+                 role_description=req.role_description, mode=req.mode),
             lambda r: extract_citations(r.recommendations, "why"),
             result.top_jobs, "resume_coach",
         )
@@ -225,7 +226,7 @@ def run(req: SearchRequest) -> SearchResult:
         strategy, passed = _run_with_grounding(
             run_career_strategist,
             dict(role_description=req.role_description, resume_text=req.resume_text or "",
-                 matched_jobs=result.top_jobs, resume_recs=result.resume_recs),
+                 matched_jobs=result.top_jobs, resume_recs=result.resume_recs, mode=req.mode),
             lambda r: extract_citations(r.blind_spots, "why") + extract_citations(r.strategy, "evidence"),
             result.top_jobs, "career_strategist",
         )

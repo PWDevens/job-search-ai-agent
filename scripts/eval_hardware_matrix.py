@@ -111,7 +111,9 @@ def run_row(scn, persona, dataset, role, geo, resume_text, variant="switching"):
     t0 = time.monotonic()
     err = None
     try:
-        result = run(SearchRequest(role_description=role, geo_preference=geo, resume_text=resume_text))
+        mode = "switch" if variant == "switching" else "stay"
+        result = run(SearchRequest(role_description=role, geo_preference=geo,
+                                   resume_text=resume_text, mode=mode))
         d = result.as_dict()
     except Exception as e:
         err = f"{type(e).__name__}: {e}"

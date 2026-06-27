@@ -234,11 +234,13 @@ def search():
 
     try:
         from app.pipeline.pipeline import SearchRequest, run
+        mode = "switch" if request.form.get("mode", "stay").lower() == "switch" else "stay"
         req = SearchRequest(
             role_description=role_description,
             geo_preference=geo_preference,
             resume_text=resume_text,
             extra_context=extra_context,
+            mode=mode,
         )
         result = run(req)
         top_jobs    = result.top_jobs

@@ -11,7 +11,8 @@ logger = logging.getLogger(__name__)
 
 
 def run(resume_text: str, matched_jobs: list[dict], role_description: str = "",
-        n: int = TOP_RESUME_RECS, extra_context: str | None = None) -> ResumeRecList:
+        n: int = TOP_RESUME_RECS, extra_context: str | None = None,
+        mode: str = "stay") -> ResumeRecList:
     """Generate prioritized resume improvement recommendations."""
     # A1: show each target job's REQUIREMENTS (parsed section, from ingest), not just
     # "title at company" — so recommendations can close real gaps. Falls back to
@@ -47,6 +48,13 @@ def run(resume_text: str, matched_jobs: list[dict], role_description: str = "",
         f"For each recommendation, specify the priority (HIGH/MEDIUM/LOW), current state, fix, impact, "
         f"and which role(s) it aligns with."
     )
+    if mode == "switch":
+        user_message += (
+            "\n\nNOTE: this candidate is CHANGING CAREERS. Frame every recommendation CONSTRUCTIVELY as a "
+            "transition: (1) surface and reframe TRANSFERABLE experience for the target field, (2) recommend "
+            "the highest-priority bridge skills/credentials to add. Do not present the resume as deficient — "
+            "present a path."
+        )
     if extra_context:
         user_message += f"\n\n{extra_context}"
 

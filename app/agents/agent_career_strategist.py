@@ -14,7 +14,8 @@ logger = logging.getLogger(__name__)
 
 
 def run(role_description: str, resume_text: str, matched_jobs: list[dict],
-        resume_recs: list[str], n_blind: int = TOP_BLIND_SPOTS, extra_context: str | None = None) -> CareerStrategy:
+        resume_recs: list[str], n_blind: int = TOP_BLIND_SPOTS, extra_context: str | None = None,
+        mode: str = "stay") -> CareerStrategy:
     """Identify blind spots and generate career strategy."""
     try:
         ats_knowledge = query_ats_knowledge(role_description, n=4)
@@ -97,6 +98,12 @@ def run(role_description: str, resume_text: str, matched_jobs: list[dict],
         f"time-to-proficiency, and priority.\n"
         f"Then provide 3-4 strategic recommendations with evidence and concrete actions."
     )
+    if mode == "switch":
+        user_message += (
+            "\n\nNOTE: this candidate is CHANGING CAREERS into the target field. Produce a constructive "
+            "TRANSITION ROADMAP, not a deficiency list: lead with their transferable strengths, then for each "
+            "gap give the bridge (course/cert/project) and a realistic time-to-proficiency."
+        )
     if extra_context:
         user_message += f"\n\n{extra_context}"
 
