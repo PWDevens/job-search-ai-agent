@@ -95,3 +95,6 @@ data/adzuna/
 # ESCO bulk download (runtime data drop, not committed)
 data/skills/*.zip
 data/skills/_esco_extract/
+
+# Per-cell / screen ChromaDB eval corpora (binary, rebuilt by ingest_jobs.py)
+data/chroma_*/

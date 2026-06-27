@@ -78,6 +78,19 @@ GRAPH_RERANK   = os.getenv("GRAPH_RERANK", "").lower() in ("1", "true", "yes")
 # so it's safe as a default. Disable with GRAPH_VALIDATE=0.
 GRAPH_VALIDATE = os.getenv("GRAPH_VALIDATE", "").lower() in ("1", "true", "yes")  # opt-in: +0.05 paired (iter2) but unconfirmable vs GPU-fleet noise (iter4); mechanism-sound, enable to use
 
+# AUTHORITATIVE_GAPS (improvement loop Iteration 5): ground career-strategist blind spots in
+# the TARGET OCCUPATION's real O*NET requirements (matched semantically, app/skills/onet_requirements.py)
+# instead of skills that survived a 500-char truncated posting. Sidesteps the truncation bottleneck
+# (Adzuna postings are 99% cut off mid-requirements). No-op when the O*NET DB is absent. Opt-in pending A/B.
+AUTHORITATIVE_GAPS = os.getenv("AUTHORITATIVE_GAPS", "").lower() in ("1", "true", "yes")
+
+# RUBRIC_V2 (improvement loop Iteration 6, R1): JTBD-aligned blind-spot grounding. A blind spot
+# counts as grounded if its skill is in a retrieved posting OR a real requirement of the target
+# occupation (O*NET) — bonus if both. v1 (posting-substring only) measured Adzuna's truncation as
+# much as advice quality and was blind to occupation-grounded gaps (stay_adz auth 2->36 scored 0).
+# Default OFF so pre-v2 baselines reproduce exactly; the `rubric_version` output column self-identifies runs.
+RUBRIC_V2 = os.getenv("RUBRIC_V2", "").lower() in ("1", "true", "yes")
+
 RUNPOD_ENDPOINT_ID   = os.getenv("RUNPOD_ENDPOINT_ID", "")
 RUNPOD_API_KEY       = os.getenv("RUNPOD_API_KEY", "")              # account API key (Settings → API Keys)
 RUNPOD_POLL_TIMEOUT  = int(os.getenv("RUNPOD_POLL_TIMEOUT",  "600"))  # max seconds to wait for a job

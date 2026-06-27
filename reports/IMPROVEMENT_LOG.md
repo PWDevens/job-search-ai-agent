@@ -211,3 +211,154 @@ still regresses even combined (−0.086).
 conservative revert is now backed by clean per-lever proof, not a guess. **Reusable recipe:** the pod
 method above is the deterministic eval instrument for any future sub-0.1-effect A/B (deleted after use to
 stop billing; ~$0.69/hr, ~$4 total for the two pod runs). Total improvement-loop spend ≈ **$18–20**.
+
+---
+
+## Iteration 5 — Skills-source bake-off & the truncation reframe (2026-06-26)
+
+**Context:** acquired free, US, posting-matching skills data as the ESCO replacement the prior
+iterations called for: O*NET 30.3 (local DB), CareerOneStop API (O*NET+BLS, creds in `.env`),
+gpriday/job-titles (65k). Goal per core JTBD — *prioritize what to apply to* + *improve hire chances*.
+
+**H5.1 — O*NET crisp tokens ground postings better than ESCO's verbose labels.** REJECTED.
+`scripts/vocab_posting_match.py` (free, local, no LLM) vs the Adzuna corpus:
+| vocab | found | cov/post | mean #/post |
+|---|---|---|---|
+| ESCO skill labels (verbose) | 98 | 43% | 0.60 |
+| O*NET Software Skills (crisp) | 23 | 7% | 0.10 |
+ESCO grounds *more* (its breadth includes generic terms: "troubleshoot", "company policies");
+O*NET software is *actionable but tech-only* (Tableau, SAS) → low coverage on a mixed-field corpus.
+
+**H5.2 (emergent, the real finding) — the grounding bottleneck is TRUNCATED postings, not vocab.**
+Adzuna descriptions are **99% truncated at 500 chars** (free-tier cap, cut mid-sentence; synthetic = 160c).
+The strategist must ground blind spots in posting text whose *requirements section is gone*. No vocab swap
+fixes that. **Exposes a rubric flaw (flagged, not changed — rubric is fixed-target):** scoring blind-spot
+quality by substring-match against truncated postings *penalizes genuinely good occupation-grounded advice.*
+
+**H5.3 — authoritative occupation requirements sidestep truncation.** CONFIRMED (local, $0).
+Local O*NET gives crisp, hot-flagged requirements for *every* field: Electrician → Autodesk AutoCAD /
+Construction Master Pro; Financial Analyst → Alteryx / Apache Hive. This is O*NET used for its *strength*
+(authoritative requirements) instead of posting-matching.
+
+**H5.4 — but title→occupation matching is the make-or-break enabler.** Naive substring mis-maps badly
+(Registered Nurse → Health Informatics; Data Scientist → Information Security). `scripts/onet_occupation_match.py`
+(semantic, reuses the bge embedder, no new dep) fixes it: **7/8 persona roles correct @ cos 0.89–0.98**;
+the 1 miss (Talent Acquisition Mgr → entertainment "Talent Directors") is self-flagging at cos 0.767
+(< ~0.85 threshold) and fixable via reported-title anchors.
+
+**Verdict / path forward (de-risked end-to-end):** pivot the career-strategist's blind spots from
+*"skills that survived posting-truncation"* to *"the target occupation's real O*NET requirements the
+candidate lacks"* (correct occupation via H5.4 → crisp gaps via H5.3), with a JTBD-aligned grounding
+metric (gap ∈ target occupation's real requirements) reported alongside the legacy posting-grounding.
+Next: integrate behind a gated flag, A/B on the deterministic pod. Spend this iteration: **$0** (all local).
+
+### Iteration 5 — implementation (local-O*NET arm, built & verified; A/B pending)
+Built the validated path behind opt-in `AUTHORITATIVE_GAPS` (config default off):
+- `app/skills/onet_requirements.py` — semantic title→O*NET-SOC matcher (reuses bge, no new dep) +
+  per-occupation crisp requirements (Hot/In-Demand first) + `missing_requirements()`. Self-check passes
+  (RN→29-1141.00 @0.97; Electrician→AutoCAD/Construction Master Pro).
+- `app/agents/agent_career_strategist.py` — gated injection of authoritative missing-requirements +
+  a conditional GROUNDING RULE (authoritative-list when on, posting-substring when off).
+- New JTBD-aligned metric `blind_spot_auth_grounded_pct` threaded scorer→CSV→`eval_compare`
+  (verified: 1-real + 1-junk blind spot → 50.0). Measures advice quality independent of posting truncation.
+- 18/18 existing tests pass; all modules compile.
+
+**Coverage caveat:** `MIN_CONF=0.80` gates low-confidence title matches (correctly kills the wrong
+"Talent Acquisition Mgr"→entertainment "Talent Directors" @0.767, but also gates borderline-correct
+"Healthcare Data Analyst"→"Business Intelligence Analysts" @0.778). Follow-up: add reported-title anchors
+to raise confidence on legit fuzzy titles. **Next:** deterministic-pod A/B (`AUTHORITATIVE_GAPS=1` vs off),
+read both gnd% and auth% — ~$4, the only spend; all build work above was $0/local.
+
+### Iteration 5 — AUTHORITATIVE_GAPS A/B result (deterministic pod, llama3.1:8b, ~$0.80)
+Off vs on, paired per cell, greedy/temp0/sequential on a single 4090 pod (deleted after).
+
+| cell | overall | spot | gnd% | auth% |
+|---|---|---|---|---|
+| switch_synth | 2.163→2.100 (-0.063) | 3.10→2.82 | 86.7→81.7 | 1.7→3.3 |
+| stay_synth   | 2.129→2.005 (-0.124) | 1.87→1.38 | 58.3→41.7 | 6.0→34.0 |
+| switch_adz   | 1.685→1.722 (+0.037) | 1.00→1.08 | 33.3→38.3 | 0.0→0.0 |
+| stay_adz     | 1.680→1.680 (+0.000) | 0.43→0.43 | 15.0→13.3 | 2.0→36.0 |
+| MEAN | 1.914→1.877 (-0.038) | 1.60→1.43 | 48.3→43.8 | 2.4→18.3 (+15.9) |
+
+**Verdict:** the feature works (auth% +15.9 mean; +34 on stay_adz, the most-realistic/most-truncated cell) but
+the legacy rubric can't see it. `stay_adz` is definitive: overall/spot/gnd% all FLAT while auth% went 2→36 —
+the rubric is blind to a 34-pt improvement in occupation-grounded advice. The overall DROP is a **synthetic
+artifact** (curated 160c postings reward posting-substring grounding of the off-arm); on Adzuna (truncated,
+realistic) overall is neutral (+0.037/+0.000). Switching cells got ~no lift: aspirational target titles match
+< MIN_CONF=0.80 so injection never fires (career-changers need the reported-title-anchor matcher upgrade).
+
+**Conclusion → the binding constraint is the EVALUATION, not the feature.** Next step (user-directed): refine
+the rubric to value JTBD-aligned (occupation-grounded) advice BEFORE further testing. Keep AUTHORITATIVE_GAPS
+opt-in until the rubric can measure it. Spend: ~$0.80 pod (under the $4 budget).
+
+---
+
+## Iteration 6 — Rubric refinement R1: occupation-grounded blind spots (rubric_v2) (2026-06-27)
+
+**Mandate (from iter5):** the binding constraint is the *evaluation*, not the feature — the v1 rubric was
+blind to a 34-pt auth% gain (stay_adz). Fix the rubric to value JTBD-aligned (occupation-grounded) advice.
+
+**R1 implemented** behind opt-in `RUBRIC_V2` (config default off → all pre-v2 baselines reproduce exactly;
+new `rubric_version` column self-identifies every run):
+- `tests/persona_evaluation/evaluation_scoring.py` — `score_blind_spot(skill, top_jobs, occ_reqs)` now blends
+  occupation grounding: a skill that is a real target-occupation O*NET requirement is a genuine gap even when
+  a truncated posting omits it. Scoring: auth-only → 3/4; auth + posting demand → 4/4; posting-only → v1
+  (2/3/4 by citations); neither → v1 (0/1). `occ_reqs` computed once per persona (reused by the auth% metric).
+- `rubric_version` threaded scorer→CSV (`eval_hardware_matrix.py`).
+
+**Verified:** v1 unchanged (auth-only Epic Systems → 0, posting tableau → 2); v2 (auth-only → 3, both → 4,
+ungrounded junk → 0); 18/18 tests pass. Anti-Goodhart: occ_reqs are authoritative O*NET requirements for the
+*matched* occupation (not LLM-assertable), and the skill must be missing from the resume.
+
+**Next:** re-run the AUTHORITATIVE_GAPS A/B under `RUBRIC_V2=1` (~$0.80 pod) — expectation: the on-arm's
+authoritative blind spots (auth% 18–36) now score 3–4 instead of ~0, so v2 should reveal the feature's real
+value that v1 hid. Keep both flags opt-in until that confirms. (R3/R2/R5 refinements deferred per user scope.)
+
+### Iteration 6 — rubric_v2 A/B result: the loop closes (deterministic pod, ~$0.80)
+AUTHORITATIVE_GAPS off vs on, re-measured under RUBRIC_V2 (raw outputs persisted for free re-scoring).
+
+| cell | overall(off→on) | spot | auth% | v2 Δ | (v1 Δ) |
+|---|---|---|---|---|---|
+| switch_synth | 2.152→2.105 | 3.08→2.83 | 1.7→3.3 | −0.047 | (−0.063) |
+| stay_synth | 2.144→2.245 | 1.92→2.18 | 6→34 | +0.101 | (−0.124) |
+| switch_adz | 1.593→1.583 | 1.02→0.92 | 0→0 | −0.010 | (+0.037) |
+| stay_adz | 1.695→1.935 | 0.48→1.28 | 2→36 | **+0.240** | (+0.000) |
+| MEAN | 1.896→1.967 | 1.63→1.80 | — | **+0.071** | (−0.038) |
+
+**Verdict — the rubric was the bottleneck, confirmed.** AUTHORITATIVE_GAPS flipped from −0.038 (v1, apparent loss)
+to **+0.071 (v2, win)** on the SAME generated advice — v2 just sees occupation-grounded quality v1 was blind to.
+`stay_adz` (most realistic/most-truncated) is the headline: v1 +0.000 → v2 **+0.240** (spot +0.80), the project's
+biggest single-cell gain. Feature works where it fires (stay cells +0.10…+0.24); misfires for switchers
+(switch cells flat — aspirational titles match < MIN_CONF, injection never fires → auth stays 1.7/0.0).
+
+**Two clear next actions (confirmed §4 workstream in .pipeline/PathForward.md):**
+1. **Career-changer occupation matching** (reported-title anchors) — makes AUTHORITATIVE_GAPS help switchers too.
+2. **Regenerate synthetic** as O*NET-grounded, full-length, labeled postings (current toy 162c blurbs game gnd%
+   and still drag switch_synth negative even under v2) → rerun → re-evaluate gaps.
+Raw outputs banked → future rubric versions re-score offline for $0. Loop spend ≈ $20–22 (under budget).
+
+### Iteration 6 — retest on regenerated corpus + Tier-1 personas (deterministic pod, ~$1)
+AUTHORITATIVE_GAPS off vs on under rubric_v2, on the NEW O*NET-grounded synthetic corpora
+(84/82 postings, ~1450c, labeled) + 14 personas (3 Tier-1 market-demand added) + the In-Demand
+tool-ordering bug fix (O*NET flags are "Y"/"N", not blank — old bool() flagged everything).
+
+| cell | overall(off→on) | spot | auth% | Δ |
+|---|---|---|---|---|
+| switch_synth | 1.65→1.64 | 1.48→1.48 | 11→9 | −0.012 |
+| stay_synth | 1.75→2.15 | 1.48→2.83 | 1.5→53.8 | +0.404 |
+| switch_adz | 1.67→1.70 | 1.25→1.55 | 12→16 | +0.037 |
+| stay_adz | 1.65→2.02 | 0.60→1.83 | 3→53.8 | +0.365 |
+| MEAN | 1.68→1.88 | | | **+0.198** |
+
+**Progression of the SAME feature:** v1/toy −0.038 (apparent loss) → v2/toy +0.071 → v2/realistic+fixed
+**+0.198**. Each fix (rubric, then realistic corpus + In-Demand ordering) revealed more real value.
+Both stay cells +0.37…+0.40 (auth% ~2%→~54%). Realistic corpus dropped scores to a healthy 1.6–2.1
+(harder, less gameable) — the point of the regen.
+
+**Tier-1 persona auth% fingerprint [sw_syn, st_syn, sw_adz, st_adz]:** Home Health Aide [0,100,0,100],
+Customer Service Rep [0,100,0,100], Software Developer [40,0,0,0]. Stay-in-field → 100% occupation-grounded
+blind spots (feature working); switching → 0% (target matches < MIN_CONF, injection never fires).
+
+**Remaining gap = career-changer occupation matching** (reported-title anchors) — unlocks the feature for
+switchers (the [0,_,0,_] half). Bug fix to onet_requirements also improves the authoritative layer generally.
+Loop spend ≈ $21-23. Raw outputs banked (authv3_*.raw.jsonl) → future rubric tweaks re-score for $0.

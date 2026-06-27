@@ -538,8 +538,149 @@ TECHNICAL_WRITER = Persona(
     stay_in_field_blind_spots=["documentation", "technical writing", "editing", "content strategy"],
 )
 
+# ── Tier-1 market-demand personas (iter6) ─────────────────────────────────────
+# Added to make the eval represent high-EMPLOYMENT occupations (BLS): healthcare
+# support (#1 occupation), computer/math (#2 growth), office/admin. Mobility is
+# realistic (ladder-up/adjacent), NOT forced "-> analytics"; gaps emphasize the
+# certification/license path that the CareerOneStop layer will serve.
+
+HOME_HEALTH_AIDE = Persona(
+    name="Home Health Aide",
+    role="Home Health Aide",
+    years_experience=5,
+    resume_path=str(RESUME_DIR / "home_health_aide_resume.txt"),
+    search_variants=[
+        SearchVariant(
+            name="cna_transition_with_resume",
+            role_description="Home health aide with 5 years personal care experience seeking certified nursing assistant or patient care role",
+            geo_preference="Phoenix",
+            use_resume=True,
+            expected_job_fields=["healthcare", "patient_care", "nursing_support"],
+        ),
+        SearchVariant(
+            name="medical_assistant_with_resume",
+            role_description="Caregiver with vital signs and activities-of-daily-living experience looking for medical assistant or patient care coordinator role",
+            geo_preference="Remote",
+            use_resume=True,
+            expected_job_fields=["healthcare", "patient_care"],
+        ),
+        SearchVariant(
+            name="caregiver_no_resume",
+            role_description="Personal care aide with CPR certification and 5 years home care experience",
+            geo_preference=None,
+            use_resume=False,
+            expected_job_fields=["healthcare", "personal_care"],
+        ),
+    ],
+    target_job_titles=[
+        "Certified Nursing Assistant",
+        "Medical Assistant",
+        "Patient Care Coordinator",
+        "Licensed Practical Nurse",
+    ],
+    expected_blind_spots=["CNA certification", "phlebotomy", "EKG", "Basic Life Support"],
+    stay_in_field_titles=[
+        "Home Health Aide",
+        "Personal Care Aide",
+        "Caregiver",
+        "Hospice Aide",
+    ],
+    stay_in_field_blind_spots=["patient care", "vital signs", "ADLs", "CPR"],
+)
+
+SOFTWARE_DEVELOPER = Persona(
+    name="Software Developer",
+    role="Software Developer",
+    years_experience=6,
+    resume_path=str(RESUME_DIR / "software_developer_resume.txt"),
+    search_variants=[
+        SearchVariant(
+            name="senior_engineer_with_resume",
+            role_description="Software developer with 6 years Python and web application experience seeking senior software engineer role",
+            geo_preference="Remote",
+            use_resume=True,
+            expected_job_fields=["software", "engineering", "backend"],
+        ),
+        SearchVariant(
+            name="backend_platform_with_resume",
+            role_description="Full-stack developer with REST API and PostgreSQL experience looking for backend or platform engineering role",
+            geo_preference="Austin",
+            use_resume=True,
+            expected_job_fields=["software", "backend"],
+        ),
+        SearchVariant(
+            name="devops_no_resume",
+            role_description="Software engineer with 6 years building web applications interested in DevOps or platform engineering roles",
+            geo_preference=None,
+            use_resume=False,
+            expected_job_fields=["software", "devops"],
+        ),
+    ],
+    target_job_titles=[
+        "Senior Software Engineer",
+        "Backend Engineer",
+        "Full Stack Developer",
+        "DevOps Engineer",
+        "Platform Engineer",
+    ],
+    expected_blind_spots=["Kubernetes", "AWS", "Docker", "CI/CD"],
+    stay_in_field_titles=[
+        "Software Developer",
+        "Software Engineer",
+        "Backend Developer",
+        "Web Developer",
+    ],
+    stay_in_field_blind_spots=["Python", "JavaScript", "REST APIs", "Git"],
+)
+
+CUSTOMER_SERVICE_REP = Persona(
+    name="Customer Service Rep",
+    role="Customer Service Representative",
+    years_experience=4,
+    resume_path=str(RESUME_DIR / "customer_service_resume.txt"),
+    search_variants=[
+        SearchVariant(
+            name="ops_coordinator_with_resume",
+            role_description="Customer service representative with 4 years experience seeking operations coordinator or office administrator role",
+            geo_preference="Charlotte",
+            use_resume=True,
+            expected_job_fields=["operations", "administration", "support"],
+        ),
+        SearchVariant(
+            name="customer_success_with_resume",
+            role_description="Client support specialist with CRM and account experience looking for customer success or account manager role",
+            geo_preference="Remote",
+            use_resume=True,
+            expected_job_fields=["customer_success", "account_management"],
+        ),
+        SearchVariant(
+            name="admin_assistant_no_resume",
+            role_description="Customer service professional with 4 years call center experience interested in administrative or office coordinator roles",
+            geo_preference=None,
+            use_resume=False,
+            expected_job_fields=["administration", "office"],
+        ),
+    ],
+    target_job_titles=[
+        "Operations Coordinator",
+        "Administrative Assistant",
+        "Customer Success Specialist",
+        "Office Manager",
+        "Account Manager",
+    ],
+    expected_blind_spots=["Salesforce", "CRM software", "data analysis", "project coordination"],
+    stay_in_field_titles=[
+        "Customer Service Representative",
+        "Client Support Specialist",
+        "Call Center Agent",
+        "Customer Support Associate",
+    ],
+    stay_in_field_blind_spots=["customer service", "CRM", "communication", "ticketing"],
+)
+
 # Collection of all personas for testing
-ALL_PERSONAS = [NURSE, TEACHER, CONSULTANT, ENGINEER, DESIGNER, ACCOUNTANT, SALES_MANAGER, ELECTRICIAN, HR_MANAGER, OPERATIONS_MANAGER, TECHNICAL_WRITER]
+ALL_PERSONAS = [NURSE, TEACHER, CONSULTANT, ENGINEER, DESIGNER, ACCOUNTANT, SALES_MANAGER, ELECTRICIAN, HR_MANAGER, OPERATIONS_MANAGER, TECHNICAL_WRITER,
+                HOME_HEALTH_AIDE, SOFTWARE_DEVELOPER, CUSTOMER_SERVICE_REP]
 
 
 # Stay-in-field queries: each persona searches its OWN profession (not pivoting to
@@ -557,6 +698,9 @@ STAY_IN_FIELD_QUERIES = {
     "HR Manager":         "HR professional with employee relations and talent experience seeking HR generalist or manager role",
     "Operations Manager": "Operations leader with supply chain and process improvement experience seeking operations manager role",
     "Technical Writer":   "Technical writer with software documentation experience seeking technical writing or documentation role",
+    "Home Health Aide":   "Home health aide with personal care and vital signs experience seeking home health aide or caregiver role",
+    "Software Developer": "Software developer with Python, web, and REST API experience seeking software developer or engineer role",
+    "Customer Service Rep": "Customer service representative with call center and CRM experience seeking customer service or client support role",
 }
 
 

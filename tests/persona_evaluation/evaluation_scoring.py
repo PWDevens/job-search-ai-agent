@@ -5,6 +5,7 @@ Implements the 0-4 scoring rubric for recommendations, blind spots, and job matc
 from typing import List, Dict, Tuple, Any
 import re
 from dataclasses import dataclass
+from app.config import RUBRIC_V2
 
 
 def targets_for(persona: Any, variant: str = "switching") -> Tuple[List[str], List[str]]:
@@ -209,8 +210,14 @@ class EvaluationRubric:
         )
 
     @staticmethod
-    def score_blind_spot(skill: str, top_jobs: List[Dict[str, Any]]) -> BlindSpotScore:
-        """Score a single blind spot (0-4 scale)"""
+    def score_blind_spot(skill: str, top_jobs: List[Dict[str, Any]],
+                         occ_reqs: set | None = None) -> BlindSpotScore:
+        """Score a single blind spot (0-4 scale).
+
+        rubric_v2 (R1): if `occ_reqs` (lowercased target-occupation O*NET requirements) is given and
+        RUBRIC_V2 is on, a skill that is a real occupation requirement is grounded even when no
+        (truncated) posting mentions it — bonus when it's BOTH a requirement and in a posting.
+        """
 
         if not skill or len(skill.strip()) < 2:
             return BlindSpotScore(
@@ -271,6 +278,17 @@ class EvaluationRubric:
         else:  # exactly one citation
             score = 2  # grounded in a real posting
             reasoning = "Grounded in a matched job (2/4)"
+
+        # rubric_v2 (R1): blend occupation-requirement grounding. A skill that is a real target-
+        # occupation requirement is a genuine, high-value gap even if a truncated posting omits it.
+        if RUBRIC_V2 and occ_reqs:
+            auth_grounded = any(skill_lower in r or r in skill_lower for r in occ_reqs)
+            if auth_grounded:
+                is_realistic = True
+                # auth-only -> 3 (authoritative gap); auth + posting -> 4 (demand-confirmed); never lowers.
+                score = min(4, max(score, 3) + (1 if job_citations > 0 else 0))
+                reasoning = (f"Occupation-grounded gap (O*NET)"
+                             f"{' + posting demand' if job_citations > 0 else ''} ({score}/4)")
 
         return BlindSpotScore(
             skill=skill,
@@ -374,9 +392,18 @@ class ResultEvaluator:
             for t in rec_inputs
         ]
 
+        # Target-occupation requirements (O*NET) — used for both rubric_v2 grounding and the auth% metric.
+        occ_reqs = set()
+        try:
+            from app.skills.onet_requirements import role_requirements
+            for t in target_titles[:3]:
+                occ_reqs.update(r.lower() for r in role_requirements(t, 25))
+        except Exception:
+            pass
+
         # Score blind spots
         spot_scores = [
-            EvaluationRubric.score_blind_spot(skill, top_jobs)
+            EvaluationRubric.score_blind_spot(skill, top_jobs, occ_reqs)
             for skill in spot_inputs
         ]
 
@@ -384,6 +411,17 @@ class ResultEvaluator:
         avg_job_score = sum(s.score for s in job_scores) / len(job_scores) if job_scores else 0
         avg_rec_score = sum(s.score for s in rec_scores) / len(rec_scores) if rec_scores else 0
         avg_spot_score = sum(s.score for s in spot_scores) / len(spot_scores) if spot_scores else 0
+
+        # JTBD-aligned grounding (iter5): is each blind spot grounded in the TARGET OCCUPATION's
+        # real O*NET requirements? Independent of how it was generated — measures advice quality
+        # even when the (truncated) posting can't confirm it. None if the O*NET DB is unavailable.
+        blind_spot_auth_grounded_pct = None
+        if occ_reqs and spot_inputs:
+            def _auth(sk):
+                sk = (sk or "").lower().strip()
+                return bool(sk) and any(sk in r or r in sk for r in occ_reqs)
+            blind_spot_auth_grounded_pct = round(
+                100.0 * sum(_auth(s) for s in spot_inputs) / len(spot_inputs), 1)
 
         # Overall quality score (0-4)
         overall_score = (
@@ -411,6 +449,8 @@ class ResultEvaluator:
             "avg_spot_score": avg_spot_score,
             "overall_score": overall_score,
             "quality_label": quality_label,
+            "blind_spot_auth_grounded_pct": blind_spot_auth_grounded_pct,
+            "rubric_version": "v2" if RUBRIC_V2 else "v1",
         }
 
 

@@ -18,7 +18,12 @@ Update this when you add a run. Files you can't tie to a documented experiment g
 | `avg_rec_score` | resume-recommendation dimension |
 | `avg_spot_score` | blind-spot dimension |
 | `blind_spot_grounded_pct` (gnd%) | % of blind spots whose skill literally appears in a retrieved posting |
+| `blind_spot_auth_grounded_pct` (auth%) | **JTBD-aligned grounding (iter5):** % of blind spots whose skill is in the *target occupation's real O*NET requirements* (via `app/skills/onet_requirements.py`). Measures advice quality even when the truncated posting can't confirm it — the honest companion to gnd% given Adzuna postings are 99% cut at 500 chars. Blank when the O*NET DB is absent. |
 | `fallback_used` (fb%) | % of rows where the agent output failed grounding and fell back to the matcher heuristic |
+
+**Flag `AUTHORITATIVE_GAPS`** (opt-in, iter5): when set, the career-strategist's blind spots are grounded in the target occupation's authoritative O*NET requirements (missing from the resume) instead of skills that must appear in a truncated posting. No-op when the O*NET DB is absent. A/B done (iter5): auth% +15.9 mean but invisible to the v1 rubric — motivated `RUBRIC_V2`.
+
+**Flag `RUBRIC_V2`** (opt-in, iter6 / R1): JTBD-aligned blind-spot scoring. A blind spot is grounded if its skill is in a retrieved posting **OR** a real target-occupation O*NET requirement (auth-only → 3/4, posting+occupation → 4/4, neither → unchanged). Fixes v1's truncation-bound blindness (it scored authoritative gaps as 0). Default OFF so pre-v2 baselines reproduce exactly; the `rubric_version` column (`v1`/`v2`) self-identifies every run — **do not compare overall_score across rubric versions.**
 
 ---
 

@@ -27,6 +27,7 @@ HEADLINE_METRICS = [
     "avg_rec_score",
     "avg_spot_score",
     "blind_spot_grounded_pct",
+    "blind_spot_auth_grounded_pct",
     "tangible_rec_pct",
     "fallback_used",  # we'll convert to pct
     "jobs_returned",

@@ -7,7 +7,8 @@ from app.agents.base import load_skill, chat, fmt_resume, fmt_jobs
 from app.agents.models import CareerStrategy
 from app.agents.rag_knowledge import query_ats_knowledge
 from app.config import (TOP_BLIND_SPOTS, RESUME_MID_CHARS, PROMPT_FEWSHOT,
-                        STRATEGIST_USE_OCCUPATION_SKILLS, GRAPH_PROMPT_CONTEXT, GRAPH_VALIDATE)
+                        STRATEGIST_USE_OCCUPATION_SKILLS, GRAPH_PROMPT_CONTEXT, GRAPH_VALIDATE,
+                        AUTHORITATIVE_GAPS)
 
 logger = logging.getLogger(__name__)
 
@@ -46,6 +47,21 @@ def run(role_description: str, resume_text: str, matched_jobs: list[dict],
         + "\n\n"
     ) if (essential and inject) else ""
 
+    # Authoritative gaps (iter5): the target occupation's REAL O*NET requirements missing from the
+    # resume. Grounds blind spots in authoritative data, not in truncated postings. See onet_requirements.
+    auth_gaps = []
+    if AUTHORITATIVE_GAPS:
+        try:
+            from app.skills.onet_requirements import missing_requirements
+            auth_gaps = missing_requirements(role_description, resume_text, n=12)
+        except Exception as e:
+            logger.debug("authoritative gaps unavailable: %s", e)
+    auth_block = (
+        "Authoritative requirements for this target occupation (US O*NET) that are MISSING from the "
+        "resume — these are the highest-value, real gaps regardless of whether a (truncated) posting "
+        "happens to mention them:\n" + ", ".join(auth_gaps) + "\n\n"
+    ) if auth_gaps else ""
+
     # validate over-generates so there's a pool to select the most occupation-relevant from.
     gen_n = n_blind + 3 if (GRAPH_VALIDATE and essential) else n_blind
 
@@ -54,16 +70,25 @@ def run(role_description: str, resume_text: str, matched_jobs: list[dict],
         f"Resume: {fmt_resume(resume_text, RESUME_MID_CHARS)}\n\n"
         f"{jobs_block}\n\n"
         f"{essential_block}"
+        f"{auth_block}"
         f"Resume improvements identified:\n{recs_summary}\n\n"
         f"{ats_block}\n\n"
         f"Please identify {gen_n} critical blind spots (skill gaps, missing experience, ATS blindspots) "
         f"that limit this candidate's competitiveness.\n"
-        f"GROUNDING RULE (critical): each blind spot's `skill` MUST be a specific term that literally "
-        f"appears in the Target opportunity descriptions above — copy a tool, certification, technology, "
-        f"or named skill exactly as written in the postings. Do NOT list a skill the postings don't mention, "
-        f"and do NOT default to data/analytics skills unless the postings name them. "
-        f"Prefer skills that are BOTH in the postings AND in the Essential-skills list above (when provided) "
-        f"and are missing from the resume — those are the highest-value, best-grounded gaps.\n"
+        + ((
+            f"GROUNDING RULE (critical): each blind spot's `skill` MUST come from the Authoritative "
+            f"requirements list above — copy a tool/technology exactly as written. These are the target "
+            f"occupation's real requirements; cite which target roles need them. Do NOT invent skills "
+            f"outside that list, and do NOT default to generic data/analytics skills.\n"
+        ) if auth_gaps else (
+            f"GROUNDING RULE (critical): each blind spot's `skill` MUST be a specific term that literally "
+            f"appears in the Target opportunity descriptions above — copy a tool, certification, technology, "
+            f"or named skill exactly as written in the postings. Do NOT list a skill the postings don't mention, "
+            f"and do NOT default to data/analytics skills unless the postings name them. "
+            f"Prefer skills that are BOTH in the postings AND in the Essential-skills list above (when provided) "
+            f"and are missing from the resume — those are the highest-value, best-grounded gaps.\n"
+        ))
+        +
         f"For each: skill name, why it matters (cite 2-3 target roles), remediation path, "
         f"time-to-proficiency, and priority.\n"
         f"Then provide 3-4 strategic recommendations with evidence and concrete actions."

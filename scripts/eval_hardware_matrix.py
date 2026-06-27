@@ -15,7 +15,7 @@ Usage:
   python scripts/eval_hardware_matrix.py --label pre          # full baseline -> reports/hardware_eval_matrix_pre.csv
   python scripts/eval_hardware_matrix.py --scenarios 1,2,4    # subset of scenarios
 """
-import argparse, csv, sys, time
+import argparse, csv, os, sys, time, json
 from datetime import datetime
 from pathlib import Path
 
@@ -52,6 +52,7 @@ CSV_FIELDS = [
     "jobs_returned", "recommendations_returned", "blind_spots_returned",
     "avg_job_score", "avg_rec_score", "avg_spot_score", "overall_score", "quality_label",
     "tangible_rec_pct", "avg_company_citations_per_rec", "blind_spot_grounded_pct",
+    "blind_spot_auth_grounded_pct", "rubric_version",
     "validation_resume_coach", "validation_career_strategist", "fallback_used",
     "error_message",
 ]
@@ -121,6 +122,18 @@ def run_row(scn, persona, dataset, role, geo, resume_text, variant="switching"):
     scores = ResultEvaluator.evaluate_search_result(d, persona, variant)
     tangible_pct, avg_cites, grounded_pct = submetrics(scores)
 
+    # Raw-output persistence (opt-in EVAL_PERSIST_RAW): bank the inputs so ANY future rubric
+    # version re-scores offline for $0 (no pod). Re-score via evaluate_search_result(result, persona, variant).
+    if os.getenv("EVAL_PERSIST_RAW", "").lower() in ("1", "true", "yes"):
+        try:
+            out = os.getenv("EVAL_OUT", "reports/eval_compare.csv")
+            raw_path = (out[:-4] if out.endswith(".csv") else out) + ".raw.jsonl"
+            with open(raw_path, "a", encoding="utf-8") as fh:
+                fh.write(json.dumps({"persona": getattr(persona, "name", "?"), "variant": variant,
+                                     "dataset": dataset, "result": d}, default=str) + "\n")
+        except Exception:
+            pass
+
     av = d.get("agent_validation", {})
     m = SearchMetrics(
         timestamp=datetime.now().isoformat(),
@@ -155,6 +168,8 @@ def run_row(scn, persona, dataset, role, geo, resume_text, variant="switching"):
         "tangible_rec_pct": tangible_pct,
         "avg_company_citations_per_rec": avg_cites,
         "blind_spot_grounded_pct": grounded_pct,
+        "blind_spot_auth_grounded_pct": scores.get("blind_spot_auth_grounded_pct") if scores.get("blind_spot_auth_grounded_pct") is not None else "",
+        "rubric_version": scores.get("rubric_version", "v1"),
         "validation_resume_coach": m.validation_resume_coach,
         "validation_career_strategist": m.validation_career_strategist,
         "fallback_used": m.fallback_used,

@@ -1,0 +1,28 @@
+DAVID CHEN
+Software Developer | Backend & Full-Stack Web Applications
+Email: david.chen@email.com | Phone: (555) 779-2245 | Austin, TX | github.com/dchen
+
+PROFESSIONAL SUMMARY
+Software Developer with 6 years building and maintaining web applications and REST APIs. Strong in Python, JavaScript, and SQL with a track record of shipping features used by hundreds of thousands of users. Comfortable across the stack, from database design to front-end. Seeking a Senior Software Engineer role with greater ownership of architecture and distributed systems.
+
+PROFESSIONAL EXPERIENCE
+
+Software Developer | Onyx Technologies | Austin, TX | 2021-Present
+- Build and maintain backend services in Python (Django, Flask) and a React front-end for a B2B SaaS platform
+- Designed and optimized PostgreSQL schemas and queries, cutting average API latency by 35%
+- Developed and documented REST APIs consumed by web and mobile clients
+- Write unit and integration tests; collaborate via Git, pull requests, and code review
+- Partner with product and QA to scope features and resolve production issues
+
+Software Engineer | Harborview Systems | Dallas, TX | 2019-2021
+- Developed customer-facing web features in JavaScript, HTML/CSS, and Node.js
+- Integrated third-party payment and email APIs and built internal admin tooling
+- Participated in agile sprints, daily standups, and release planning
+
+TECHNICAL SKILLS
+- Languages: Python, JavaScript, SQL, HTML/CSS
+- Frameworks: Django, Flask, React, Node.js
+- Tools: Git, PostgreSQL, REST APIs, Jira, Linux
+
+EDUCATION
+B.S. Computer Science | University of Texas at Austin | 2019
