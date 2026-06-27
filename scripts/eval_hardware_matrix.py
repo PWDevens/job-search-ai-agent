@@ -52,7 +52,7 @@ CSV_FIELDS = [
     "jobs_returned", "recommendations_returned", "blind_spots_returned",
     "avg_job_score", "avg_rec_score", "avg_spot_score", "overall_score", "quality_label",
     "tangible_rec_pct", "avg_company_citations_per_rec", "blind_spot_grounded_pct",
-    "blind_spot_auth_grounded_pct", "rubric_version",
+    "blind_spot_auth_grounded_pct", "rec_gap_closing_pct", "rubric_version",
     "validation_resume_coach", "validation_career_strategist", "fallback_used",
     "error_message",
 ]
@@ -171,6 +171,7 @@ def run_row(scn, persona, dataset, role, geo, resume_text, variant="switching"):
         "avg_company_citations_per_rec": avg_cites,
         "blind_spot_grounded_pct": grounded_pct,
         "blind_spot_auth_grounded_pct": scores.get("blind_spot_auth_grounded_pct") if scores.get("blind_spot_auth_grounded_pct") is not None else "",
+        "rec_gap_closing_pct": scores.get("rec_gap_closing_pct") if scores.get("rec_gap_closing_pct") is not None else "",
         "rubric_version": scores.get("rubric_version", "v1"),
         "validation_resume_coach": m.validation_resume_coach,
         "validation_career_strategist": m.validation_career_strategist,

@@ -86,6 +86,7 @@ class RecommendationScore:
     is_tangible: bool
     company_citations: int
     skill_mentions: int
+    gap_closing: bool = False  # rubric_v2 (B5): references a real target-occupation requirement
 
 
 @dataclass
@@ -131,9 +132,29 @@ class EvaluationRubric:
         "project management", "stakeholder management", "strategic thinking",
     }
 
+    # Generic tokens to ignore when matching recs against occupation requirements (B5).
+    _REQ_STOP = {"software", "systems", "system", "microsoft", "amazon", "web", "services",
+                 "service", "google", "apache", "adobe", "and", "the", "tool", "tools", "app"}
+
     @staticmethod
-    def score_recommendation(text: str, top_jobs: List[Dict[str, Any]]) -> RecommendationScore:
-        """Score a single resume recommendation (0-4 scale)"""
+    def _req_tokens(occ_reqs) -> set:
+        """Distinctive tokens from the occupation's requirement names (e.g. 'Amazon Web Services
+        AWS software' -> {'aws'}) so a prose rec ('add AWS') can be matched to a real requirement."""
+        toks = set()
+        for r in (occ_reqs or ()):
+            for w in re.findall(r"[a-z0-9+#.]+", r.lower()):
+                if len(w) >= 3 and w not in EvaluationRubric._REQ_STOP:
+                    toks.add(w)
+        return toks
+
+    @staticmethod
+    def score_recommendation(text: str, top_jobs: List[Dict[str, Any]],
+                             occ_reqs: set | None = None) -> RecommendationScore:
+        """Score a single resume recommendation (0-4 scale).
+
+        rubric_v2 (B5): a rec that adds a real target-occupation requirement is gap-closing — the
+        JTBD signal ("improve hire chances") — and it credits non-tech credentials the TECH_SKILLS
+        list misses (Epic, CNA, AutoCAD). Never lowers the score."""
 
         if not text or len(text.strip()) < 10:
             return RecommendationScore(
@@ -200,6 +221,16 @@ class EvaluationRubric:
             score = 1  # Fair
             reasoning = "Some tangibility but weak grounding (1/4)"
 
+        # rubric_v2 (B5): credit gap-closing — a rec that adds a real occupation requirement
+        # (incl. non-tech credentials the TECH_SKILLS list misses). Never lowers the score.
+        gap_closing = False
+        if RUBRIC_V2 and occ_reqs:
+            req_toks = EvaluationRubric._req_tokens(occ_reqs)
+            gap_closing = any(t in text_lower for t in req_toks)
+            if gap_closing:
+                score = min(4, max(score, 3))
+                reasoning = f"Closes a real occupation-requirement gap (rubric_v2) ({score}/4)"
+
         return RecommendationScore(
             text=text,
             score=score,
@@ -207,6 +238,7 @@ class EvaluationRubric:
             is_tangible=is_tangible,
             company_citations=company_citations,
             skill_mentions=skill_mentions,
+            gap_closing=gap_closing,
         )
 
     @staticmethod
@@ -386,13 +418,7 @@ class ResultEvaluator:
         rec_inputs = ([_rec_text(r) for r in struct_recs]
                       if struct_recs else list(resume_recs))
 
-        # Score recommendations
-        rec_scores = [
-            EvaluationRubric.score_recommendation(t, top_jobs)
-            for t in rec_inputs
-        ]
-
-        # Target-occupation requirements (O*NET) — used for both rubric_v2 grounding and the auth% metric.
+        # Target-occupation requirements (O*NET) — used by rubric_v2 rec/spot grounding + auth% metric.
         occ_reqs = set()
         try:
             from app.skills.onet_requirements import role_requirements
@@ -400,6 +426,12 @@ class ResultEvaluator:
                 occ_reqs.update(r.lower() for r in role_requirements(t, 25))
         except Exception:
             pass
+
+        # Score recommendations (B5: gap-closing credit via occ_reqs)
+        rec_scores = [
+            EvaluationRubric.score_recommendation(t, top_jobs, occ_reqs)
+            for t in rec_inputs
+        ]
 
         # Score blind spots
         spot_scores = [
@@ -422,6 +454,11 @@ class ResultEvaluator:
                 return bool(sk) and any(sk in r or r in sk for r in occ_reqs)
             blind_spot_auth_grounded_pct = round(
                 100.0 * sum(_auth(s) for s in spot_inputs) / len(spot_inputs), 1)
+
+        # B5: % of resume recs that close a real target-occupation requirement gap (JTBD: improve hire chances)
+        rec_gap_closing_pct = None
+        if RUBRIC_V2 and occ_reqs and rec_scores:
+            rec_gap_closing_pct = round(100.0 * sum(s.gap_closing for s in rec_scores) / len(rec_scores), 1)
 
         # Overall quality score (0-4)
         overall_score = (
@@ -450,6 +487,7 @@ class ResultEvaluator:
             "overall_score": overall_score,
             "quality_label": quality_label,
             "blind_spot_auth_grounded_pct": blind_spot_auth_grounded_pct,
+            "rec_gap_closing_pct": rec_gap_closing_pct,
             "rubric_version": "v2" if RUBRIC_V2 else "v1",
         }
 
