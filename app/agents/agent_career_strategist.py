@@ -53,7 +53,11 @@ def run(role_description: str, resume_text: str, matched_jobs: list[dict],
     if AUTHORITATIVE_GAPS:
         try:
             from app.skills.onet_requirements import missing_requirements
-            auth_gaps = missing_requirements(role_description, resume_text, n=12)
+            # A2: derive the TARGET occupation from the matched jobs' clean titles, NOT the
+            # role_description sentence — for a switcher the sentence leads with the CURRENT
+            # role ("home health aide ... seeking CNA"), which mis-injects current-role reqs.
+            target = (matched_jobs[0].get("title") if matched_jobs else "") or role_description
+            auth_gaps = missing_requirements(target, resume_text, n=12)
         except Exception as e:
             logger.debug("authoritative gaps unavailable: %s", e)
     auth_block = (

@@ -26,10 +26,12 @@ def run(resume_text: str, matched_jobs: list[dict], role_description: str = "",
     # A1: authoritative occupation requirements the resume lacks. Replaces the dead ESCO
     # GRAPH_RESUME_CONTEXT path (verbose labels that didn't match postings) with O*NET.
     skills_block = ""
-    if (AUTHORITATIVE_GAPS or GRAPH_RESUME_CONTEXT) and role_description:
+    if (AUTHORITATIVE_GAPS or GRAPH_RESUME_CONTEXT) and (role_description or matched_jobs):
         try:
             from app.skills.onet_requirements import missing_requirements
-            gaps = missing_requirements(role_description, resume_text, n=10)
+            # A2: target occupation from the matched jobs' clean titles, not the role sentence.
+            target = (matched_jobs[0].get("title") if matched_jobs else "") or role_description
+            gaps = missing_requirements(target, resume_text, n=10)
             if gaps:
                 skills_block = (
                     "\n\nAuthoritative requirements for the target occupation (US O*NET) missing "
