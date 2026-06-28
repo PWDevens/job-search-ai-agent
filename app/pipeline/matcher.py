@@ -105,6 +105,16 @@ def find_blind_spots(
     - If resume_text is None, queries ChromaDB resume collection
     - If ChromaDB query fails, uses job text only (logs warning)
     """
+    # C5: prefer authoritative O*NET occupation requirements missing from the resume — works for
+    # ALL fields (healthcare, trades, admin), unlike the tech-only _SKILL_KEYWORDS list below.
+    try:
+        from app.skills.onet_requirements import missing_requirements
+        auth = missing_requirements(role_description, resume_text or "", n)
+        if auth:
+            return auth
+    except Exception as exc:
+        logger.debug("authoritative blind-spot fallback unavailable: %s", exc)
+
     jobs          = find_top_jobs(role_description, resume_text=resume_text, n=20)
     all_job_text  = " ".join(j.get("document", "") for j in jobs).lower()
 
