@@ -75,16 +75,22 @@ ADZUNA_MAX_DAYS   = int(os.getenv("ADZUNA_MAX_DAYS", "30"))  # freshness filter
 # ── Reranker passes (1 = retrieval only; 2 = +role+resume; 3 = +resume recs) ─
 RERANK_PASSES = int(os.getenv("RERANK_PASSES", "2"))
 
-# ── Effort dial (usage-persona tuning): trade compute for thoroughness ─────────
-# Bundles the real levers — retrieval breadth (fetch), rerank passes, top-N, and best-of-N
-# agent sampling. quick=passive looker; balanced=daily user (default); thorough/max=burnt-out
-# fresh-perspective or email/scheduler runs that don't mind latency. best_of>1 needs temp>0.
+# ── Effort dial — a UX axis (breadth/options), NOT an accuracy axis (iter11 A/B: compute != accuracy).
+# Usage-persona -> effort + delivery mapping (#4):
+#   passive looker        -> quick    (sync web; just show me what's out there)
+#   daily user            -> balanced (sync web; default)
+#   burnt-out / thorough  -> max      (async; widest search, most options to browse)
+#   time-oriented email   -> max      (scheduler; latency-insensitive, see SCHEDULER_EFFORT)
 EFFORT = os.getenv("EFFORT", "balanced").lower()
+# best_of dropped from thorough/max (iter11 A/B): best-of-N selected on company-citation grounding
+# ratio — the WRONG objective for coach/strategist — and net-HURT accuracy (stay_adz spot 1.89->1.67).
+# Effort is now deterministic breadth + rerank (the safe levers). best-of-N capability is kept in
+# _run_with_grounding for a re-aimed retry (select by auth%/gap-closing). UX value = options surfaced.
 EFFORT_BUNDLES = {
     "quick":    {"rerank_passes": 1, "fetch": 40,  "top_jobs": 5,  "best_of": 1, "temp": 0.0},
     "balanced": {"rerank_passes": 2, "fetch": 50,  "top_jobs": 8,  "best_of": 1, "temp": 0.0},
-    "thorough": {"rerank_passes": 3, "fetch": 100, "top_jobs": 10, "best_of": 2, "temp": 0.3},
-    "max":      {"rerank_passes": 3, "fetch": 150, "top_jobs": 12, "best_of": 3, "temp": 0.4},
+    "thorough": {"rerank_passes": 3, "fetch": 100, "top_jobs": 10, "best_of": 1, "temp": 0.0},
+    "max":      {"rerank_passes": 3, "fetch": 150, "top_jobs": 12, "best_of": 1, "temp": 0.0},
 }
 
 

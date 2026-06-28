@@ -89,9 +89,11 @@ def _run_pipeline() -> None:
     # Run pipeline
     try:
         from app.pipeline.pipeline import SearchRequest, run
+        # #4: the scheduled/email persona is latency-insensitive -> widest search (most options).
         req    = SearchRequest(
             role_description=role_description,
             geo_preference=geo_preference,
+            effort=os.getenv("SCHEDULER_EFFORT", "max"),
         )
         result = run(req)
     except Exception as exc:
