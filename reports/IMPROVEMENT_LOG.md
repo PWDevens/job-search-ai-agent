@@ -449,3 +449,32 @@ v1/toy −0.038 -> v2/toy +0.071 -> v2/realistic +0.198 -> v2/context-block +0.4
 All dims now JTBD-aligned (job=retrieval; rec=gap-closing/B5; spot=occupation-grounded/rubric_v2); switcher
 gap closed. Pod spend $0 this iteration (offline re-score). REMAINING (C-tier cleanup): retire/migrate ESCO,
 tech-biased _SKILL_KEYWORDS fallback, JTBD behavioral tests, switcher-target rebalance, pytest_asyncio fixture.
+
+---
+
+## Iteration 9 — backlog C-tier (cleanup + test infra) (2026-06-27)
+
+**C-test-infra (DONE)** — fixed the broken `tmp_path` fixture: conftest.py shadowed pytest's built-in
+`tmp_path_factory` with a plain Path (no `.mktemp`), and pytest_asyncio 1.4.0 + pytest 9.x wrapped fixtures
+despite zero async tests. Removed the override + disabled the unused plugin (pytest.ini). **Suite went from
+~30 errors (everything erroring) to 122 passing.**
+
+**C5 (DONE)** — `find_blind_spots()` fallback now prefers authoritative O*NET occupation requirements
+(works for healthcare/trades/admin) over the tech-only `_SKILL_KEYWORDS` list. CNA->Epic/MEDITECH,
+Electrician->AutoCAD.
+
+**C3 (DONE)** — `tests/test_jtbd_alignment.py`: 6 behavioral tests guarding the alignment work (section
+parsing, occupation matching, non-tech authoritative reqs, rubric_v2 spot grounding, B5 rec gap-closing,
+mode switch framing). All pass.
+
+**Test state after the fix:** 122 passed, 13 failed, 11 errored. The fail/error set is PRE-EXISTING debt
+the fixture fix UNMASKED (not regressions): brittle source-asserting tests (e.g. `'timeout=120.0' in base.py`
+— code is config-driven now), mock-retrieval-returns-nothing integration tests, a missing `chroma_client`
+fixture, the test_skills embedding-threshold flake, and persona-coverage thresholds stale vs the iter6 corpus.
+
+**DEFERRED (documented, lower-value/risk):**
+- Switcher-target rebalance of the original 11 personas (still analytics-biased) — mitigated by the stay/
+  switch MODE feature (it adapts per intent); changing targets cascades into corpus regen.
+- ESCO layer retire/migrate to O*NET — dormant (graph levers opt-in) + wired into ingest/rubric; risky refactor.
+- Broader test-suite repair (the 13 fail / 11 error debt) — separate hardening effort (mock-retrieval fixture,
+  chroma_client fixture, de-brittle source-assert tests, refresh coverage thresholds).
