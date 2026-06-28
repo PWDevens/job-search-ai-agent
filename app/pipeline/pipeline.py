@@ -4,6 +4,7 @@ Moved from app/agents/pipeline.py for cleaner module boundaries.
 """
 import json
 import logging
+import os
 from dataclasses import dataclass, field
 from typing import Any, Dict
 
@@ -49,14 +50,16 @@ class SearchResult:
         }
 
 
-def _run_with_grounding(run_fn, run_kwargs, get_citations, retrieved_jobs, agent_name, best_of=1):
+def _run_with_grounding(run_fn, run_kwargs, get_citations, retrieved_jobs, agent_name,
+                        best_of=1, select_fn=None):
     """Run agent, check grounding using ratio threshold. Returns (result, passed: bool).
 
-    Always keeps the best result (highest grounding ratio), never discards agent output.
-    Scoring happens on the best result regardless of pass status (pass only sets validation flag).
+    Always keeps the best result, never discards agent output.
 
-    best_of>1 (effort dial #3): draw N samples and keep the highest grounding ratio (needs temp>0
-    for diversity, set by the effort bundle). Replaces the single-shot re-ask for high-effort runs.
+    best_of>1: draw N samples (temp>0 for diversity). select_fn (arm A re-aim) scores each sample on
+    a JTBD metric (e.g. occupation-grounding) and keeps the best — the iter11 A/B showed selecting on
+    the citation grounding-ratio was the WRONG objective for the generative agents. Without select_fn,
+    falls back to highest grounding ratio.
     """
     from app.config import GROUNDING_PASS_RATIO
 
@@ -66,16 +69,12 @@ def _run_with_grounding(run_fn, run_kwargs, get_citations, retrieved_jobs, agent
         ung = check_grounding(cited, retrieved_jobs)
         return r, ((len(cited) - len(ung)) / len(cited) if cited else 1.0)
 
-    # best-of-N: keep the highest-grounding sample (no re-ask; N samples replace it)
     if best_of and best_of > 1:
-        best_result, best_ratio = _sample()
-        for _ in range(best_of - 1):
-            r, ratio = _sample()
-            if ratio > best_ratio:
-                best_result, best_ratio = r, ratio
-        if best_ratio < GROUNDING_PASS_RATIO:
-            logger.warning("%s best-of-%d ratio %.1f%% below threshold (scored anyway)",
-                           agent_name, best_of, 100 * best_ratio)
+        samples = [_sample() for _ in range(best_of)]
+        if select_fn is not None:
+            best_result, best_ratio = max(samples, key=lambda s: (select_fn(s[0]), s[1]))  # JTBD metric, tie-break ratio
+        else:
+            best_result, best_ratio = max(samples, key=lambda s: s[1])  # highest grounding ratio
         return best_result, best_ratio >= GROUNDING_PASS_RATIO
 
     # Run agent once
@@ -199,6 +198,26 @@ def run(req: SearchRequest) -> SearchResult:
         logger.warning("Job matcher agent failed: %s — falling back to matcher", e)
         result.agent_validation["job_matcher"] = False
 
+    # Re-aimed best-of-N (arm A): when sampling, score generative samples by OCCUPATION-grounding
+    # (the JTBD metric), not the citation ratio. occ_reqs = the target occupation's requirements,
+    # aggregated across the top-K matched jobs (arm C: AGG_REQS=K).
+    occ_reqs: set = set()
+    if eb["best_of"] > 1:
+        try:
+            from app.skills.onet_requirements import role_requirements
+            K = int(os.getenv("AGG_REQS", "1"))
+            titles = [j.get("title", "") for j in result.top_jobs[:K]] or [req.role_description]
+            for t in titles:
+                occ_reqs.update(r.lower() for r in role_requirements(t, 20))
+        except Exception as e:
+            logger.debug("occ_reqs for re-aim unavailable: %s", e)
+
+    def _occ_score(items):
+        return sum(1 for x in items if any((x.lower() in r or r in x.lower()) for r in occ_reqs))
+
+    coach_select = (lambda rr: _occ_score([f"{x.title} {x.fix}" for x in rr.recommendations])) if occ_reqs else None
+    strat_select = (lambda s: _occ_score([b.skill for b in s.blind_spots])) if occ_reqs else None
+
     # Step 3: Resume coach agent
     try:
         logger.info("Running resume_coach agent...")
@@ -207,7 +226,7 @@ def run(req: SearchRequest) -> SearchResult:
             dict(resume_text=req.resume_text or "", matched_jobs=result.top_jobs,
                  role_description=req.role_description, mode=req.mode, stay_reason=req.stay_reason),
             lambda r: extract_citations(r.recommendations, "why"),
-            result.top_jobs, "resume_coach", best_of=eb["best_of"],
+            result.top_jobs, "resume_coach", best_of=eb["best_of"], select_fn=coach_select,
         )
         result.agent_validation["resume_coach"] = passed
         result.raw_agent_output["resume_recs"] = resume_recs.model_dump()
@@ -235,7 +254,7 @@ def run(req: SearchRequest) -> SearchResult:
             dict(role_description=req.role_description, resume_text=req.resume_text or "",
                  matched_jobs=result.top_jobs, resume_recs=result.resume_recs, mode=req.mode, stay_reason=req.stay_reason),
             lambda r: extract_citations(r.blind_spots, "why") + extract_citations(r.strategy, "evidence"),
-            result.top_jobs, "career_strategist", best_of=eb["best_of"],
+            result.top_jobs, "career_strategist", best_of=eb["best_of"], select_fn=strat_select,
         )
         result.agent_validation["career_strategist"] = passed
         result.raw_agent_output["career_strategy"] = strategy.model_dump()

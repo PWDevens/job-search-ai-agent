@@ -3,6 +3,7 @@ Career Strategist Agent: blind spot identification and career strategy.
 Enhanced with ATS knowledge from RAG.
 """
 import logging
+import os
 from app.agents.base import load_skill, chat, fmt_resume, fmt_jobs
 from app.agents import intent
 from app.agents.models import CareerStrategy
@@ -38,8 +39,17 @@ def run(role_description: str, resume_text: str, matched_jobs: list[dict],
             # A2: derive the TARGET occupation from the matched jobs' clean titles, NOT the
             # role_description sentence — for a switcher the sentence leads with the CURRENT
             # role ("home health aide ... seeking CNA"), which mis-injects current-role reqs.
-            target = (matched_jobs[0].get("title") if matched_jobs else "") or role_description
-            auth_gaps = missing_requirements(target, resume_text, n=12)
+            # arm C (evidence depth): aggregate requirements across the top-K matched occupations
+            # (AGG_REQS=K, default 1 = top job only) for a more complete authoritative gap set.
+            K = int(os.getenv("AGG_REQS", "1"))
+            titles = [j.get("title", "") for j in matched_jobs[:K]] if matched_jobs else []
+            titles = [t for t in titles if t] or [role_description]
+            seen: list[str] = []
+            for t in titles:
+                for g in missing_requirements(t, resume_text, n=12):
+                    if g.lower() not in {s.lower() for s in seen}:
+                        seen.append(g)
+            auth_gaps = seen[:12]
         except Exception as e:
             logger.debug("authoritative gaps unavailable: %s", e)
     auth_block = (
@@ -81,4 +91,21 @@ def run(role_description: str, resume_text: str, matched_jobs: list[dict],
         from app.agents.fewshot import FEWSHOT_CAREER_STRATEGIST
         user_message += "\n\nExamples of strong, grounded outputs:\n" + FEWSHOT_CAREER_STRATEGIST
 
-    return chat(load_skill("career_strategist"), user_message, CareerStrategy)
+    strategy = chat(load_skill("career_strategist"), user_message, CareerStrategy)
+
+    # arm B (verification pass): a 2nd grounding-enforcement pass — drop blind spots NOT in the
+    # authoritative requirements, add the highest-value missing ones. Deterministic, not a lottery.
+    if os.getenv("VERIFY_PASS", "").lower() in ("1", "true", "yes") and auth_gaps:
+        try:
+            current = "; ".join(b.skill for b in strategy.blind_spots)
+            verify_msg = (
+                f"\n\nVERIFICATION PASS. The blind spots you produced were: {current}\n"
+                f"The target occupation's REAL authoritative requirements are: {', '.join(auth_gaps)}\n"
+                f"Return a CORRECTED list of exactly {n_blind} blind spots: drop any whose `skill` is NOT "
+                f"among the authoritative requirements, and add the highest-value authoritative requirements "
+                f"that are missing from the candidate's resume and not already listed. Same JSON schema."
+            )
+            strategy = chat(load_skill("career_strategist"), user_message + verify_msg, CareerStrategy)
+        except Exception as e:
+            logger.debug("verify pass skipped: %s", e)
+    return strategy

@@ -90,7 +90,8 @@ EFFORT_BUNDLES = {
     "quick":    {"rerank_passes": 1, "fetch": 40,  "top_jobs": 5,  "best_of": 1, "temp": 0.0},
     "balanced": {"rerank_passes": 2, "fetch": 50,  "top_jobs": 8,  "best_of": 1, "temp": 0.0},
     "thorough": {"rerank_passes": 3, "fetch": 100, "top_jobs": 10, "best_of": 1, "temp": 0.0},
-    "max":      {"rerank_passes": 3, "fetch": 150, "top_jobs": 12, "best_of": 1, "temp": 0.0},
+    "max":      {"rerank_passes": 3, "fetch": 150, "top_jobs": 12,
+                 "best_of": int(os.getenv("MAX_BEST_OF", "1")), "temp": float(os.getenv("MAX_TEMP", "0.0"))},
 }
 
 
