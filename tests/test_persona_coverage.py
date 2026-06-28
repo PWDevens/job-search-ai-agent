@@ -53,10 +53,6 @@ def test_stay_in_field_titles_field_distinct():
             f"{persona.name}: all stay_in_field_titles are analytics-focused (should be field-realistic)"
 
 
-@pytest.mark.xfail(reason="persona stay_in_field_blind_spots are hand-written conversational terms "
-                          "that predate the O*NET-grounded corpus (iter6) and are NOT used in scoring "
-                          "(targets_for discards them). Re-authoring is the deferred persona-rebalance "
-                          "C-tier item; not a code regression.", strict=False)
 def test_stay_in_field_blind_spots_coverage():
     """Every persona's stay_in_field_blind_spots should be grounded in the corpus (>=1 posting).
 

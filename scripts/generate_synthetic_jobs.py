@@ -99,7 +99,9 @@ def compose(code, company, location, salary, source="LinkedIn", seniority=""):
     tasks = CORE.get(code, [])[:6]
     req_tools = _tools(code, 5)
     pref_tools = [t for t in _tools(code, 9) if t not in req_tools][:4]
-    know = [k for k, _ in sorted(KNOW.get(code, []), key=lambda x: -x[1])][:3]
+    # Domain knowledge areas (O*NET) = the realistic skill language real postings carry beyond software
+    # (e.g. "Economics and Accounting", "Building and Construction", "Medicine and Dentistry").
+    know = [k for k, _ in sorted(KNOW.get(code, []), key=lambda x: -x[1])][:5]
     edu, exp = ZONE_REQ.get(ZONE.get(code, "4"), ("Bachelor's degree", "2-4 years of relevant experience"))
 
     body = [f"{company} is hiring {_article(title)} {title} in {location}. {desc}", "", "Responsibilities:"]
@@ -107,10 +109,12 @@ def compose(code, company, location, salary, source="LinkedIn", seniority=""):
     body += ["", "Required qualifications:", f"- {edu}; {exp}"]
     if req_tools:
         body.append("- Proficiency with " + ", ".join(req_tools))
-    body += [f"- Working knowledge of {k}" for k in know]
+    if know:
+        body += ["", "Core knowledge areas:"] + [f"- {k}" for k in know]
     if pref_tools:
         body += ["", "Preferred qualifications:", "- Experience with " + ", ".join(pref_tools)]
-    requirements = _dedup(req_tools + know)  # ground-truth label for gap scoring
+    # ground-truth label = distinctive tools + domain knowledge (the realistic, gap-worthy requirements)
+    requirements = _dedup(req_tools + know)
     return {
         "title": title, "company": company, "location": location, "salary": salary,
         "description": "\n".join(body), "requirements": "; ".join(requirements),

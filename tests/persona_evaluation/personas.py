@@ -85,7 +85,7 @@ NURSE = Persona(
         "Nurse Manager",
         "Clinical Nurse Educator",
     ],
-    stay_in_field_blind_spots=["patient", "nursing", "care", "assessment"],
+    stay_in_field_blind_spots=["Epic Systems", "eClinicalWorks EHR software", "Henry Schein Dentrix"],
 )
 
 TEACHER = Persona(
@@ -129,7 +129,7 @@ TEACHER = Persona(
         "Instructional Coach",
         "Department Chair",
     ],
-    stay_in_field_blind_spots=["curriculum", "classroom", "instruction", "coaching"],
+    stay_in_field_blind_spots=["Learning management system LMS", "Mathematics", "Education and Training"],
 )
 
 CONSULTANT = Persona(
@@ -174,7 +174,7 @@ CONSULTANT = Persona(
         "Engagement Manager",
         "Operations Consultant",
     ],
-    stay_in_field_blind_spots=["strategy", "engagement", "client", "consulting"],
+    stay_in_field_blind_spots=["Microsoft Power BI", "Atlassian JIRA", "Administration and Management"],
 )
 
 ENGINEER = Persona(
@@ -219,7 +219,7 @@ ENGINEER = Persona(
         "Water Resources Engineer",
         "Civil Project Manager",
     ],
-    stay_in_field_blind_spots=["AutoCAD", "scheduling", "structural", "permitting"],
+    stay_in_field_blind_spots=["Autodesk AutoCAD", "Engineering and Technology"],
 )
 
 DESIGNER = Persona(
@@ -264,7 +264,7 @@ DESIGNER = Persona(
         "Senior UX Researcher",
         "Design Lead",
     ],
-    stay_in_field_blind_spots=["Figma", "user research", "design systems", "prototyping"],
+    stay_in_field_blind_spots=["Adobe Creative Cloud software", "Adobe Illustrator", "Adobe Photoshop"],
 )
 
 
@@ -310,7 +310,7 @@ ACCOUNTANT = Persona(
         "Controller",
         "Cost Accountant",
     ],
-    stay_in_field_blind_spots=["GAAP", "reconciliation", "audit", "variance"],
+    stay_in_field_blind_spots=["Intuit QuickBooks", "Economics and Accounting", "Mathematics"],
 )
 
 SALES_MANAGER = Persona(
@@ -355,7 +355,7 @@ SALES_MANAGER = Persona(
         "Business Development Manager",
         "Enterprise Account Executive",
     ],
-    stay_in_field_blind_spots=["enterprise sales", "pipeline", "negotiation", "forecasting"],
+    stay_in_field_blind_spots=["Microsoft SharePoint", "Customer and Personal Service", "Sales and Marketing"],
 )
 
 ELECTRICIAN = Persona(
@@ -400,7 +400,7 @@ ELECTRICIAN = Persona(
         "Electrical Foreman",
         "Industrial Electrician",
     ],
-    stay_in_field_blind_spots=["NEC code", "electrical installation", "troubleshooting", "conduit"],
+    stay_in_field_blind_spots=["Autodesk AutoCAD", "Building and Construction", "Mechanical"],
 )
 
 HR_MANAGER = Persona(
@@ -445,7 +445,7 @@ HR_MANAGER = Persona(
         "Corporate Recruiter",
         "Talent Acquisition Manager",
     ],
-    stay_in_field_blind_spots=["talent", "employee relations", "recruiting", "benefits"],
+    stay_in_field_blind_spots=["Applicant tracking software", "Personnel and Human Resources"],
 )
 
 OPERATIONS_MANAGER = Persona(
@@ -490,7 +490,7 @@ OPERATIONS_MANAGER = Persona(
         "Logistics Coordinator",
         "Process Improvement Manager",
     ],
-    stay_in_field_blind_spots=["process improvement", "inventory", "supply chain", "logistics"],
+    stay_in_field_blind_spots=["Administration and Management", "Customer and Personal Service"],
 )
 
 TECHNICAL_WRITER = Persona(
@@ -535,7 +535,7 @@ TECHNICAL_WRITER = Persona(
         "Documentation Manager",
         "API Documentation Specialist",
     ],
-    stay_in_field_blind_spots=["documentation", "technical writing", "editing", "content strategy"],
+    stay_in_field_blind_spots=["Atlassian Confluence", "Atlassian JIRA", "Extensible markup language XML"],
 )
 
 # ── Tier-1 market-demand personas (iter6) ─────────────────────────────────────
@@ -585,7 +585,7 @@ HOME_HEALTH_AIDE = Persona(
         "Caregiver",
         "Hospice Aide",
     ],
-    stay_in_field_blind_spots=["patient care", "vital signs", "ADLs", "CPR"],
+    stay_in_field_blind_spots=["Customer and Personal Service", "Psychology", "Public Safety and Security"],
 )
 
 SOFTWARE_DEVELOPER = Persona(
@@ -630,7 +630,7 @@ SOFTWARE_DEVELOPER = Persona(
         "Backend Developer",
         "Web Developer",
     ],
-    stay_in_field_blind_spots=["Python", "JavaScript", "REST APIs", "Git"],
+    stay_in_field_blind_spots=["Amazon Web Services AWS software", "Apache Kafka", "Atlassian JIRA"],
 )
 
 CUSTOMER_SERVICE_REP = Persona(
@@ -675,7 +675,7 @@ CUSTOMER_SERVICE_REP = Persona(
         "Call Center Agent",
         "Customer Support Associate",
     ],
-    stay_in_field_blind_spots=["customer service", "CRM", "communication", "ticketing"],
+    stay_in_field_blind_spots=["Customer and Personal Service", "Administration and Management"],
 )
 
 # Collection of all personas for testing

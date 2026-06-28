@@ -396,7 +396,7 @@ class ResultEvaluator:
         blind_spots = result.get("blind_spots", [])
 
         # Use appropriate targets based on variant
-        target_titles, _ = targets_for(persona, variant)
+        target_titles, expected_spots = targets_for(persona, variant)
 
         # Score job matches
         job_scores = [
@@ -460,6 +460,19 @@ class ResultEvaluator:
         if RUBRIC_V2 and occ_reqs and rec_scores:
             rec_gap_closing_pct = round(100.0 * sum(s.gap_closing for s in rec_scores) / len(rec_scores), 1)
 
+        # Expected-blind-spot RECALL: did the strategist surface the persona's expected gaps?
+        # NOTE: with AUTHORITATIVE_GAPS on, both expected (O*NET-derived) and generated come from O*NET,
+        # so this is partly circular — read it on the AUTHORITATIVE_GAPS-OFF arm for the unbiased signal.
+        # Reported metric (not folded into overall, to avoid circular inflation of the headline score).
+        expected_blind_spot_coverage_pct = None
+        if expected_spots and spot_inputs:
+            gen = " ".join(spot_inputs).lower()
+            def _covered(exp):
+                el = exp.lower()
+                return el in gen or any(tok in gen for tok in el.split() if len(tok) > 3)
+            expected_blind_spot_coverage_pct = round(
+                100.0 * sum(_covered(e) for e in expected_spots) / len(expected_spots), 1)
+
         # Overall quality score (0-4)
         overall_score = (
             avg_job_score * 0.3 +
@@ -488,6 +501,7 @@ class ResultEvaluator:
             "quality_label": quality_label,
             "blind_spot_auth_grounded_pct": blind_spot_auth_grounded_pct,
             "rec_gap_closing_pct": rec_gap_closing_pct,
+            "expected_blind_spot_coverage_pct": expected_blind_spot_coverage_pct,
             "rubric_version": "v2" if RUBRIC_V2 else "v1",
         }
 
