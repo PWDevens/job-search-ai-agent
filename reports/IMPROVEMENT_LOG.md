@@ -499,3 +499,37 @@ added. Eval doesn't yet model stay_reason (no motivation personas) — validated
 
 Spend: $0 (all local). Backlog status: P0/P1 done + validated (+0.490); C-tier test-infra/C5/C3 done;
 stay-reason added. Deferred: ESCO retire, persona stay-blind-spot re-authoring, stay_reason eval personas.
+
+---
+
+## Iteration 11 — ESCO retire + effort/compute A/B + Step-5 assessment (2026-06-28)
+
+**ESCO A/B (3-arm, post-Step-1 baseline) → RETIRED.** esco_ret/esco_full vs O*NET-only = +0.026/+0.028
+mean overall: within the GPU-noise floor, concentrated in one synthetic cell (switch_synth job +0.31 via
+retrieval expansion), 0.000 on realistic stay_adz. No generalizing value. Retired the whole ESCO layer
+(graph/loader/normalize + all GRAPH_* levers + skill_ids tagging + _id_citations). O*NET layer untouched.
+
+**Effort / accuracy-vs-compute A/B (quick/balanced/max, realistic cells):**
+| cell | quick | balanced | max | max sec/run |
+|---|---|---|---|---|
+| switch_adz | 1.965 | 2.047 | 2.093 | 126s |
+| stay_adz | 2.183 | 2.155 | 2.128 | 127s |
+| mean | 2.074 | 2.101 | 2.111 | (2.5x latency) |
+
+**Verdict: more compute is NOT reliably more accurate.** quick->max +0.037 mean (noise floor), NON-uniform
+(switch +0.13, stay -0.055), at 2.5x latency; best-of-N @ temp 0.4 degraded stay_adz spot (1.89->1.67) —
+sampling variance hurt. The effort dial's value is UX (breadth of options surfaced, expectation-tempering,
+async/email fit), NOT accuracy. Do not market "max = more accurate."
+
+**Step-5 recommendations:**
+1. Keep the effort dial for UX (default Balanced — best accuracy/latency); frame Max as "more options +
+   thoroughness," not "more accurate."
+2. best-of-N as implemented (temp 0.4) is net-negative on accuracy — either lower the sampling temp +
+   select by occupation-grounding (auth%) instead of grounding-ratio, then re-A/B, OR drop best-of-N from
+   Max and let Max = breadth (fetch) + rerank only (the safe levers). Recommend the latter unless a tuned
+   best-of-N proves out.
+3. Usage-personas: define by UX need (speed / breadth / async), map to effort; not as accuracy tiers.
+4. Canonical baseline for future A/Bs = O*NET-only + rubric_v2 + B5 + Balanced effort
+   (realistic-cell mean overall ~2.10).
+
+Pod spend this batch ~$3.5 (ESCO + effort), under the $10 cap.
