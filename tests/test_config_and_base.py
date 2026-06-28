@@ -31,9 +31,10 @@ class TestHardwareTier:
 
     def test_tier_to_model_mapping(self):
         from app.hardware import select_model
+        # Both GPU tiers run llama3.1:8b after the 2026-06 bake-off (see app/hardware.py).
         assert select_model("cpu") == "phi4-mini:q4_K_M"
-        assert select_model("gpu_avg") == "phi4:q4_K_M"
-        assert select_model("gpu_modern") == "gemma2:9b"
+        assert select_model("gpu_avg") == "llama3.1:8b"
+        assert select_model("gpu_modern") == "llama3.1:8b"
 
     def test_detect_tier_returns_valid_tier(self):
         from app.hardware import detect_tier, MODELS
@@ -48,11 +49,11 @@ class TestHardwareTier:
         finally:
             os.environ.pop("HARDWARE_TIER", None)
 
-    def test_gpu_modern_tier_selects_gemma(self):
+    def test_gpu_modern_tier_selects_llama(self):
         os.environ.pop("AGENT_MODEL", None)
         os.environ["HARDWARE_TIER"] = "gpu_modern"
         try:
-            assert _reload_config().AGENT_MODEL == "gemma2:9b"
+            assert _reload_config().AGENT_MODEL == "llama3.1:8b"
         finally:
             os.environ.pop("HARDWARE_TIER", None)
 
@@ -105,53 +106,27 @@ class TestConfigAgentModel:
 
 
 class TestBaseHttpxTimeout:
-    """Test httpx.Client timeout configuration in base.py."""
+    """base.py drives the httpx timeout from config (cfg.OLLAMA_TIMEOUT), not a hardcoded literal."""
 
-    def test_base_py_has_120_timeout(self):
-        """Verify base.py line 83 has timeout=120.0."""
+    def test_base_py_uses_config_timeout(self):
+        """base.py should drive the httpx timeout from cfg.OLLAMA_TIMEOUT (config), not a literal."""
         from pathlib import Path
-        base_path = Path(__file__).resolve().parent.parent / "app" / "agents" / "base.py"
-        base_text = base_path.read_text()
+        base_text = (Path(__file__).resolve().parent.parent / "app" / "agents" / "base.py").read_text()
+        assert "httpx.Client(timeout=cfg.OLLAMA_TIMEOUT)" in base_text, \
+            "base.py should use httpx.Client(timeout=cfg.OLLAMA_TIMEOUT)"
 
-        # The line should contain "timeout=120.0"
-        assert 'timeout=120.0' in base_text, \
-            "base.py should have timeout=120.0 in httpx.Client"
-        # Should not have the old 600.0 timeout
-        assert 'timeout=600.0' not in base_text, \
-            "base.py should NOT have old timeout=600.0"
-
-    def test_chat_function_uses_correct_timeout(self):
-        """Verify the chat() function in base.py uses 120.0 timeout."""
+    def test_chat_function_uses_config_timeout(self):
+        """The chat()/transport path should use the config-driven timeout."""
         from pathlib import Path
-        base_path = Path(__file__).resolve().parent.parent / "app" / "agents" / "base.py"
-        base_lines = base_path.read_text().split('\n')
-
-        # Find the line with httpx.Client
-        found_correct_timeout = False
-        for i, line in enumerate(base_lines):
-            if 'with httpx.Client(timeout=' in line:
-                if 'timeout=120.0' in line:
-                    found_correct_timeout = True
-                    break
-
-        assert found_correct_timeout, \
-            "chat() function should use httpx.Client(timeout=120.0)"
+        lines = (Path(__file__).resolve().parent.parent / "app" / "agents" / "base.py").read_text().split("\n")
+        assert any("httpx.Client(timeout=cfg.OLLAMA_TIMEOUT)" in line for line in lines), \
+            "chat() should use httpx.Client(timeout=cfg.OLLAMA_TIMEOUT)"
 
     def test_timeout_is_reasonable_value(self):
-        """Verify timeout is a reasonable value (120 seconds = 2 minutes)."""
-        from pathlib import Path
-        base_path = Path(__file__).resolve().parent.parent / "app" / "agents" / "base.py"
-        base_text = base_path.read_text()
-
-        # Extract the timeout value
-        import re
-        match = re.search(r'timeout=(\d+(?:\.\d+)?)', base_text)
-        assert match, "Should find timeout value in base.py"
-
-        timeout_val = float(match.group(1))
-        assert 60 <= timeout_val <= 300, \
-            f"Timeout should be reasonable (60-300s), got {timeout_val}"
-        assert timeout_val == 120.0, f"Expected timeout=120.0, got {timeout_val}"
+        """The configured OLLAMA_TIMEOUT default should be a sane long-context value."""
+        cfg = _reload_config()
+        assert 60 <= cfg.OLLAMA_TIMEOUT <= 600, \
+            f"OLLAMA_TIMEOUT should be reasonable (60-600s), got {cfg.OLLAMA_TIMEOUT}"
 
     def test_base_py_imports_httpx(self):
         """Verify base.py imports httpx."""
