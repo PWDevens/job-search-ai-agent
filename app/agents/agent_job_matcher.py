@@ -3,6 +3,7 @@ Job Matcher Agent: semantic reranking and explanation of job matches.
 """
 import logging
 from app.agents.base import load_skill, chat, fmt_resume, fmt_jobs
+from app.agents import intent
 from app.agents.models import JobMatchList
 from app.config import TOP_JOBS, RESUME_SNIPPET_CHARS, PROMPT_FEWSHOT
 
@@ -11,7 +12,7 @@ logger = logging.getLogger(__name__)
 
 def run(role_description: str, geo_preference: str, resume_text: str,
         jobs: list[dict], n: int = TOP_JOBS, extra_context: str | None = None,
-        mode: str = "stay") -> JobMatchList:
+        mode: str = "stay", stay_reason: str = "") -> JobMatchList:
     """Reorder and explain top job matches."""
     geo_line = f"\nPreferred location: {geo_preference}" if geo_preference else ""
     candidate_block = (
@@ -25,12 +26,7 @@ def run(role_description: str, geo_preference: str, resume_text: str,
         f"Please select and reorder the top {n} jobs that best match this candidate.\n"
         f"For each, provide a brief explanation of why it fits."
     )
-    if mode == "switch":
-        user_message += (
-            "\n\nNOTE: this candidate is CHANGING CAREERS into this field. Rank by TRANSFERABLE skills "
-            "and growth potential, not by how many target-role requirements they already meet — a "
-            "career-changer will be missing several. Favor roles their background plausibly bridges into."
-        )
+    user_message += intent.note("job_matcher", mode, stay_reason)
     if extra_context:
         user_message += f"\n\n{extra_context}"
 

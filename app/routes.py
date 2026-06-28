@@ -258,12 +258,15 @@ def search():
     try:
         from app.pipeline.pipeline import SearchRequest, run
         mode = "switch" if request.form.get("mode", "stay").lower() == "switch" else "stay"
+        # stay_reason refines the stay path (advancement / comp_culture / displaced / lateral).
+        stay_reason = request.form.get("stay_reason", "").lower() if mode == "stay" else ""
         req = SearchRequest(
             role_description=role_description,
             geo_preference=geo_preference,
             resume_text=resume_text,
             extra_context=extra_context,
             mode=mode,
+            stay_reason=stay_reason,
         )
         result = run(req)
         top_jobs    = result.top_jobs

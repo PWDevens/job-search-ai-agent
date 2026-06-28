@@ -52,6 +52,17 @@ def test_rubric_v2_rec_gap_closing():
     assert s.gap_closing and s.score >= 3, s
 
 
+def test_intent_note_stay_reasons():
+    """mode/stay_reason produce distinct, on-point framing; lateral/unknown -> no extra framing."""
+    from app.agents import intent
+    assert "TRANSFERABLE" in intent.note("job_matcher", "switch")
+    assert "NEXT level" in intent.note("career_strategist", "stay", "advancement")
+    assert "UNDERVALUED" in intent.note("resume_coach", "stay", "comp_culture")
+    assert "LAID OFF" in intent.note("job_matcher", "stay", "displaced")
+    assert intent.note("career_strategist", "stay", "") == ""          # lateral default
+    assert intent.note("career_strategist", "stay", "bogus") == ""     # unknown reason -> safe no-op
+
+
 def test_mode_switch_framing(monkeypatch):
     """mode: career-changers get the constructive transition framing; stayers do not."""
     import app.agents.agent_career_strategist as cs

@@ -27,6 +27,7 @@ class SearchRequest:
     resume_text: str | None = None
     extra_context: str | None = None
     mode: str = "stay"   # "stay" (advance in field) | "switch" (career change) — alters context engineering
+    stay_reason: str = ""  # when mode=stay: "advancement" | "comp_culture" | "displaced" | "" (lateral)
 
 
 @dataclass
@@ -148,7 +149,7 @@ def run(req: SearchRequest) -> SearchResult:
         job_matches, passed = _run_with_grounding(
             run_job_matcher,
             dict(role_description=req.role_description, geo_preference=req.geo_preference or "",
-                 resume_text=req.resume_text or "", jobs=jobs, mode=req.mode),
+                 resume_text=req.resume_text or "", jobs=jobs, mode=req.mode, stay_reason=req.stay_reason),
             lambda r: [m.company for m in r.matches],
             jobs, "job_matcher",
         )
@@ -198,7 +199,7 @@ def run(req: SearchRequest) -> SearchResult:
         resume_recs, passed = _run_with_grounding(
             run_resume_coach,
             dict(resume_text=req.resume_text or "", matched_jobs=result.top_jobs,
-                 role_description=req.role_description, mode=req.mode),
+                 role_description=req.role_description, mode=req.mode, stay_reason=req.stay_reason),
             lambda r: extract_citations(r.recommendations, "why"),
             result.top_jobs, "resume_coach",
         )
@@ -226,7 +227,7 @@ def run(req: SearchRequest) -> SearchResult:
         strategy, passed = _run_with_grounding(
             run_career_strategist,
             dict(role_description=req.role_description, resume_text=req.resume_text or "",
-                 matched_jobs=result.top_jobs, resume_recs=result.resume_recs, mode=req.mode),
+                 matched_jobs=result.top_jobs, resume_recs=result.resume_recs, mode=req.mode, stay_reason=req.stay_reason),
             lambda r: extract_citations(r.blind_spots, "why") + extract_citations(r.strategy, "evidence"),
             result.top_jobs, "career_strategist",
         )
