@@ -39,9 +39,11 @@ def run(role_description: str, resume_text: str, matched_jobs: list[dict],
             # A2: derive the TARGET occupation from the matched jobs' clean titles, NOT the
             # role_description sentence — for a switcher the sentence leads with the CURRENT
             # role ("home health aide ... seeking CNA"), which mis-injects current-role reqs.
-            # arm C (evidence depth): aggregate requirements across the top-K matched occupations
-            # (AGG_REQS=K, default 1 = top job only) for a more complete authoritative gap set.
-            K = int(os.getenv("AGG_REQS", "1"))
+            # Evidence depth ADOPTED (iter12 A/B, arm C): aggregate authoritative requirements across
+            # the top-K matched occupations for a more complete gap set. +0.052 mean overall, positive
+            # in BOTH realistic cells (+0.034 switch, +0.069 stay), biggest grounding lift (stay auth
+            # 61.5->70.8), and FREE (no extra LLM). Default K=5; AGG_REQS=1 restores top-job-only.
+            K = int(os.getenv("AGG_REQS", "5"))
             titles = [j.get("title", "") for j in matched_jobs[:K]] if matched_jobs else []
             titles = [t for t in titles if t] or [role_description]
             seen: list[str] = []

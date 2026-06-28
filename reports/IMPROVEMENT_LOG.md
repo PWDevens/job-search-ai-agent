@@ -533,3 +533,37 @@ async/email fit), NOT accuracy. Do not market "max = more accurate."
    (realistic-cell mean overall ~2.10).
 
 Pod spend this batch ~$3.5 (ESCO + effort), under the $10 cap.
+
+---
+
+## Iteration 12 — Re-aimed-Max lead: A/B/C arms (2026-06-28)
+
+Question (user lead): does Max-effort compute add real accuracy when *aimed right*, and is the path
+verification (B) or evidence (C) or both? 5 arms x 2 realistic cells x 14 personas, llama3.1:8b @ temp 0.
+
+| arm | switch d | sw auth% | stay d | st auth% | mean d |
+|---|---|---|---|---|---|
+| baseline (balanced) | 2.041 | 42.7 | 2.138 | 61.5 | - |
+| A re-aimed best-of-N (occ-grounded select, temp 0.2, best-of-3) | +0.013 | 38.7 | -0.015 | 50.8 | -0.001 |
+| B verification pass (deterministic grounding-enforcement) | +0.061 | 46.8 | -0.013 | 60.1 | +0.024 |
+| C evidence depth (aggregate authoritative reqs across top-5 occupations) | +0.034 | 44.0 | +0.069 | 70.8 | +0.052 |
+| BC | +0.063 | 48.1 | +0.047 | 67.8 | +0.055 |
+
+**Verdict:**
+- **A (sampling) is DEAD** — mean -0.001, and auth% DROPS in both cells even with the selection re-aimed
+  to occupation-grounding. Best-of-N is not the lever, re-aiming did not save it. Confirms the iter11
+  drop; best_of stays 1.
+- **C (evidence depth) is the winner** — +0.052 mean, positive in BOTH cells, biggest grounding lift
+  (stay auth 61.5->70.8), and FREE (no extra LLM). ADOPTED as default (AGG_REQS=5).
+- **B (verification) is situational** — +0.061 on the hard switch cell, flat/negative on stay (-0.013);
+  costs an extra LLM call. Keep gated, enable for switch-mode / high-effort only.
+- **BC does not compound** — +0.055 mean ~= C alone (+0.052); B drags C down on stay (BC +0.047 < C +0.069).
+  Not worth the extra call.
+
+**So "Max effort" should mean evidence depth + (switch-only) verification, NOT sampling.** The real
+accuracy lever was richer authoritative evidence, costing ~nothing — consistent with every prior
+iteration (grounding/evidence move the needle; compute/sampling/taxonomy do not).
+
+Follow-ups queued: (a) SEMANTIC_GAPS prototype sharpens the same evidence path (A/B next, on the new
+C-default baseline); (b) Nesta Causeways spec = switcher-pivot engine (.pipeline/nesta_causeways_spec.md).
+Pod spend this batch ~$2.6 (one invalid run re-done), under the $5 cap.
