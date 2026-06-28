@@ -260,6 +260,9 @@ def search():
         mode = "switch" if request.form.get("mode", "stay").lower() == "switch" else "stay"
         # stay_reason refines the stay path (advancement / comp_culture / displaced / lateral).
         stay_reason = request.form.get("stay_reason", "").lower() if mode == "stay" else ""
+        effort = request.form.get("effort", "balanced").lower()
+        if effort not in ("quick", "balanced", "thorough", "max"):
+            effort = "balanced"
         req = SearchRequest(
             role_description=role_description,
             geo_preference=geo_preference,
@@ -267,6 +270,7 @@ def search():
             extra_context=extra_context,
             mode=mode,
             stay_reason=stay_reason,
+            effort=effort,
         )
         result = run(req)
         top_jobs    = result.top_jobs

@@ -109,6 +109,23 @@ ADZUNA_MAX_DAYS   = int(os.getenv("ADZUNA_MAX_DAYS", "30"))  # freshness filter
 # ── Reranker passes (1 = retrieval only; 2 = +role+resume; 3 = +resume recs) ─
 RERANK_PASSES = int(os.getenv("RERANK_PASSES", "2"))
 
+# ── Effort dial (usage-persona tuning): trade compute for thoroughness ─────────
+# Bundles the real levers — retrieval breadth (fetch), rerank passes, top-N, and best-of-N
+# agent sampling. quick=passive looker; balanced=daily user (default); thorough/max=burnt-out
+# fresh-perspective or email/scheduler runs that don't mind latency. best_of>1 needs temp>0.
+EFFORT = os.getenv("EFFORT", "balanced").lower()
+EFFORT_BUNDLES = {
+    "quick":    {"rerank_passes": 1, "fetch": 40,  "top_jobs": 5,  "best_of": 1, "temp": 0.0},
+    "balanced": {"rerank_passes": 2, "fetch": 50,  "top_jobs": 8,  "best_of": 1, "temp": 0.0},
+    "thorough": {"rerank_passes": 3, "fetch": 100, "top_jobs": 10, "best_of": 2, "temp": 0.3},
+    "max":      {"rerank_passes": 3, "fetch": 150, "top_jobs": 12, "best_of": 3, "temp": 0.4},
+}
+
+
+def effort_bundle(name: str | None = None) -> dict:
+    """Return the compute bundle for an effort level (default 'balanced')."""
+    return EFFORT_BUNDLES.get((name or EFFORT or "balanced").lower(), EFFORT_BUNDLES["balanced"])
+
 # ── Grounding and improvement config knobs ─────────────────────────────────────
 GROUNDING_PASS_RATIO = float(os.getenv("GROUNDING_PASS_RATIO", "0.5"))
 RETRIEVAL_BOOST = os.getenv("RETRIEVAL_BOOST", "0") == "1"

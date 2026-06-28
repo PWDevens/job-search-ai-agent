@@ -39,6 +39,7 @@ def find_top_jobs(
     geo_preference:   Optional[str] = None,
     resume_text:      Optional[str] = None,
     n:                int           = TOP_JOBS,
+    fetch:            Optional[int] = None,   # retrieval breadth (effort dial); default max(n*2, 50)
 ) -> List[Dict[str, Any]]:
     """
     Return the top-N matching jobs ranked by cosine similarity.
@@ -48,9 +49,9 @@ def find_top_jobs(
     matching (handles Remote, city abbreviations, state normalization, fuzzy matching).
     """
     query  = _build_query(role_description, resume_text)
-    # Retrieve 2× candidates so reranker has a wide field to work with.
+    # Retrieve a wide field for the reranker; effort dial widens it via `fetch`.
     # ponytail: RERANK_MODEL=none skips reranking and falls back to vector order.
-    fetch_count = max(n * 2, 50)
+    fetch_count = fetch or max(n * 2, 50)
     results = query_collection(CHROMA_JOBS_COL, [query], n_results=fetch_count)
     jobs = _format_results(results, fetch_count)
 

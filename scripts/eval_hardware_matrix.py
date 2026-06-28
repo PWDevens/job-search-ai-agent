@@ -112,8 +112,9 @@ def run_row(scn, persona, dataset, role, geo, resume_text, variant="switching"):
     err = None
     try:
         mode = "switch" if variant == "switching" else "stay"
+        effort = os.getenv("EFFORT", "balanced")  # #4 sweep sets EFFORT per run
         result = run(SearchRequest(role_description=role, geo_preference=geo,
-                                   resume_text=resume_text, mode=mode))
+                                   resume_text=resume_text, mode=mode, effort=effort))
         d = result.as_dict()
     except Exception as e:
         err = f"{type(e).__name__}: {e}"

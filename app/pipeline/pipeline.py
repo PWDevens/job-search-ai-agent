@@ -28,6 +28,7 @@ class SearchRequest:
     extra_context: str | None = None
     mode: str = "stay"   # "stay" (advance in field) | "switch" (career change) — alters context engineering
     stay_reason: str = ""  # when mode=stay: "advancement" | "comp_culture" | "displaced" | "" (lateral)
+    effort: str = "balanced"  # "quick" | "balanced" | "thorough" | "max" — compute/thoroughness dial
 
 
 @dataclass
@@ -48,13 +49,34 @@ class SearchResult:
         }
 
 
-def _run_with_grounding(run_fn, run_kwargs, get_citations, retrieved_jobs, agent_name):
+def _run_with_grounding(run_fn, run_kwargs, get_citations, retrieved_jobs, agent_name, best_of=1):
     """Run agent, check grounding using ratio threshold. Returns (result, passed: bool).
 
     Always keeps the best result (highest grounding ratio), never discards agent output.
     Scoring happens on the best result regardless of pass status (pass only sets validation flag).
+
+    best_of>1 (effort dial #3): draw N samples and keep the highest grounding ratio (needs temp>0
+    for diversity, set by the effort bundle). Replaces the single-shot re-ask for high-effort runs.
     """
     from app.config import GROUNDING_PASS_RATIO
+
+    def _sample():
+        r = run_fn(**run_kwargs)
+        cited = get_citations(r)
+        ung = check_grounding(cited, retrieved_jobs)
+        return r, ((len(cited) - len(ung)) / len(cited) if cited else 1.0)
+
+    # best-of-N: keep the highest-grounding sample (no re-ask; N samples replace it)
+    if best_of and best_of > 1:
+        best_result, best_ratio = _sample()
+        for _ in range(best_of - 1):
+            r, ratio = _sample()
+            if ratio > best_ratio:
+                best_result, best_ratio = r, ratio
+        if best_ratio < GROUNDING_PASS_RATIO:
+            logger.warning("%s best-of-%d ratio %.1f%% below threshold (scored anyway)",
+                           agent_name, best_of, 100 * best_ratio)
+        return best_result, best_ratio >= GROUNDING_PASS_RATIO
 
     # Run agent once
     result = run_fn(**run_kwargs)
@@ -122,6 +144,11 @@ def run(req: SearchRequest) -> SearchResult:
     result = SearchResult()
     result.agent_validation = {"job_matcher": False, "resume_coach": False, "career_strategist": False}
 
+    # Effort dial (#2): bundle the compute levers. temp>0 enables best-of-N diversity.
+    eb = cfg.effort_bundle(req.effort)
+    cfg.OLLAMA_TEMPERATURE = eb["temp"]   # per-request; next run() re-derives (pipeline is sequential)
+    rerank_passes = eb["rerank_passes"]
+
     # Step 1: Matcher (ground truth; Pass 1 rerank happens inside find_top_jobs)
     try:
         # graph experiment: skill-aware retrieval — expand the query with the
@@ -136,7 +163,8 @@ def run(req: SearchRequest) -> SearchResult:
             except Exception as e:
                 logger.debug("graph retrieval expansion skipped: %s", e)
         logger.info("Finding top jobs for: %s", req.role_description)
-        jobs = find_top_jobs(search_query, req.geo_preference, req.resume_text)
+        jobs = find_top_jobs(search_query, req.geo_preference, req.resume_text,
+                             n=eb["top_jobs"], fetch=eb["fetch"])
         result.top_jobs = jobs
         logger.info("Matcher returned %d jobs", len(jobs))
     except Exception as e:
@@ -151,7 +179,7 @@ def run(req: SearchRequest) -> SearchResult:
             dict(role_description=req.role_description, geo_preference=req.geo_preference or "",
                  resume_text=req.resume_text or "", jobs=jobs, mode=req.mode, stay_reason=req.stay_reason),
             lambda r: [m.company for m in r.matches],
-            jobs, "job_matcher",
+            jobs, "job_matcher", best_of=eb["best_of"],
         )
         result.agent_validation["job_matcher"] = passed
         result.raw_agent_output["job_matches"] = job_matches.model_dump()
@@ -172,7 +200,7 @@ def run(req: SearchRequest) -> SearchResult:
         result.top_jobs = merged
 
         # Pass 2: rerank with combined role+resume signal so coach+strategist see best order
-        if RERANK_PASSES >= 2 and result.top_jobs:
+        if rerank_passes >= 2 and result.top_jobs:
             p2_query = req.role_description + (" " + req.resume_text[:400] if req.resume_text else "")
             result.top_jobs = rerank(p2_query, result.top_jobs, top_n=len(result.top_jobs))
             logger.info("Pass 2 rerank: reordered %d jobs (role+resume query)", len(result.top_jobs))
@@ -201,7 +229,7 @@ def run(req: SearchRequest) -> SearchResult:
             dict(resume_text=req.resume_text or "", matched_jobs=result.top_jobs,
                  role_description=req.role_description, mode=req.mode, stay_reason=req.stay_reason),
             lambda r: extract_citations(r.recommendations, "why"),
-            result.top_jobs, "resume_coach",
+            result.top_jobs, "resume_coach", best_of=eb["best_of"],
         )
         result.agent_validation["resume_coach"] = passed
         result.raw_agent_output["resume_recs"] = resume_recs.model_dump()
@@ -209,7 +237,7 @@ def run(req: SearchRequest) -> SearchResult:
         result.resume_recs = [f"[{r.priority}] {r.title} — {r.fix}" for r in resume_recs.recommendations]
 
         # Pass 3: rerank resume recs by relevance to the full resume text
-        if RERANK_PASSES >= 3 and req.resume_text and result.resume_recs:
+        if rerank_passes >= 3 and req.resume_text and result.resume_recs:
             wrapped = [{"document": r} for r in result.resume_recs]
             reranked = rerank(req.resume_text, wrapped, top_n=len(wrapped))
             result.resume_recs = [r["document"] for r in reranked]
@@ -229,7 +257,7 @@ def run(req: SearchRequest) -> SearchResult:
             dict(role_description=req.role_description, resume_text=req.resume_text or "",
                  matched_jobs=result.top_jobs, resume_recs=result.resume_recs, mode=req.mode, stay_reason=req.stay_reason),
             lambda r: extract_citations(r.blind_spots, "why") + extract_citations(r.strategy, "evidence"),
-            result.top_jobs, "career_strategist",
+            result.top_jobs, "career_strategist", best_of=eb["best_of"],
         )
         result.agent_validation["career_strategist"] = passed
         result.raw_agent_output["career_strategy"] = strategy.model_dump()
