@@ -11,10 +11,15 @@ in the target role's REAL requirements instead of skills that happened to surviv
     python -m app.skills.onet_requirements   # self-check
 """
 import csv
+import logging
+import os
+import re
 import zipfile
 from collections import defaultdict
 
 import numpy as np
+
+logger = logging.getLogger(__name__)
 
 ZIP = "data/skills/raw/db_30_3_text.zip"
 MIN_CONF = 0.80  # below this the title->occupation match is unreliable (iter5: the 0.767 miss)
@@ -71,9 +76,31 @@ def role_requirements(title: str, n: int = 15) -> list[str]:
 
 
 def missing_requirements(title: str, resume_text: str, n: int = 12) -> list[str]:
-    """Authoritative requirements absent from the resume = the candidate's real gaps."""
+    """Authoritative requirements absent from the resume = the candidate's real gaps.
+
+    Default: lexical substring presence. SEMANTIC_GAPS=1 (prototype, GraphRAG bucket-C) adds a
+    semantic presence check so a resume that says "managed AWS servers" is credited for the
+    "Amazon Web Services AWS software" requirement instead of being told it's a gap — cutting
+    false-positive gaps the substring check can't see. Gated; off by default.
+    """
     rt = (resume_text or "").lower()
-    return [r for r in role_requirements(title, n * 2) if r.lower() not in rt][:n]
+    lexically_absent = [r for r in role_requirements(title, n * 2) if r.lower() not in rt]
+    if (os.getenv("SEMANTIC_GAPS", "").lower() not in ("1", "true", "yes")
+            or not lexically_absent or not rt.strip()):
+        return lexically_absent[:n]
+    try:
+        from app.retrieval.embeddings import embed_texts
+        phrases = [p.strip() for p in re.split(r"[\n,.;:|]", resume_text) if len(p.strip()) > 2]
+        if not phrases:
+            return lexically_absent[:n]
+        pv = np.array(embed_texts(phrases))          # (P, D) normalized -> cosine == dot
+        rv = np.array(embed_texts(lexically_absent))  # (R, D)
+        sims = rv @ pv.T
+        floor = float(os.getenv("SEMANTIC_GAPS_FLOOR", "0.62"))  # ponytail: bge paraphrase floor, tune via env
+        return [r for i, r in enumerate(lexically_absent) if sims[i].max() < floor][:n]
+    except Exception as e:
+        logger.debug("semantic gap detection unavailable, using lexical: %s", e)
+        return lexically_absent[:n]
 
 
 if __name__ == "__main__":
