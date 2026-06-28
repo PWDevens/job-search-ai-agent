@@ -60,11 +60,26 @@ def run(role_description: str, resume_text: str, matched_jobs: list[dict],
         "happens to mention them:\n" + ", ".join(auth_gaps) + "\n\n"
     ) if auth_gaps else ""
 
+    # Causeways (switcher-pivot engine): adjacent occupations the candidate could realistically move
+    # into, from O*NET relatedness. Switch mode only; gated CAUSEWAYS for A/B. See causeways.py.
+    adj_block = ""
+    if os.getenv("CAUSEWAYS", "").lower() in ("1", "true", "yes") and mode == "switch":
+        try:
+            from app.skills.causeways import adjacent_occupations
+            adj = adjacent_occupations(role_description, k=4)
+            if adj:
+                adj_block = ("Adjacent occupations this candidate could realistically pivot into "
+                             "(O*NET relatedness) — use these to ground the strategic recommendations "
+                             "about where to aim:\n" + ", ".join(o["title"] for o in adj) + "\n\n")
+        except Exception as e:
+            logger.debug("causeways adjacency unavailable: %s", e)
+
     user_message = (
         f"Candidate Profile:\nRole: {role_description}\n"
         f"Resume: {fmt_resume(resume_text, RESUME_MID_CHARS)}\n\n"
         f"{jobs_block}\n\n"
         f"{auth_block}"
+        f"{adj_block}"
         f"Resume improvements identified:\n{recs_summary}\n\n"
         f"{ats_block}\n\n"
         f"Please identify {n_blind} critical blind spots (skill gaps, missing experience, ATS blindspots) "
