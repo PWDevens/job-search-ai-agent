@@ -58,23 +58,9 @@ def _job_skill_ids(job: Dict[str, Any]) -> set:
 
 
 def _id_citations(skill: str, top_jobs: List[Dict[str, Any]]):
-    """skills: citations via canonical skill-ID match (robust to paraphrase).
-
-    Returns None to signal 'fall back to substring' — when the skills layer isn't
-    built, the skill isn't in the taxonomy, or the corpus carries no skill_ids
-    (so nothing regresses on legacy/un-normalized data).
-    """
-    try:
-        from app.skills.normalize import normalize_one
-    except Exception:
-        return None
-    sid = normalize_one(skill)
-    if not sid:
-        return None
-    job_sets = [_job_skill_ids(j) for j in top_jobs[:10]]
-    if not any(job_sets):
-        return None
-    return sum(1 for s in job_sets if sid in s)
+    """Retired (ESCO removed): always None -> score_blind_spot uses substring grounding +
+    rubric_v2 occupation-grounding (the JTBD signal). Kept as a seam if a skill-ID layer returns."""
+    return None
 
 
 @dataclass

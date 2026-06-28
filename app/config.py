@@ -11,11 +11,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 CHROMA_DB_PATH     = os.getenv("CHROMA_DB_PATH", str(BASE_DIR / "data" / "chroma"))
 CHROMA_JOBS_COL    = os.getenv("CHROMA_JOBS_COLLECTION",   "jobs")
 CHROMA_RESUME_COL  = os.getenv("CHROMA_RESUME_COLLECTION", "resume_chunks")
-CHROMA_SKILLS_COL  = os.getenv("CHROMA_SKILLS_COLLECTION", "skills")
-
-# ── Skills taxonomy layer (occupation competencies; see app/skills/) ──────────
-SKILLS_DB_PATH     = os.getenv("SKILLS_DB_PATH", str(BASE_DIR / "data" / "skills" / "skills.db"))
-SKILL_MATCH_FLOOR  = float(os.getenv("SKILL_MATCH_FLOOR", "0.70"))  # embedding-NN cosine floor (precision-first; calibrated 2026-06: correct matches land 0.72-0.94)
+# (ESCO skills-taxonomy config retired iter11 — superseded by O*NET, see app/skills/onet_requirements.py)
 
 # ── Hardware tier + model selection ──────────────────────────────────────────
 from app import hardware as _hw
@@ -43,40 +39,10 @@ OLLAMA_TIMEOUT    = float(os.getenv("OLLAMA_TIMEOUT",    "300"))  # per-request 
 # endpoint instead of a local/pod Ollama (base.py wraps the request as
 # {"input": <chat payload>} → POST /run → poll /status → unwrap "output").
 # Leave RUNPOD_ENDPOINT_ID empty to use the direct OLLAMA_BASE_URL path.
-# Inject ESCO occupation-essential skills into the career-strategist prompt.
-# OFF by default: a 2026-06 A/B (stay-field Adzuna) showed it HURT grounding
-# (3.6%->1.8%) and raised fallback (55%->82%) — ESCO's verbose competence labels
-# ("specialist nursing care") don't match crisp posting tokens ("RN"), steering
-# the agent toward ungroundable phrasings. Re-enable only with a posting-derived
-# vocabulary (e.g. Lightcast) whose labels match real postings.
-STRATEGIST_USE_OCCUPATION_SKILLS = os.getenv("STRATEGIST_USE_OCCUPATION_SKILLS", "").lower() in ("1", "true", "yes")
-
-# Occupation-graph levers, split after the 2026-06 2x2 A/B decomposed them:
-#  - retrieval expansion (skill-aware query) lifts the job dimension (+0.31 on
-#    switching x Adzuna) and embeddings tolerate ESCO's verbose labels — KEEP.
-#  - prompt context (essential skills into the strategist) reconfirmed the #1
-#    regression: grounding down, fallback up (18%->82%) — leave OFF.
-# USE_GRAPH_DATA stays as a convenience that turns on BOTH (back-compat / A/B).
-USE_GRAPH_DATA = os.getenv("USE_GRAPH_DATA", "").lower() in ("1", "true", "yes")
-GRAPH_RETRIEVAL = USE_GRAPH_DATA or os.getenv("GRAPH_RETRIEVAL", "").lower() in ("1", "true", "yes")
-GRAPH_PROMPT_CONTEXT = USE_GRAPH_DATA or os.getenv("GRAPH_PROMPT_CONTEXT", "").lower() in ("1", "true", "yes")
-# Resume-coach graph context — separate lever. Coach's task is "what skills to add",
-# so occupation-essential-missing-from-resume is its native use case (no posting-
-# grounding requirement like blind spots). A/B-tested independently.
-GRAPH_RESUME_CONTEXT = os.getenv("GRAPH_RESUME_CONTEXT", "").lower() in ("1", "true", "yes")
-
-# Embedding/scoring-space levers (where ESCO labels work, unlike prompts):
-#  GRAPH_RERANK   — cross-encoder rerank the final jobs by relevance to the role's
-#                   essential+adjacent skills (changes the top-5 the rubric scores).
-#  GRAPH_VALIDATE — strategist over-generates blind spots, then selects the top-N by
-#                   semantic relevance to occupation-essential skills (graph as a
-#                   post-hoc filter, NOT a prompt input — sidesteps the label toxicity).
-GRAPH_RERANK   = os.getenv("GRAPH_RERANK", "").lower() in ("1", "true", "yes")
-# GRAPH_VALIDATE default ON (improvement loop Iteration 2): +0.05 mean overall, 3/4 cells,
-# lifts the spot dimension by filtering off-target blind spots to occupation-relevant ones.
-# No-op when the occupation graph isn't built (degrades to normal blind-spot generation),
-# so it's safe as a default. Disable with GRAPH_VALIDATE=0.
-GRAPH_VALIDATE = os.getenv("GRAPH_VALIDATE", "").lower() in ("1", "true", "yes")  # opt-in: +0.05 paired (iter2) but unconfirmable vs GPU-fleet noise (iter4); mechanism-sound, enable to use
+# ESCO occupation-graph levers RETIRED (iter11): the 3-arm A/B (esco_ret/esco_full vs O*NET-only)
+# showed only +0.026-0.028 mean overall — within the GPU-noise floor, concentrated in one synthetic
+# cell, 0.000 on realistic Adzuna. ESCO's verbose competence labels never matched posting tokens.
+# Superseded by the O*NET authoritative-requirements layer (AUTHORITATIVE_GAPS). See IMPROVEMENT_LOG.
 
 # AUTHORITATIVE_GAPS (iter5): ground career-strategist blind spots + resume-coach recs in the TARGET
 # OCCUPATION's real O*NET requirements (matched from the matched jobs' titles, app/skills/onet_requirements.py)

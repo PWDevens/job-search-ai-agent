@@ -7,9 +7,7 @@ from app.agents.base import load_skill, chat, fmt_resume, fmt_jobs
 from app.agents import intent
 from app.agents.models import CareerStrategy
 from app.agents.rag_knowledge import query_ats_knowledge
-from app.config import (TOP_BLIND_SPOTS, RESUME_MID_CHARS, PROMPT_FEWSHOT,
-                        STRATEGIST_USE_OCCUPATION_SKILLS, GRAPH_PROMPT_CONTEXT, GRAPH_VALIDATE,
-                        AUTHORITATIVE_GAPS)
+from app.config import TOP_BLIND_SPOTS, RESUME_MID_CHARS, PROMPT_FEWSHOT, AUTHORITATIVE_GAPS
 
 logger = logging.getLogger(__name__)
 
@@ -31,24 +29,6 @@ def run(role_description: str, resume_text: str, matched_jobs: list[dict],
                    + fmt_jobs(matched_jobs, max_count=8, detail=True))
     recs_summary = "\n".join(resume_recs[:5]) if resume_recs else "(no resume recs)"
 
-    # occupation-graph skills, used two independent ways:
-    #  - prompt injection (STRATEGIST_USE_OCCUPATION_SKILLS / GRAPH_PROMPT_CONTEXT) — A/B-shown to HURT.
-    #  - post-hoc validation (GRAPH_VALIDATE) — over-generate then cross-encoder-select; never touches the prompt.
-    inject = STRATEGIST_USE_OCCUPATION_SKILLS or GRAPH_PROMPT_CONTEXT
-    essential, adjacent = [], []
-    if inject or GRAPH_VALIDATE:
-        try:
-            from app.skills.graph import role_skill_context
-            essential, adjacent = role_skill_context(role_description, n_essential=12, n_adjacent=8)
-        except Exception as e:
-            logger.debug("occupation-skill lookup unavailable: %s", e)
-    essential_block = (
-        "Essential skills for this target role (occupation taxonomy):\n"
-        + ", ".join(essential)
-        + (("\nRelated skills: " + ", ".join(adjacent)) if adjacent else "")
-        + "\n\n"
-    ) if (essential and inject) else ""
-
     # Authoritative gaps (iter5): the target occupation's REAL O*NET requirements missing from the
     # resume. Grounds blind spots in authoritative data, not in truncated postings. See onet_requirements.
     auth_gaps = []
@@ -68,18 +48,14 @@ def run(role_description: str, resume_text: str, matched_jobs: list[dict],
         "happens to mention them:\n" + ", ".join(auth_gaps) + "\n\n"
     ) if auth_gaps else ""
 
-    # validate over-generates so there's a pool to select the most occupation-relevant from.
-    gen_n = n_blind + 3 if (GRAPH_VALIDATE and essential) else n_blind
-
     user_message = (
         f"Candidate Profile:\nRole: {role_description}\n"
         f"Resume: {fmt_resume(resume_text, RESUME_MID_CHARS)}\n\n"
         f"{jobs_block}\n\n"
-        f"{essential_block}"
         f"{auth_block}"
         f"Resume improvements identified:\n{recs_summary}\n\n"
         f"{ats_block}\n\n"
-        f"Please identify {gen_n} critical blind spots (skill gaps, missing experience, ATS blindspots) "
+        f"Please identify {n_blind} critical blind spots (skill gaps, missing experience, ATS blindspots) "
         f"that limit this candidate's competitiveness.\n"
         + ((
             f"GROUNDING RULE (critical): each blind spot's `skill` MUST come from the Authoritative "
@@ -90,9 +66,7 @@ def run(role_description: str, resume_text: str, matched_jobs: list[dict],
             f"GROUNDING RULE (critical): each blind spot's `skill` MUST be a specific term that literally "
             f"appears in the Target opportunity descriptions above — copy a tool, certification, technology, "
             f"or named skill exactly as written in the postings. Do NOT list a skill the postings don't mention, "
-            f"and do NOT default to data/analytics skills unless the postings name them. "
-            f"Prefer skills that are BOTH in the postings AND in the Essential-skills list above (when provided) "
-            f"and are missing from the resume — those are the highest-value, best-grounded gaps.\n"
+            f"and do NOT default to data/analytics skills unless the postings name them.\n"
         ))
         +
         f"For each: skill name, why it matters (cite 2-3 target roles), remediation path, "
@@ -107,17 +81,4 @@ def run(role_description: str, resume_text: str, matched_jobs: list[dict],
         from app.agents.fewshot import FEWSHOT_CAREER_STRATEGIST
         user_message += "\n\nExamples of strong, grounded outputs:\n" + FEWSHOT_CAREER_STRATEGIST
 
-    strategy = chat(load_skill("career_strategist"), user_message, CareerStrategy)
-
-    # Graph validate (A/B): keep the n_blind blind spots most semantically relevant to the
-    # occupation's essential skills (cross-encoder) — graph as a post-hoc filter, not a prompt.
-    if GRAPH_VALIDATE and essential and len(strategy.blind_spots) > n_blind:
-        try:
-            from app.retrieval.rerank import rerank
-            docs = [{"id": str(i), "document": bs.skill} for i, bs in enumerate(strategy.blind_spots)]
-            ranked = rerank(", ".join(essential), docs, top_n=n_blind)
-            strategy.blind_spots = [strategy.blind_spots[int(d["id"])] for d in ranked]
-        except Exception as e:
-            logger.debug("graph validate skipped: %s", e)
-            strategy.blind_spots = strategy.blind_spots[:n_blind]
-    return strategy
+    return chat(load_skill("career_strategist"), user_message, CareerStrategy)

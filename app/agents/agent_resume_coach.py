@@ -5,8 +5,7 @@ import logging
 from app.agents.base import load_skill, chat, fmt_resume, fmt_jobs
 from app.agents import intent
 from app.agents.models import ResumeRecList
-from app.config import (TOP_RESUME_RECS, RESUME_FULL_CHARS, PROMPT_FEWSHOT,
-                        GRAPH_RESUME_CONTEXT, AUTHORITATIVE_GAPS)
+from app.config import TOP_RESUME_RECS, RESUME_FULL_CHARS, PROMPT_FEWSHOT, AUTHORITATIVE_GAPS
 
 logger = logging.getLogger(__name__)
 
@@ -25,10 +24,9 @@ def run(resume_text: str, matched_jobs: list[dict], role_description: str = "",
         job_lines.append(head + (f"\n   Requires: {req[:400]}" if req else ""))
     jobs_block = "Target job opportunities (with their requirements):\n" + "\n".join(job_lines)
 
-    # A1: authoritative occupation requirements the resume lacks. Replaces the dead ESCO
-    # GRAPH_RESUME_CONTEXT path (verbose labels that didn't match postings) with O*NET.
+    # A1: authoritative occupation requirements the resume lacks (O*NET).
     skills_block = ""
-    if (AUTHORITATIVE_GAPS or GRAPH_RESUME_CONTEXT) and (role_description or matched_jobs):
+    if AUTHORITATIVE_GAPS and (role_description or matched_jobs):
         try:
             from app.skills.onet_requirements import missing_requirements
             # A2: target occupation from the matched jobs' clean titles, not the role sentence.
