@@ -115,11 +115,9 @@ def mock_llm():
 # Fixtures: Sample data for testing
 # ─────────────────────────────────────────────────────────────────────────────
 
-@pytest.fixture
-def tmp_path_factory():
-    """Temporary directory factory for creating test data."""
-    with tempfile.TemporaryDirectory() as tmpdir:
-        yield Path(tmpdir)
+# NOTE: do NOT define a `tmp_path_factory` fixture here — it shadows pytest's built-in
+# session-scoped factory (returning a plain Path with no .mktemp), which breaks every
+# tmp_path-dependent test ('WindowsPath' has no attribute 'mktemp'). Use the built-ins.
 
 
 @pytest.fixture
