@@ -599,3 +599,18 @@ gated OFF. Defer the real evaluation per the spec.
 Net: neither earns default adoption. The C-default (evidence depth) remains the standing baseline.
 Pod note: the test run was clean (~$0.5) but the pod idled across a session gap before teardown,
 adding ~unbudgeted idle time — delete pods in-session, never rely on cross-session cleanup.
+
+### iter13 retry — SEMANTIC_GAPS @ recalibrated floor 0.85
+
+| cell | baseline | semgaps@0.85 | d | rec base->new | auth% base->new |
+|---|---|---|---|---|---|
+| switch | 2.055 | 2.064 | +0.009 | 2.69->2.75 | 42.7->42.7 |
+| stay | 2.207 | 2.233 | +0.025 | 2.47->2.62 | 70.8->66.2 |
+
+Recalibration FIXED the collapse (-0.137/-0.379 -> +0.009/+0.025). Mechanism is sound: REC quality
+rises in both cells (intended effect — stop flagging gaps the resume already covers under a brand
+variant). BUT it's a reallocation, not a free win: the rec gain is partly paid by a spot/auth dip
+(still strips a few grounding-positive items), and +0.017 mean overall is within the noise floor
+(same verdict as ESCO). Floor default corrected to 0.85 so it is no longer shipped broken; kept gated
+OFF. Opt-in for rec-focused use; a higher floor (0.90) might keep the rec gain without the spot dip,
+but not worth another pod run now. Pod deleted in-session via REST API (MCP was down); 204 OK.
