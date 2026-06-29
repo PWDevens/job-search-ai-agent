@@ -10,7 +10,13 @@ Gated by CAUSEWAYS=1 for A/B; surfaced to the career_strategist in switch mode o
 import zipfile
 from collections import defaultdict
 
-from app.skills.onet_requirements import ZIP, MIN_CONF, occupation_for
+from app.skills.onet_requirements import ZIP, occupation_for
+
+# Adjacency is advisory (suggest related roles), so it uses a looser confidence gate than
+# requirement injection (0.80): correct matches for verbose titles land 0.776-0.799 (Management
+# Consultant->Management Analysts 0.776, Electrician->Electricians 0.784); 0.75 keeps those while
+# still rejecting genuine mismatches (CPA->Bookkeeping Clerks 0.672). See iter14 calibration.
+ADJ_MIN_CONF = 0.75
 
 _A: dict = {}
 
@@ -40,7 +46,7 @@ def adjacent_occupations(title: str, k: int = 3) -> list[dict]:
     Returns [{soc, title}], or [] when the title->occupation match is too weak to trust.
     """
     code, _, conf = occupation_for(title)
-    if not code or conf < MIN_CONF:
+    if not code or conf < ADJ_MIN_CONF:
         return []
     a = _load()
     ranked = sorted(a["rel"].get(code, []), key=lambda x: x[1])[:k]

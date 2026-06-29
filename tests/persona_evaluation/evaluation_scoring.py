@@ -459,6 +459,23 @@ class ResultEvaluator:
             expected_blind_spot_coverage_pct = round(
                 100.0 * sum(_covered(e) for e in expected_spots) / len(expected_spots), 1)
 
+        # Pivot coverage (Causeways metric): of the persona's expected target/pivot roles, how many
+        # are semantically surfaced among the returned top jobs. Measures discovery's pivot value,
+        # which the role-similarity job score doesn't reward. Read-only (not folded into overall).
+        pivot_coverage_pct = None
+        job_titles = [j.get("title", "") for j in top_jobs if j.get("title")]
+        if target_titles and job_titles:
+            try:
+                import numpy as np
+                from app.retrieval.embeddings import embed_texts
+                tv = np.array(embed_texts(list(target_titles)))
+                jv = np.array(embed_texts(job_titles))
+                sims = tv @ jv.T  # (targets x jobs), normalized -> cosine
+                covered = int((sims.max(axis=1) >= 0.80).sum())
+                pivot_coverage_pct = round(100.0 * covered / len(target_titles), 1)
+            except Exception:
+                pivot_coverage_pct = None
+
         # Overall quality score (0-4)
         overall_score = (
             avg_job_score * 0.3 +
@@ -488,6 +505,7 @@ class ResultEvaluator:
             "blind_spot_auth_grounded_pct": blind_spot_auth_grounded_pct,
             "rec_gap_closing_pct": rec_gap_closing_pct,
             "expected_blind_spot_coverage_pct": expected_blind_spot_coverage_pct,
+            "pivot_coverage_pct": pivot_coverage_pct,
             "rubric_version": "v2" if RUBRIC_V2 else "v1",
         }
 

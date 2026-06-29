@@ -149,11 +149,30 @@ def run(req: SearchRequest) -> SearchResult:
     rerank_passes = eb["rerank_passes"]
 
     # Step 1: Matcher (ground truth; Pass 1 rerank happens inside find_top_jobs)
+    pivot_jobs: list = []
     try:
         search_query = req.role_description
         logger.info("Finding top jobs for: %s", req.role_description)
         jobs = find_top_jobs(search_query, req.geo_preference, req.resume_text,
                              n=eb["top_jobs"], fetch=eb["fetch"])
+        # Causeways discovery (gated): also surface jobs from ADJACENT occupations so the user sees
+        # viable pivot/lateral roles, not only literal-query matches. Pooled here; pivot slots are
+        # reserved after ranking (below) so they survive role-similarity ordering.
+        if os.getenv("CAUSEWAYS", "").lower() in ("1", "true", "yes"):
+            try:
+                from app.skills.causeways import adjacent_occupations
+                seen = {(j.get("title", "").lower(), j.get("company", "").lower()) for j in jobs}
+                for occ in adjacent_occupations(req.role_description, k=3):
+                    for j in find_top_jobs(occ["title"], req.geo_preference, req.resume_text,
+                                           n=2, fetch=eb["fetch"]):
+                        key = (j.get("title", "").lower(), j.get("company", "").lower())
+                        if key not in seen:
+                            seen.add(key)
+                            pivot_jobs.append({**j, "via_pivot": occ["title"]})
+                jobs = jobs + pivot_jobs
+                logger.info("Causeways: +%d pivot jobs from adjacent occupations", len(pivot_jobs))
+            except Exception as e:
+                logger.debug("causeways discovery skipped: %s", e)
         result.top_jobs = jobs
         logger.info("Matcher returned %d jobs", len(jobs))
     except Exception as e:
@@ -197,6 +216,21 @@ def run(req: SearchRequest) -> SearchResult:
     except Exception as e:
         logger.warning("Job matcher agent failed: %s — falling back to matcher", e)
         result.agent_validation["job_matcher"] = False
+
+    # Causeways: reserve up to 2 slots for pivot jobs so adjacent-occupation roles survive
+    # role-similarity ranking (which otherwise always suppresses them) — keeps pivot options
+    # visible without displacing more than 2 primary matches.
+    if pivot_jobs and result.top_jobs:
+        _key = lambda j: (j.get("title", "").lower(), j.get("company", "").lower())
+        have = sum(1 for j in result.top_jobs if j.get("via_pivot"))
+        need = max(0, 2 - have)
+        if need:
+            present = {_key(j) for j in result.top_jobs}
+            extra = [j for j in pivot_jobs if _key(j) not in present][:need]
+            if extra:
+                keep = result.top_jobs[:max(1, len(result.top_jobs) - len(extra))]
+                result.top_jobs = keep + extra
+                logger.info("Causeways: reserved %d pivot slot(s) in final top_jobs", len(extra))
 
     # Re-aimed best-of-N (arm A): when sampling, score generative samples by OCCUPATION-grounding
     # (the JTBD metric), not the citation ratio. occ_reqs = the target occupation's requirements,
