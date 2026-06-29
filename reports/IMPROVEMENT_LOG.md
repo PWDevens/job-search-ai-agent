@@ -643,3 +643,33 @@ payoff given relatedness itself doesn't help — not recommended without a stron
 Session pattern holds: the ONLY durable accuracy win is evidence-depth (C). ESCO, sampling, verification,
 semantic-gaps, Causeways all land at the noise floor. Remaining real headroom = full posting text
 (un-truncation) or a stronger model — not more taxonomy/graph/compute features. Pod spend ~$0.8 (#2).
+
+---
+
+## Iteration 15 — Phase 0: full posting text vs O*NET fallback — STRONG POSITIVE
+
+Tested the un-truncation thesis (path a) cheaply before building sourcing. 492 real full-text
+Greenhouse jobs (ATS public API, free), ingested TWICE — full vs truncated-to-500 (same job set,
+simulating Adzuna). Confirmed mechanism: requirements_text parses in 74% of full postings, 0% of
+truncated. Both arms have AUTHORITATIVE_GAPS (O*NET) on, so the delta = marginal value of real
+posting requirements ON TOP of the O*NET fallback. Switch variant; offline re-score of banked raw.
+
+Paired on the same 14 personas:
+| metric | trunc | full | d |
+|---|---|---|---|
+| overall | 1.613 | 2.026 | +0.414 |
+| spot | 1.119 | 1.529 | +0.410 |
+| rec | 2.582 | 2.773 | +0.191 |
+| posting_grounded% | 11.4 | 20.0 | +8.6 |
+| full wins overall | - | - | **14/14 personas** |
+
+**VERDICT: un-truncation is REAL and LARGE.** First big generalizing win since AUTHORITATIVE_GAPS
+(+0.49). Not noise-floor like ESCO/sampling/verification/Causeways. Full posting text lets the
+strategist ground blind spots in real requirements (spot +0.41) and sharpens recs. Decision gate
+PASSED -> build the ATS full-text sourcing pipeline (Greenhouse/Lever/Ashby; see full_text_sourcing_spec.md).
+
+Tooling: scripts/pull_greenhouse.py (free full-text source), scripts/rescore_raw.py (offline $0
+re-score of banked raw — essential given the session-gap interruptions). Pod spend ~$0.4 (A5000/4090).
+Note: session-gap interruptions killed both eval runs mid-flight; recovered via EVAL_PERSIST_RAW +
+offline re-score. Absolute scores lower than Adzuna cells (tech corpus mismatches non-tech personas),
+but the paired delta on identical personas/corpus is clean and 14/14.
