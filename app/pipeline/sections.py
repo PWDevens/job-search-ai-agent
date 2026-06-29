@@ -20,24 +20,32 @@ SECTIONS = ["company_overview", "role_summary", "responsibilities",
             "compensation", "benefits", "other"]
 
 # header regex -> section key (first match wins; order matters — specific before generic).
+# Phrasings expanded for real ATS postings (Greenhouse/Lever/Ashby): "Who You Are",
+# "What You'll Bring", "What we're looking for", etc. — registry-wide requirements-coverage
+# was 22.9% with the canonical-only set (iter15).
 _HEADERS = [
     (r"about (the company|us|the team)|company overview|who we are", "company_overview"),
-    (r"responsibilities|what you'?ll do|what you will do|duties|day[- ]?to[- ]?day|essential functions|the role|key duties", "responsibilities"),
-    (r"preferred qualifications|nice[- ]to[- ]have|preferred skills|bonus|desired|a plus|preferred", "preferred_qualifications"),
-    (r"required qualifications|requirements|qualifications|what you'?ll need|what you will need|minimum qualifications|basic qualifications|required skills|must[- ]have|you have", "required_qualifications"),
-    (r"compensation|salary|pay range|what we pay", "compensation"),
-    (r"benefits|perks|what we offer|why join", "benefits"),
+    (r"responsibilities|what you'?ll do|what you will do|duties|day[- ]?to[- ]?day|essential functions|the role|key duties|in this role|your impact|what you'?ll be doing|what you'?ll work on", "responsibilities"),
+    (r"preferred qualifications|nice[- ]to[- ]have|preferred skills|bonus(?: points)?|desired|a plus|preferred|even better|icing on the cake", "preferred_qualifications"),
+    (r"required qualifications|requirements|qualifications|what you'?ll need|what you will need|minimum qualifications|basic qualifications|required skills|must[- ]have|who you are|what you'?ll bring|what you bring|what we'?re looking for|what we look for|skills (?:and|&) experience|your experience|your background|the ideal candidate|about you|you'?ll bring|what makes you|we'?d love|qualifications (?:and|&) skills|you should have", "required_qualifications"),
+    (r"compensation|salary|pay range|what we pay|pay transparency", "compensation"),
+    (r"benefits|perks|what we offer|why join|life at", "benefits"),
     (r"role summary|position summary|job summary|overview|about (this|the) role|summary", "role_summary"),
 ]
-_HEADER_RE = re.compile(r"^\s*[-*•]?\s*(" + "|".join(p for p, _ in _HEADERS) + r")\s*:?\s*$",
+# Match a SHORT line that STARTS with a header phrase (\b boundary, no end-anchor) so
+# "What you'll need to succeed:" and "Who You Are" both register. Length cap below keeps
+# prose sentences that merely begin with a phrase from being mistaken for headers.
+_HEADER_RE = re.compile(r"^\s*[-*•#>]*\s*(" + "|".join(p for p, _ in _HEADERS) + r")\b",
                         re.IGNORECASE)
+_HEADER_MAXLEN = 64
 
 
 def _classify(line: str) -> str | None:
     """Return the section key if `line` is a recognized header, else None."""
-    if not _HEADER_RE.match(line.strip()):
+    s = line.strip()
+    if not s or len(s) > _HEADER_MAXLEN or not _HEADER_RE.match(s):
         return None
-    low = line.lower()
+    low = s.lower()
     for pat, key in _HEADERS:
         if re.search(pat, low):
             return key
@@ -85,6 +93,13 @@ if __name__ == "__main__":
     req = requirements_text(sample)
     assert "AWS" in req and "Kubernetes" in req, req
     assert "Design and ship" not in req, "requirements must not include responsibilities"
+    # relaxed ATS phrasings: trailing words + Title Case must still register as headers
+    ats = ("Who You Are\n- 5+ years with Python and Go\n\n"
+           "What You'll Bring to succeed:\n- Experience with Kubernetes\n")
+    areq = requirements_text(ats)
+    assert "Python" in areq and "Kubernetes" in areq, areq
+    # a prose line that merely starts with a phrase is NOT a header (length cap)
+    assert _classify("The role is one of the most critical positions we are hiring for today") is None
     # headerless fallback -> everything in role_summary, requirements empty
     assert requirements_text("Just a short truncated blurb with no headers...") == ""
     print("sections:", {k: v[:40] for k, v in s.items()})
