@@ -96,7 +96,10 @@ def missing_requirements(title: str, resume_text: str, n: int = 12) -> list[str]
         pv = np.array(embed_texts(phrases))          # (P, D) normalized -> cosine == dot
         rv = np.array(embed_texts(lexically_absent))  # (R, D)
         sims = rv @ pv.T
-        floor = float(os.getenv("SEMANTIC_GAPS_FLOOR", "0.62"))  # ponytail: bge paraphrase floor, tune via env
+        # bge floor: 0.85 calibrated on persona resumes (iter13) — strips only true brand/paraphrase
+        # variants (Excel<->Microsoft Excel, JIRA<->Atlassian JIRA) while KEEPING real gaps; 0.62 was
+        # catastrophically low (stripped ~all reqs -> auth-grounding collapsed). Tune via env.
+        floor = float(os.getenv("SEMANTIC_GAPS_FLOOR", "0.85"))
         return [r for i, r in enumerate(lexically_absent) if sims[i].max() < floor][:n]
     except Exception as e:
         logger.debug("semantic gap detection unavailable, using lexical: %s", e)
