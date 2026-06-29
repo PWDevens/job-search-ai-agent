@@ -614,3 +614,32 @@ variant). BUT it's a reallocation, not a free win: the rec gain is partly paid b
 (same verdict as ESCO). Floor default corrected to 0.85 so it is no longer shipped broken; kept gated
 OFF. Opt-in for rec-focused use; a higher floor (0.90) might keep the rec gain without the spot dip,
 but not worth another pod run now. Pod deleted in-session via REST API (MCP was down); 204 OK.
+
+---
+
+## Iteration 14 — Causeways discovery-side build + pivot metric (#2) — NEGATIVE
+
+Built the proper version per spec: looser conf gate (0.75 -> coverage 9/14 to ~13/14), discovery-side
+pivot pool from top-3 adjacent occupations with 2 RESERVED slots (so pivots survive role-similarity
+ranking), and a new read-only pivot_coverage_pct metric (of the persona's expected pivot targets, how
+many the returned jobs surface, semantic >=0.80).
+
+| cell | arm | overall | auth% | pivot_cov% |
+|---|---|---|---|---|
+| switch | baseline | 2.052 | 44.0 | 33.3 |
+| switch | causeways | 2.069 (+0.017) | 50.7 | 32.0 (-1.3) |
+| stay | baseline | 2.190 | 69.2 | 30.0 |
+| stay | causeways | 2.211 (+0.021) | 60.0 | 30.0 (+0.0) |
+
+**Verdict: shelve.** pivot_coverage is FLAT in BOTH cells, overall is noise. Two root causes:
+(1) O*NET Related Occupations are lateral/same-field, not the cross-field switches the switch personas
+want; (2) baseline role-similarity retrieval already surfaces relevant same-field roles, so reserved
+pivots add no NEW target coverage. auth% moved inconsistently (switch +6.7, stay -9.2 = noise). Even
+with discovery surfacing + reserved slots + a purpose-built metric, relatedness adds no measured value.
+Module + metric kept (correct, cheap, gated OFF). The Nesta risk/feasibility layer COULD differ (adds
+"safe & desirable" + displacement risk that pure relatedness lacks) but is a large build with uncertain
+payoff given relatedness itself doesn't help — not recommended without a stronger signal.
+
+Session pattern holds: the ONLY durable accuracy win is evidence-depth (C). ESCO, sampling, verification,
+semantic-gaps, Causeways all land at the noise floor. Remaining real headroom = full posting text
+(un-truncation) or a stronger model — not more taxonomy/graph/compute features. Pod spend ~$0.8 (#2).
