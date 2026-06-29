@@ -567,3 +567,35 @@ iteration (grounding/evidence move the needle; compute/sampling/taxonomy do not)
 Follow-ups queued: (a) SEMANTIC_GAPS prototype sharpens the same evidence path (A/B next, on the new
 C-default baseline); (b) Nesta Causeways spec = switcher-pivot engine (.pipeline/nesta_causeways_spec.md).
 Pod spend this batch ~$2.6 (one invalid run re-done), under the $5 cap.
+
+---
+
+## Iteration 13 — test (a) semantic gap-detection + (b) Causeways (2026-06-28)
+
+Both tested on the C-default baseline, 2 realistic cells. Both NEGATIVE.
+
+| cell | arm | overall | spot | auth% | d |
+|---|---|---|---|---|---|
+| switch | baseline | 2.077 | 1.81 | 42.7 | - |
+| switch | (a) semgaps | 1.941 | 1.35 | 24.0 | -0.137 |
+| switch | (b) causeways | 2.059 | 1.69 | 44.0 | -0.019 |
+| stay | baseline | 2.215 | 2.03 | 69.2 | - |
+| stay | (a) semgaps | 1.837 | 0.81 | 6.2 | -0.379 |
+
+**(a) SEMANTIC_GAPS — clear regression, miscalibrated.** auth-grounding COLLAPSES (stay 69.2->6.2,
+switch 42.7->24.0): the bge cosine floor (0.62) is far too low — sentence embeddings give high
+baseline similarity to almost anything, so real gaps get marked "already in the resume" and stripped,
+leaving the strategist nothing authoritative to ground on. Mechanism: bge isn't precise enough for
+"is THIS specific requirement present." Salvage would need a much higher floor (~0.85+) or a token-level
+signal; fragile. Kept gated OFF (default). Do NOT adopt as built.
+
+**(b) CAUSEWAYS — flat-to-slightly-negative on existing metrics (switch -0.019).** BUT the eval scores
+blind-spot grounding + recs, NOT pivot relevance — the thing Causeways actually adds. Surfacing
+adjacency in the *strategist* doesn't move grounding metrics (expected: adjacency isn't a grounding
+lever). Proper test needs (1) a pivot-relevance metric and (2) surfacing in DISCOVERY (job-search query
+expansion), not the strategist. Module is correct + cheap (RN->nursing roles) and stays committed but
+gated OFF. Defer the real evaluation per the spec.
+
+Net: neither earns default adoption. The C-default (evidence depth) remains the standing baseline.
+Pod note: the test run was clean (~$0.5) but the pod idled across a session gap before teardown,
+adding ~unbudgeted idle time — delete pods in-session, never rely on cross-session cleanup.
