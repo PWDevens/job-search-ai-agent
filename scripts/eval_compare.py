@@ -240,6 +240,8 @@ def main():
         default=0.0,
         help="Ollama temperature (0.0 greedy / 0.2 regular)",
     )
+    ap.add_argument("--model", default=None,
+                    help="Override the scenario's agent model (e.g. qwen2.5:32b) — for base-model A/Bs")
 
     args = ap.parse_args()
 
@@ -257,8 +259,8 @@ def main():
         print(f"ERROR: Scenario {args.scenario} not found", file=sys.stderr)
         sys.exit(1)
 
-    # Apply scenario to config
-    cfg.AGENT_MODEL = scn["model"]
+    # Apply scenario to config (--model overrides for base-model A/Bs)
+    cfg.AGENT_MODEL = args.model or scn["model"]
     cfg.OLLAMA_NUM_GPU = scn["num_gpu"]
     cfg.OLLAMA_NUM_THREAD = scn["num_thread"]
 
