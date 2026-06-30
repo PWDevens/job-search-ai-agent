@@ -59,13 +59,13 @@ The first time, this takes **5 to 15 minutes.** It's downloading the tool and th
 Paste this and wait. It grabs the AI that fits your computer:
 
 ```bash
-docker compose exec ollama ollama pull phi4-mini
+docker compose exec ollama ollama pull qwen3:4b
 ```
 
-If your computer has a strong graphics card, also run this one:
+If your computer has a strong graphics card (10 GB+ of video memory), also run this one:
 
 ```bash
-docker compose exec ollama ollama pull llama3.1:8b
+docker compose exec ollama ollama pull gemma3:12b
 ```
 
 ### Load some sample data so you can try it right away
@@ -116,7 +116,7 @@ Here are the most common hiccups and the fix for each.
 **The tool says it can't find the AI model.**
 It hasn't finished downloading. Run this and wait:
 ```bash
-docker compose exec ollama ollama pull phi4-mini
+docker compose exec ollama ollama pull qwen3:4b
 ```
 
 **No jobs show up after you search.**
