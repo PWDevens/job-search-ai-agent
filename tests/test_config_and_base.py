@@ -31,29 +31,30 @@ class TestHardwareTier:
 
     def test_tier_to_model_mapping(self):
         from app.hardware import select_model
-        # Both GPU tiers run llama3.1:8b after the 2026-06 bake-off (see app/hardware.py).
-        assert select_model("cpu") == "phi4-mini:q4_K_M"
-        assert select_model("gpu_avg") == "llama3.1:8b"
-        assert select_model("gpu_modern") == "llama3.1:8b"
+        # Models from the iter16 bake-off (see app/hardware.py): small/non-NVIDIA -> qwen3:4b,
+        # real GPU (>=10GB) -> gemma3:12b.
+        assert select_model("cpu") == "qwen3:4b"
+        assert select_model("gpu_avg") == "qwen3:4b"
+        assert select_model("gpu_modern") == "gemma3:12b"
 
     def test_detect_tier_returns_valid_tier(self):
         from app.hardware import detect_tier, MODELS
         assert detect_tier() in MODELS
 
-    def test_cpu_tier_selects_phi4_mini(self):
-        """HARDWARE_TIER=cpu should select phi4-mini quantized model."""
+    def test_cpu_tier_selects_qwen3(self):
+        """HARDWARE_TIER=cpu should select the small bake-off winner qwen3:4b."""
         os.environ.pop("AGENT_MODEL", None)
         os.environ["HARDWARE_TIER"] = "cpu"
         try:
-            assert _reload_config().AGENT_MODEL == "phi4-mini:q4_K_M"
+            assert _reload_config().AGENT_MODEL == "qwen3:4b"
         finally:
             os.environ.pop("HARDWARE_TIER", None)
 
-    def test_gpu_modern_tier_selects_llama(self):
+    def test_gpu_modern_tier_selects_gemma3(self):
         os.environ.pop("AGENT_MODEL", None)
         os.environ["HARDWARE_TIER"] = "gpu_modern"
         try:
-            assert _reload_config().AGENT_MODEL == "llama3.1:8b"
+            assert _reload_config().AGENT_MODEL == "gemma3:12b"
         finally:
             os.environ.pop("HARDWARE_TIER", None)
 
@@ -97,7 +98,7 @@ class TestConfigAgentModel:
         os.environ["OLLAMA_MODEL"] = "some-other-model"
         try:
             cfg = _reload_config()
-            assert cfg.AGENT_MODEL == "phi4-mini:q4_K_M", "AGENT_MODEL should follow cpu tier"
+            assert cfg.AGENT_MODEL == "qwen3:4b", "AGENT_MODEL should follow cpu tier"
             assert cfg.OLLAMA_MODEL == "some-other-model"
             assert cfg.AGENT_MODEL != cfg.OLLAMA_MODEL
         finally:
