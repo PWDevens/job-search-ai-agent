@@ -673,3 +673,33 @@ re-score of banked raw — essential given the session-gap interruptions). Pod s
 Note: session-gap interruptions killed both eval runs mid-flight; recovered via EVAL_PERSIST_RAW +
 offline re-score. Absolute scores lower than Adzuna cells (tech corpus mismatches non-tech personas),
 but the paired delta on identical personas/corpus is clean and 14/14.
+
+---
+
+## Iteration 16 — Model bake-off (run to ground, ~$5.5) — THE BASE MODEL IS THE DOMINANT LEVER
+
+13 local models on the fixed 48-board full-text corpus, switch + stay variants, paired n=14, via the
+new scripts/model_bakeoff.sh framework (hold corpus/personas/variant/effort/temp; vary only --model;
+pull->preflight->eval(raw-persisted)->rm). Cross-variant overall:
+
+| model | switch | stay | MEAN | vs current | origin | tier |
+|---|---|---|---|---|---|---|
+| qwen3:4b | 2.511 | 2.326 | 2.419 | +0.79 | CN | 8GB (all laptops) |
+| gemma3:12b | 2.506 | 2.280 | 2.393 | +0.76 | US | 16-24GB |
+| phi4-reasoning:14b | 2.370 | 2.069 | 2.219 | +0.59 | US | 16-24GB |
+| gpt-oss:20b | 2.424 | 1.947 | 2.186 | +0.55 | US | 24-32GB (FADES on stay) |
+| llama3.1:8b (CURRENT) | 1.194 | 2.069 | 1.632 | - | US | 16GB |
+
+Lower: qwen3:8b 2.24sw, qwen3:14b 2.18sw, granite3.3:8b 2.10sw, magistral 2.09sw (grnd 65.7!),
+qwen3:30b-a3b 1.95sw (MoE underwhelms), phi4-mini-reasoning 1.56sw, deepseek-r1:8b 1.42sw, qwen2.5:32b 2.37sw.
+
+**Findings:** (1) Base model is the single biggest lever found all session — bigger than full-text/
+evidence-depth/everything; current llama3.1:8b is near the BOTTOM. (2) Two robust co-winners that
+generalize across BOTH cells: qwen3:4b (best+smallest, CN) and gemma3:12b (US, ~tied). (3) Scaling
+BACKFIRES: qwen3 4b>8b>14b>30b-a3b; small reasoning models win. (4) Switch-only stars mislead:
+gpt-oss:20b was #2 on switch but DROPS BELOW the current model on stay — cross-variant testing caught it.
+
+**Recommendation:** retire llama3.1:8b/phi4-mini defaults. Tier-aware: 16GB+ -> gemma3:12b (US pick,
+generalizes); 8GB/max-perf -> qwen3:4b (CN). Drop gpt-oss:20b (doesn't generalize). Re-confirm tok/s on
+real target laptops before shipping (eval measures quality, not speed; gemma3:12b is slow on 16GB Windows).
+Next lever to probe: embedding (bge-small-en-v1.5) + reranker (bge-reranker-v2-m3) — secondary to the LLM.
