@@ -1,8 +1,97 @@
-# Session Handoff — Job-Search AI Agent (as of 2026-06-30)
+# Session Handoff — Job-Search AI Agent (as of 2026-07-13)
 
 Cold-start context for a new Claude Code session. Read this first, then `reports/IMPROVEMENT_LOG.md`
-(full iteration history) and the `.pipeline/*.md` specs. Branch: **`fix/eval-harness-and-personas`**
-(35+ commits ahead of where this work started; all committed + pushed to origin, backlog clear).
+(full iteration history) and the `.pipeline/*.md` specs. Branch: **`fix/eval-harness-and-personas`**.
+
+**Since the last handoff (2026-06-30):** this session did NOT touch the eval/model work below (sections
+2-7 are unchanged background). It did two new things: (a) shipped the v2 "upload target jobs" front-end
+split as a folder-tab UI, and (b) stood up + stress-tested a full Docker deployment. **Nothing from this
+session is committed yet** — see §0 for exactly what's sitting in the working tree and what to decide next.
+
+---
+
+## 0. THIS SESSION — start here
+
+### What shipped (uncommitted)
+- **Folder-tab mode switch** on the search form (`app/templates/index.html`, `app/static/css/style.css`):
+  splits the old single form into **🔎 Have Tool Search** (existing corpus/live-search flow) vs.
+  **📤 Upload Target Jobs** (CSV/XLSX upload + format guide, moved in from its old standalone card).
+  Pure front-end reorg — same field names, `switchTab()` JS disables the inactive panel's inputs so only
+  the active mode submits. No backend/route changes. Verified in-browser: default state, round-trip
+  toggling, disabled-input behavior, computed tab colors, no console errors, no mobile overflow at 375px.
+  **This directly answers the "front-end mockup" gap that was blocking v2 Phase 2** in the prior
+  `.pipeline/v2_specs.md` read — the UI approach is no longer an open question, it's built.
+- **Dockerfile fix**: `pip install -r requirements.txt` was pulling full CUDA torch (~3GB of unneeded
+  `nvidia-*` wheels) with no GPU passthrough configured. Fixed with a CPU-index install
+  (`--index-url https://download.pytorch.org/whl/cpu --extra-index-url https://pypi.org/simple`).
+- **New `.dockerignore`**: build context was 677MB+ (was baking in the local ChromaDB store, `.venv`,
+  logs — all irrelevant since `data/` is volume-mounted at runtime anyway).
+
+Working tree right now:
+```
+ M Dockerfile
+ M app/static/css/style.css
+ M app/templates/index.html
+?? .dockerignore
+```
+`.claude/launch.json` also has a `flask-dev` config (Flask dev server preview) — fine to keep/commit if useful,
+it's tooling config not app code.
+
+### Docker deployability — tested end-to-end, one real finding
+Built and ran `docker compose up` (app + ollama containers), pulled `qwen3:4b` into the container, ran a
+real search through the browser against the deployed image. Result:
+- Folder-tab UI renders and works correctly from the built image (frontend change is deploy-clean).
+- **CPU-only inference in the container cannot finish a single agent call within `OLLAMA_TIMEOUT=300s`.**
+  All three agents (job_matcher → resume_coach → career_strategist) timed out in sequence (~5 min each,
+  ~15 min total) with no GPU passthrough configured (it's commented out in `docker-compose.yml`).
+- The pipeline's fallback logic worked exactly as designed — no crash, `POST /search` still returned 200,
+  and the results page rendered with real retrieved job matches (Adzuna/ATS-sourced, real scores) plus
+  fallback-labeled resume recs / blind spots ("Using fallback results" shown honestly in the UI, not
+  hidden). **Deployability is proven; usable LLM-generated advice in Docker is not, until GPU passthrough
+  is enabled.**
+- **Action item:** uncomment/wire the GPU `deploy:` block in `docker-compose.yml` before relying on the
+  Docker path for real output, or accept CPU-only Docker as "retrieval-only" mode.
+
+### Environment state RIGHT NOW (verify before continuing)
+- **Docker Desktop's engine is not currently reachable** (`docker version` gets a client response but the
+  daemon connection fails — `dockerDesktopLinuxEngine` pipe not found). The session/environment this ran
+  in appears to have reset since the Docker test completed (a background pip-install task from the same
+  session also lost its output file and had to be re-verified). **Restart Docker Desktop before resuming
+  Docker work**; the fate of the `jobsearch_app_tmp` / `jobsearch_ollama` containers from the test is
+  unverified — check `docker ps -a` once the daemon is back.
+- The `docker-compose.override.yml` used for testing (just remaps Ollama's host port to avoid clashing
+  with the native Ollama already running on 11434) lived in the **scratchpad temp dir, not the repo** —
+  it's gone/unreachable now and would need to be recreated if you resume Docker testing.
+- **Native (non-Docker) path**: the repo's committed `.venv` is broken — `pyvenv.cfg` points at
+  `C:\Users\pwdev\AppData\Local\Programs\Python\Python312`, which no longer exists post-hardware-upgrade
+  (see memory `hardware-upgrade-runpod-less-needed.md`). Worked around by installing straight into the
+  system/base Python (`miniconda3\python.exe`) instead: `flask`, `python-dotenv`, `werkzeug` first (to
+  preview the template), then the full `requirements.txt`. **Confirmed importable this session**: flask
+  3.1.3, chromadb 0.5.20, sentence-transformers 5.6.0, flashrank, pandas 3.0.3, pdfplumber 0.11.10, torch
+  2.12.1+**cpu** (correctly the CPU build), openpyxl, apscheduler — the native path is ready to run
+  end-to-end right now (`python run.py`). **The `.venv` itself is still broken and unused** — worth a
+  `python -m venv` rebuild if you want an isolated env instead of installing into base.
+- Ollama is running natively on this machine (not in Docker) with `qwen3:4b` pulled — `hardware.py`
+  correctly detects this box as `gpu_avg` tier and selects `qwen3:4b`, matching what's available. The
+  native path (`python run.py`) should work for a real end-to-end test without the Docker CPU-timeout
+  problem, since native Ollama presumably has GPU access Docker's container didn't.
+
+### Next steps (pick up here)
+0. **Quick win**: native path is fully ready right now (`python run.py`, deps confirmed importable) —
+   worth a real end-to-end search here first since native Ollama likely has GPU access the Docker
+   container didn't, so it should avoid the 300s timeout and produce real (non-fallback) LLM output.
+1. Restart Docker Desktop, check `docker ps -a` for the leftover test containers, decide keep-running vs.
+   tear down (`docker compose down`).
+2. Review + commit the working-tree diff (Dockerfile, .dockerignore, index.html, style.css) — nothing
+   from this session is committed.
+3. Decide on GPU passthrough in `docker-compose.yml` given the CPU-timeout finding.
+4. **v2 Phase 2 backend is still open**: the folder-tab UI only reorganizes the front end. `routes.py`
+   still ingests uploaded jobs CSVs into the shared ChromaDB corpus and *retrieves* against it — the spec's
+   "user-jobs mode" (uploaded set *is* the candidate pool, ranked not retrieved) doesn't exist yet, and
+   the apply-priority scoring formula/thresholds (fit × gap-effort → apply now/stretch/skip) are still
+   undefined. That's the real remaining work before Phase 2 is done.
+5. Phase 1 (USAJobs validation) in `.pipeline/v2_specs.md` is untouched and still the one fully-spec'd,
+   ready-to-build unit if you want a smaller/independent next task.
 
 ---
 
@@ -59,7 +148,7 @@ What moves the eval, proven by deterministic pod A/Bs (see IMPROVEMENT_LOG itera
 
 ## 4. v1 MVP status — SHIPPED
 v1 is a good stopping point. GitHub-facing details: **`.pipeline/v1.md`**. README refreshed to new models
-(`README.md`, `README_Simplified.md`). Everything committed + pushed.
+(`README.md`, `README_Simplified.md`). Everything through v1 committed + pushed.
 
 ## 5. Models (current, `app/hardware.py`)
 | Tier | Model | Origin |
@@ -69,7 +158,8 @@ v1 is a good stopping point. GitHub-facing details: **`.pipeline/v1.md`**. READM
 | gpu_modern (≥10GB VRAM) | `gemma3:12b` | Google (US) |
 Override: `AGENT_MODEL=<model>`. US-only: `AGENT_MODEL=gemma3:12b` everywhere. Requires `OLLAMA_NUM_CTX≥8192`.
 CAVEAT: eval measures QUALITY not speed; gemma3:12b is slow on CPU/iGPU laptops. `detect_tier` only probes
-nvidia-smi (Macs fall to cpu→qwen3:4b, fine). Re-confirm tok/s on real target hardware before relying in prod.
+nvidia-smi (Macs fall to cpu→qwen3:4b, fine). Confirmed this session: this dev machine detects `gpu_avg` →
+`qwen3:4b`, and that's the model actually pulled in Ollama — consistent, no action needed here.
 
 ## 6. Eval / test harness
 - **Personas**: `tests/persona_evaluation/personas.py` (14 occupations, ALL_PERSONAS; switch + stay variants).
@@ -99,7 +189,7 @@ Local CPU is too slow + serverless too noisy for sub-0.1 effect sizes. Use a **d
 - A4000/A5000/A40 all fine for temp-0 determinism; A40 (48GB) needed for 32B models. ~$10 budget runs a lot.
 
 ## 8. Key file map
-- `app/hardware.py` — tier→model map (just updated).
+- `app/hardware.py` — tier→model map.
 - `app/config.py` — EFFORT_BUNDLES, AUTHORITATIVE_GAPS, AGG_REQS, RERANK_MODEL=bge-reranker-v2-m3,
   EMBED_MODEL=BAAI/bge-small-en-v1.5.
 - `app/pipeline/pipeline.py` — orchestration; `_run_with_grounding` (best_of + select_fn gated off).
@@ -111,27 +201,31 @@ Local CPU is too slow + serverless too noisy for sub-0.1 effect sizes. Use a **d
 - `reports/IMPROVEMENT_LOG.md` — FULL history, iterations 1-16.
 - `.pipeline/v1.md` (GitHub v1), `.pipeline/v2_specs.md` (v2 plan), `.pipeline/full_text_sourcing_spec.md`,
   `.pipeline/nesta_causeways_spec.md`.
+- `app/templates/index.html` + `app/static/css/style.css` — **now has the folder-tab mode switch** (§0).
+- `Dockerfile` + `.dockerignore` — **CPU-torch install fix + trimmed build context this session** (§0).
+- `docker-compose.yml` — GPU `deploy:` block still commented out; see §0 action item.
 
 ## 9. v2 roadmap (`.pipeline/v2_specs.md`)
 1. **USAJobs validation** — 4th adapter in ats_sources.py; cross-domain confirmation the wins generalize
    (federal jobs = validation corpus, not production source; structured → high requirements-coverage).
-2. **"Bring your own jobs" upload feature** (the product leap) — second UI tab: user uploads a CSV of
-   jobs they care about; tool PRIORITIZES that list + tailors resume/strategy to those targets. Sidesteps
-   v1's one weakness (corpus-bound discovery) + maximizes the proven full-text grounding lever. Reuses
-   ingest + sections + agents; new = upload tab, "user-jobs mode" (uploaded set IS the candidate pool,
-   matcher ranks vs retrieves), URL→full-text fallback, per-job output. Headline output: **apply-priority
-   scoring** (fit × gap-effort → apply now/stretch/skip).
+   **Untouched, still fully spec'd and ready to build.**
+2. **"Bring your own jobs" upload feature** (the product leap) — **front-end DONE this session** (folder-tab
+   mode switch, §0). Still open: **"user-jobs mode"** in the pipeline (uploaded set IS the candidate pool,
+   matcher ranks vs retrieves — `routes.py` currently just ingests into the shared corpus), URL→full-text
+   fallback, per-job output, and the **apply-priority scoring formula** (fit × gap-effort → apply
+   now/stretch/skip — thresholds not yet defined).
 3. Follow-ons: gap-closing roadmap (top-3 skills unlocking the most of the list), per-job resume tailoring.
-   `.pipeline/v2.md` will be the GitHub v2 writeup once it lands. Front-end: mockup coming from user.
+   `.pipeline/v2.md` will be the GitHub v2 writeup once it lands.
 
 ## 10. Immediate open items
+See **§0 "Next steps"** for this session's concrete pickup list. Older/standing items:
 - Re-confirm new models' tok/s on real target laptops before fully trusting in production.
 - (Optional) `docs/SLM_FINETUNING_GUIDE.md` still Phi-4-mini-specific — refresh if desired.
-- v2 starts with USAJobs validation, then the upload feature.
 
 ## 11. Memory (auto-loaded each session, `~/.claude/.../memory/`)
 Key files: `model-is-dominant-lever.md`, `full-text-is-the-lever.md`, `grounding-rootcause-and-rubric.md`,
-`deterministic-eval-via-pod.md`, `taskstop-leaves-zombie-processes.md`, `core-jtbd.md`.
+`deterministic-eval-via-pod.md`, `taskstop-leaves-zombie-processes.md`, `core-jtbd.md`,
+`hardware-upgrade-runpod-less-needed.md`, `local-ollama-models-pulled.md`.
 
 ## 12. Constraints
 - User tops up RunPod themselves — NEVER enter payment/financial credentials.

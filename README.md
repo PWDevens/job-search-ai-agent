@@ -7,9 +7,7 @@
 [![Docker](https://img.shields.io/badge/docker-compose-2496ED.svg)](docker-compose.yml)
 [![Ollama](https://img.shields.io/badge/Ollama-local%20LLM-orange.svg)](https://ollama.com)
 [![ChromaDB](https://img.shields.io/badge/ChromaDB-0.5+-purple.svg)](https://trychroma.com)
-[![Tests](https://img.shields.io/badge/tests-104%2B-brightgreen.svg)](tests/)
-[![Coverage](https://img.shields.io/badge/coverage-80%2B%25-brightgreen.svg)](tests/)
-[![Grade](https://img.shields.io/badge/grade-A-brightgreen.svg)](#-production-ready)
+[![Tests](https://img.shields.io/badge/tests-129%20passing-brightgreen.svg)](tests/)
 
 ---
 
@@ -76,16 +74,17 @@ Next time, just run `docker compose up -d` again — no re-downloading.
 
 ---
 
-## Production-Status
+## Project Status
 
-**Status:** **UNDER DEVELOPMENT**
+**v1 shipped.** The framework-free 3-agent pipeline, hardware-tiered model selection, ATS full-text
+sourcing, and O*NET grounding are all live on `main` and validated by a persona evaluation harness
+(see *Why these models?* below and `reports/IMPROVEMENT_LOG.md` for the full iteration history).
 
-This application will be thoroughly tested, secured, and documented:
-- **104+ automated tests** 
-- **Zero critical bugs** 
-- **8/8 security controls** 
-- **Comprehensive documentation** 
-- **Performance optimized** 
+- **129 automated tests passing** (`pytest tests/`)
+- **8/8 security controls** (input validation, rate limiting, session isolation, etc. — see *Security Features*)
+- **Evidence-driven**, not vibes: every major design choice (base model, full-text sourcing, O*NET grounding) was settled by A/B testing against a 14-persona eval, including documented negative results
+
+v2 work (bring-your-own-jobs upload mode, apply-priority scoring) is tracked in `.pipeline/v2_specs.md`.
 
 **Quick Links:**
 - [Testing & Debugging Guide](docs/development/testing-guide.md)
@@ -464,7 +463,7 @@ This app uses three layers to compensate for small model limitations:
 ```
 job-search-ai-agent/
 ├── README.md                    # This file
-├── STATUS.md                    # Current project status
+├── .pipeline/                   # Session handoffs, specs, iteration history (dev-facing)
 ├── docs/                        # Guides (deployment, testing, fine-tuning)
 │   ├── SLM_FINETUNING_GUIDE.md
 │   ├── deployment/              # Checklist, report, status, verification
@@ -510,7 +509,7 @@ job-search-ai-agent/
 │   ├── ingest_resume.py         # CLI: ingest resume PDF/TXT
 │   └── pull_models.sh           # Download Ollama models
 │
-├── tests/                        # 104+ tests, 80%+ coverage
+├── tests/                        # 129 tests
 │   ├── conftest.py              # Shared fixtures
 │   ├── test_ingest.py           # Ingestion tests (27 cases)
 │   ├── test_matcher.py          # Matching tests (18 cases)
@@ -682,4 +681,4 @@ MIT License — free to use, modify, and distribute. See [LICENSE](LICENSE).
 *Built by [Patrick Devens](https://github.com/PWDevens) · Washington, DC · 2026*  
 *Free tool for job seekers competing in a tough market. Star ⭐ if this helped you.*
 
-**Status:** ✅ Production-In Progress · **Grade:** TBD · **Tests:** 104+ · **Coverage:** 80%+
+**Status:** ✅ v1 shipped · **Tests:** 129 passing
