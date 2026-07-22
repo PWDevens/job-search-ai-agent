@@ -8,7 +8,14 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 
 COPY requirements.txt .
-RUN pip install --no-cache-dir --prefix=/install -r requirements.txt
+# --index-url pytorch/cpu takes priority for every package (torch resolves to the
+# CPU-only build there); --extra-index-url falls back to PyPI for the rest. Without
+# this, the default PyPI `torch` wheel on Linux pulls ~3GB of nvidia-* CUDA packages
+# even though this image has no GPU passthrough configured.
+RUN pip install --no-cache-dir --prefix=/install \
+    --index-url https://download.pytorch.org/whl/cpu \
+    --extra-index-url https://pypi.org/simple \
+    -r requirements.txt
 
 ### ── Stage 2: Runtime image ──────────────────────────────────────────────────
 FROM python:3.11-slim AS runtime
