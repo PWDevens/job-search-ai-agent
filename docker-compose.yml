@@ -2,12 +2,13 @@ version: "3.9"
 
 # ══════════════════════════════════════════════════════════════════════════════
 # Job-Search AI — Docker Compose
-# Starts: ChromaDB (vector store) + Ollama (local LLM) + Flask app
+# Starts: Ollama (local LLM) + Flask app. ChromaDB runs embedded inside the
+# Flask container (writes to the mounted ./data volume) — no separate service.
 #
 # Quick start:
 #   cp .env.example .env          # edit SMTP creds if you want email
 #   docker compose up --build -d
-#   docker compose exec ollama ollama pull phi4-mini   # first run only
+#   docker compose exec ollama ollama pull qwen3:4b   # first run only
 #   open http://localhost:5000
 # ══════════════════════════════════════════════════════════════════════════════
 

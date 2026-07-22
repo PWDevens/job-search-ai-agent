@@ -144,7 +144,7 @@ v2 work (bring-your-own-jobs upload mode, apply-priority scoring) is tracked in 
 - **Multi-pass reranker** (1–3 passes) sorts results by relevance
 - **Agent validation** prevents hallucination by grounding outputs in actual job data
 - **APScheduler** drives weekly Mon–Fri 8 AM pipelines with SMTP email summaries
-- **Docker Compose** bundles ChromaDB + Ollama + Flask in a single command
+- **Docker Compose** bundles Ollama + Flask in a single command (ChromaDB runs embedded inside the Flask container — no separate service)
 - **Security hardened** with input validation, rate limiting, and session isolation
 
 ---
@@ -170,7 +170,7 @@ cp .env.example .env
 docker compose up --build -d
 ```
 
-This starts ChromaDB, Ollama, and Flask. 
+This starts Ollama and Flask (ChromaDB runs embedded inside the Flask container — no separate service to wait on).
 - **First build:** ~5-10 minutes (includes Python dependencies)
 - **Startup:** Services become healthy within 2-3 minutes
 - **Model download:** First time only, ~5-15 minutes depending on internet
@@ -429,8 +429,14 @@ jobs:
       - uses: actions/setup-python@v5
         with: { python-version: "3.11" }
       - run: pip install -r requirements.txt
-      - run: pytest tests/ -v --cov=app
+      - name: Fetch O*NET database (gitignored, 13MB — not committed)
+        run: |
+          mkdir -p data/skills/raw
+          curl -sSL "https://www.onetcenter.org/dl_files/database/db_30_3_text.zip" -o data/skills/raw/db_30_3_text.zip
+      - run: python -m pytest -q --ignore=tests/test_pipeline_integration.py
 ```
+`test_pipeline_integration.py` is excluded from CI because it requires a live Ollama server; run it
+locally against `ollama serve` when you need that coverage.
 
 ---
 
@@ -472,7 +478,7 @@ job-search-ai-agent/
 ├── app/
 │   ├── __init__.py              # Flask app factory
 │   ├── config.py                # All settings (env-driven)
-│   ├── routes.py                # Flask routes (5 endpoints)
+│   ├── routes.py                # Flask routes (7 endpoints)
 │   ├── validation.py            # Input validation + rate limiting
 │   ├── scheduler.py             # APScheduler weekly pipeline
 │   ├── hardware.py              # Hardware-tier detection → model selection
@@ -484,7 +490,7 @@ job-search-ai-agent/
 │   │   ├── grounding.py         # Citation grounding checks
 │   │   ├── models.py            # Pydantic output schemas
 │   │   ├── rag_knowledge.py     # ATS knowledge base (11 articles)
-│   │   └── skills/              # Agent prompts as markdown (.md)
+│   │   └── agent_skills/        # Agent prompts as markdown (.md)
 │   ├── retrieval/
 │   │   ├── client.py            # ChromaDB embedded client
 │   │   ├── embeddings.py        # Local Sentence Transformers embedding
@@ -511,15 +517,19 @@ job-search-ai-agent/
 │
 ├── tests/                        # 129 tests
 │   ├── conftest.py              # Shared fixtures
-│   ├── test_ingest.py           # Ingestion tests (27 cases)
+│   ├── test_ingest.py           # Ingestion tests (22 cases)
 │   ├── test_matcher.py          # Matching tests (18 cases)
-│   ├── test_config_and_base.py # Hardware tier + config + base tests
-│   ├── test_merge_fix.py        # Job merge logic tests
-│   ├── test_run_agent.py        # End-to-end mock pipeline tests
-│   ├── test_audit.py            # Audit logging tests (16+ cases)
-│   ├── test_email.py            # Email tests (20+ cases)
-│   ├── test_excel_writer.py     # Excel writer tests (10 cases)
-│   └── test_pipeline_integration.py  # End-to-end tests (12 cases)
+│   ├── test_config_and_base.py # Hardware tier + config + base tests (12 cases)
+│   ├── test_merge_fix.py        # Job merge logic tests (9 cases)
+│   ├── test_run_agent.py        # End-to-end mock pipeline tests (2 cases)
+│   ├── test_audit.py            # Audit logging tests (15 cases)
+│   ├── test_email.py            # Email tests (13 cases)
+│   ├── test_excel_writer.py     # Excel writer tests (7 cases)
+│   ├── test_pipeline_integration.py  # End-to-end tests, requires live Ollama (11 cases, excluded from CI)
+│   ├── test_jtbd_alignment.py   # Section parsing, O*NET occupation matching, rubric scoring
+│   ├── test_persona_coverage.py # Persona evaluation harness coverage
+│   ├── test_serverless_adapter.py  # Serverless/RunPod adapter tests
+│   └── test_spec_fixes.py       # Regression tests for spec-fix iterations
 │
 ├── data/
 │   ├── demo/
@@ -544,7 +554,7 @@ job-search-ai-agent/
 
 ## Security Features
 
-All implemented and verified:
+All 9 implemented and verified:
 
 - **Input validation**: Role, geo preference, file size (16MB limit)
 - **SQL injection protection**: Dangerous pattern detection
@@ -563,13 +573,15 @@ All implemented and verified:
 **For detailed troubleshooting:** See [the Testing & Debugging guide](docs/development/testing-guide.md)
 
 ### "ChromaDB connection refused"
+ChromaDB runs embedded inside the Flask `app` container (not a separate service) — check the app's
+health endpoint instead:
 ```bash
-# Check ChromaDB is running
 docker compose ps
-curl http://localhost:8000/api/v1/heartbeat
+curl http://localhost:5000/health
+# Expected: {"status":"ok","service":"job-search-ai","chroma_db":"healthy"}
 
 # Restart if needed
-docker compose restart chromadb
+docker compose restart app
 ```
 
 ### "Ollama model not found"
@@ -664,7 +676,6 @@ MIT License — free to use, modify, and distribute. See [LICENSE](LICENSE).
 | [Sentence Transformers](https://sbert.net) | Local CPU embeddings | Apache 2.0 |
 | [Flask](https://flask.palletsprojects.com) | Web framework | BSD |
 | [APScheduler](https://apscheduler.readthedocs.io) | Weekly scheduler | MIT |
-| [Bootstrap 5](https://getbootstrap.com) | UI framework | MIT |
 
 ---
 
