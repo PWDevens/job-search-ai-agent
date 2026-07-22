@@ -47,7 +47,6 @@ RUNPOD-SSH.txt.pub
 # Claude Code session files
 .claude/
 .pipeline/
-.pipeline/*
 
 # Generated reports / eval output (keep the tracking docs, ignore the artifacts)
 reports/*
