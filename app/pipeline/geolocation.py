@@ -143,15 +143,27 @@ def is_remote(location: str) -> bool:
     return location_lower in {"remote", "fully remote", "work from home", "wfh", "anywhere", "distributed"}
 
 
+def _city_state(norm: str) -> tuple[str, str]:
+    """Extract city and state from normalized location string 'City, State'.
+
+    Returns tuple (city, state) with empty strings if not present.
+    """
+    parts = [p.strip().lower() for p in norm.split(",")]
+    return (parts[0] if parts else "", parts[1] if len(parts) > 1 else "")
+
+
 def location_matches(job_location: str, user_preference: str) -> bool:
     """
     Check if a job location matches a user's geographic preference.
 
-    Rules:
-      1. If user preference is empty/None, any job matches (match all)
-      2. If user prefers "Remote", only remote jobs match
-      3. Exact match (after normalization)
-      4. Fuzzy match (city name substring)
+    Rules (in order):
+      1. Empty preference → match all (unchanged)
+      2. Exact normalized match → True
+      3. User prefers Remote → True for all jobs (remote-friendly OR nationwide)
+      4. Job is remote, user wants a specific city → True (remote satisfies any geo)
+      5. Relaxed city/state match via token overlap or state match
+      6. Whole-string bidirectional substring match (existing fallback)
+      7. Otherwise → False
 
     Args:
         job_location: Location from a job posting
@@ -161,33 +173,48 @@ def location_matches(job_location: str, user_preference: str) -> bool:
         True if the job location matches the preference
     """
     if not user_preference or not user_preference.strip():
-        # No preference = accept all locations
+        # No preference = accept all locations (rule 1)
         return True
 
     job_loc_norm = normalize_location(job_location)
     user_pref_norm = normalize_location(user_preference)
 
-    # Exact match
+    # Rule 2: Exact match
     if job_loc_norm == user_pref_norm:
         return True
 
-    # Special case: user prefers "Remote" — only match remote jobs
+    # Rule 3: User prefers Remote → accept all jobs (nationwide/remote-friendly)
     if is_remote(user_pref_norm):
-        return is_remote(job_loc_norm)
+        return True
 
-    # Special case: user location includes Remote; match Remote jobs
+    # Rule 4: Job is remote, user wants a specific city → remote satisfies any geo
     if is_remote(job_loc_norm):
-        return False
-
-    # Fuzzy match: if user's preference city appears in job location
-    # E.g., user says "California" and job is "San Francisco, CA"
-    if user_pref_norm in job_loc_norm:
         return True
 
-    if job_loc_norm in user_pref_norm:
+    # Rule 5: Relaxed city/state match
+    user_city, user_state = _city_state(user_pref_norm)
+    job_city, job_state = _city_state(job_loc_norm)
+
+    # City token overlap (case-insensitive)
+    # ponytail: guard both sides truthy — "" in "chicago" is True, so a blank
+    # job location must not match a specific-city preference (review N1).
+    if user_city and job_city and (user_city in job_city or job_city in user_city):
         return True
 
-    # No match
+    # Both have state tokens and they match
+    # ponytail: state-only match is spec-intentional (review N2) — city-specific personas'
+    # avg_job_score therefore reflects state-wide job supply, not city-precise matching.
+    if user_state and job_state and user_state == job_state:
+        return True
+
+    # Rule 6: Fallback to whole-string bidirectional substring match
+    # ponytail: require both sides non-empty — "" in "<anything>" is True (review N1).
+    if job_loc_norm and user_pref_norm and (
+        user_pref_norm in job_loc_norm or job_loc_norm in user_pref_norm
+    ):
+        return True
+
+    # Rule 7: No match
     return False
 
 

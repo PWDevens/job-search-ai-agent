@@ -4,6 +4,7 @@ Moved from app/agents/pipeline.py for cleaner module boundaries.
 """
 import json
 import logging
+import os
 from dataclasses import dataclass, field
 from typing import Any, Dict
 
@@ -15,6 +16,7 @@ from app.pipeline.matcher import find_top_jobs, find_resume_recommendations, fin
 from app.pipeline.audit import log_search_run
 from app.retrieval.rerank import rerank
 from app.config import RERANK_PASSES
+import app.config as cfg
 
 logger = logging.getLogger(__name__)
 
@@ -25,6 +27,9 @@ class SearchRequest:
     geo_preference: str | None = None
     resume_text: str | None = None
     extra_context: str | None = None
+    mode: str = "stay"   # "stay" (advance in field) | "switch" (career change) — alters context engineering
+    stay_reason: str = ""  # when mode=stay: "advancement" | "comp_culture" | "displaced" | "" (lateral)
+    effort: str = "balanced"  # "quick" | "balanced" | "thorough" | "max" — compute/thoroughness dial
 
 
 @dataclass
@@ -45,24 +50,85 @@ class SearchResult:
         }
 
 
-def _run_with_grounding(run_fn, run_kwargs, get_citations, retrieved_jobs, agent_name):
-    """Run agent, check grounding, re-ask once on hallucination. Returns (result, passed: bool)."""
-    result = run_fn(**run_kwargs)
-    ungrounded = check_grounding(get_citations(result), retrieved_jobs)
-    if not ungrounded:
-        return result, True
+def _run_with_grounding(run_fn, run_kwargs, get_citations, retrieved_jobs, agent_name,
+                        best_of=1, select_fn=None):
+    """Run agent, check grounding using ratio threshold. Returns (result, passed: bool).
 
-    logger.warning("%s ungrounded citations: %s — re-asking once", agent_name, ungrounded)
+    Always keeps the best result, never discards agent output.
+
+    best_of>1: draw N samples (temp>0 for diversity). select_fn (arm A re-aim) scores each sample on
+    a JTBD metric (e.g. occupation-grounding) and keeps the best — the iter11 A/B showed selecting on
+    the citation grounding-ratio was the WRONG objective for the generative agents. Without select_fn,
+    falls back to highest grounding ratio.
+    """
+    from app.config import GROUNDING_PASS_RATIO
+
+    def _sample():
+        r = run_fn(**run_kwargs)
+        cited = get_citations(r)
+        ung = check_grounding(cited, retrieved_jobs)
+        return r, ((len(cited) - len(ung)) / len(cited) if cited else 1.0)
+
+    if best_of and best_of > 1:
+        samples = [_sample() for _ in range(best_of)]
+        if select_fn is not None:
+            best_result, best_ratio = max(samples, key=lambda s: (select_fn(s[0]), s[1]))  # JTBD metric, tie-break ratio
+        else:
+            best_result, best_ratio = max(samples, key=lambda s: s[1])  # highest grounding ratio
+        return best_result, best_ratio >= GROUNDING_PASS_RATIO
+
+    # Run agent once
+    result = run_fn(**run_kwargs)
+    cited = get_citations(result)
+    ungrounded = check_grounding(cited, retrieved_jobs)
+
+    # Compute grounding ratio
+    total = len(cited)
+    grounded = total - len(ungrounded)
+    ratio = grounded / total if total else 1.0
+
+    best_result = result
+    best_ratio = ratio
+
+    # If ratio passes, return immediately (no re-ask)
+    if ratio >= GROUNDING_PASS_RATIO:
+        logger.debug("%s grounding ratio %.1f%% >= %.1f%% (pass, no re-ask)",
+                     agent_name, 100*ratio, 100*GROUNDING_PASS_RATIO)
+        return best_result, True
+
+    # Else attempt re-ask
+    logger.warning("%s grounding ratio %.1f%% < %.1f%% — re-asking once",
+                   agent_name, 100*ratio, 100*GROUNDING_PASS_RATIO)
     available = sorted(set(j["company"] for j in retrieved_jobs[:10]))
     reask = (
         f"Your response cited companies not in the retrieved jobs: {ungrounded}.\n"
         f"Use ONLY companies from this list: {available}"
     )
-    result = run_fn(**{**run_kwargs, "extra_context": reask})
-    still_bad = check_grounding(get_citations(result), retrieved_jobs)
-    if still_bad:
-        logger.warning("%s still ungrounded after re-ask: %s", agent_name, still_bad)
-    return result, not bool(still_bad)
+    reask_result = run_fn(**{**run_kwargs, "extra_context": reask})
+    reask_cited = get_citations(reask_result)
+    reask_ungrounded = check_grounding(reask_cited, retrieved_jobs)
+
+    # Compute ratio for re-asked result
+    reask_total = len(reask_cited)
+    reask_grounded = reask_total - len(reask_ungrounded)
+    reask_ratio = reask_grounded / reask_total if reask_total else 1.0
+
+    # Keep whichever has the higher ratio
+    if reask_ratio > best_ratio:
+        best_result = reask_result
+        best_ratio = reask_ratio
+        logger.debug("%s re-ask improved ratio to %.1f%%", agent_name, 100*reask_ratio)
+    else:
+        logger.debug("%s keeping original result (ratio %.1f%% >= re-ask %.1f%%)",
+                     agent_name, 100*best_ratio, 100*reask_ratio)
+
+    # Return best result; passed=True only if best_ratio meets threshold
+    passed = best_ratio >= GROUNDING_PASS_RATIO
+    if not passed:
+        logger.warning("%s best ratio %.1f%% still below threshold; output will be scored but validation=False",
+                       agent_name, 100*best_ratio)
+
+    return best_result, passed
 
 
 def run(req: SearchRequest) -> SearchResult:
@@ -77,10 +143,36 @@ def run(req: SearchRequest) -> SearchResult:
     result = SearchResult()
     result.agent_validation = {"job_matcher": False, "resume_coach": False, "career_strategist": False}
 
+    # Effort dial (#2): bundle the compute levers. temp>0 enables best-of-N diversity.
+    eb = cfg.effort_bundle(req.effort)
+    cfg.OLLAMA_TEMPERATURE = eb["temp"]   # per-request; next run() re-derives (pipeline is sequential)
+    rerank_passes = eb["rerank_passes"]
+
     # Step 1: Matcher (ground truth; Pass 1 rerank happens inside find_top_jobs)
+    pivot_jobs: list = []
     try:
+        search_query = req.role_description
         logger.info("Finding top jobs for: %s", req.role_description)
-        jobs = find_top_jobs(req.role_description, req.geo_preference, req.resume_text)
+        jobs = find_top_jobs(search_query, req.geo_preference, req.resume_text,
+                             n=eb["top_jobs"], fetch=eb["fetch"])
+        # Causeways discovery (gated): also surface jobs from ADJACENT occupations so the user sees
+        # viable pivot/lateral roles, not only literal-query matches. Pooled here; pivot slots are
+        # reserved after ranking (below) so they survive role-similarity ordering.
+        if os.getenv("CAUSEWAYS", "").lower() in ("1", "true", "yes"):
+            try:
+                from app.skills.causeways import adjacent_occupations
+                seen = {(j.get("title", "").lower(), j.get("company", "").lower()) for j in jobs}
+                for occ in adjacent_occupations(req.role_description, k=3):
+                    for j in find_top_jobs(occ["title"], req.geo_preference, req.resume_text,
+                                           n=2, fetch=eb["fetch"]):
+                        key = (j.get("title", "").lower(), j.get("company", "").lower())
+                        if key not in seen:
+                            seen.add(key)
+                            pivot_jobs.append({**j, "via_pivot": occ["title"]})
+                jobs = jobs + pivot_jobs
+                logger.info("Causeways: +%d pivot jobs from adjacent occupations", len(pivot_jobs))
+            except Exception as e:
+                logger.debug("causeways discovery skipped: %s", e)
         result.top_jobs = jobs
         logger.info("Matcher returned %d jobs", len(jobs))
     except Exception as e:
@@ -93,9 +185,9 @@ def run(req: SearchRequest) -> SearchResult:
         job_matches, passed = _run_with_grounding(
             run_job_matcher,
             dict(role_description=req.role_description, geo_preference=req.geo_preference or "",
-                 resume_text=req.resume_text or "", jobs=jobs),
+                 resume_text=req.resume_text or "", jobs=jobs, mode=req.mode, stay_reason=req.stay_reason),
             lambda r: [m.company for m in r.matches],
-            jobs, "job_matcher",
+            jobs, "job_matcher", best_of=eb["best_of"],
         )
         result.agent_validation["job_matcher"] = passed
         result.raw_agent_output["job_matches"] = job_matches.model_dump()
@@ -116,7 +208,7 @@ def run(req: SearchRequest) -> SearchResult:
         result.top_jobs = merged
 
         # Pass 2: rerank with combined role+resume signal so coach+strategist see best order
-        if RERANK_PASSES >= 2 and result.top_jobs:
+        if rerank_passes >= 2 and result.top_jobs:
             p2_query = req.role_description + (" " + req.resume_text[:400] if req.resume_text else "")
             result.top_jobs = rerank(p2_query, result.top_jobs, top_n=len(result.top_jobs))
             logger.info("Pass 2 rerank: reordered %d jobs (role+resume query)", len(result.top_jobs))
@@ -125,21 +217,58 @@ def run(req: SearchRequest) -> SearchResult:
         logger.warning("Job matcher agent failed: %s — falling back to matcher", e)
         result.agent_validation["job_matcher"] = False
 
+    # Causeways: reserve up to 2 slots for pivot jobs so adjacent-occupation roles survive
+    # role-similarity ranking (which otherwise always suppresses them) — keeps pivot options
+    # visible without displacing more than 2 primary matches.
+    if pivot_jobs and result.top_jobs:
+        _key = lambda j: (j.get("title", "").lower(), j.get("company", "").lower())
+        have = sum(1 for j in result.top_jobs if j.get("via_pivot"))
+        need = max(0, 2 - have)
+        if need:
+            present = {_key(j) for j in result.top_jobs}
+            extra = [j for j in pivot_jobs if _key(j) not in present][:need]
+            if extra:
+                keep = result.top_jobs[:max(1, len(result.top_jobs) - len(extra))]
+                result.top_jobs = keep + extra
+                logger.info("Causeways: reserved %d pivot slot(s) in final top_jobs", len(extra))
+
+    # Re-aimed best-of-N (arm A): when sampling, score generative samples by OCCUPATION-grounding
+    # (the JTBD metric), not the citation ratio. occ_reqs = the target occupation's requirements,
+    # aggregated across the top-K matched jobs (arm C: AGG_REQS=K).
+    occ_reqs: set = set()
+    if eb["best_of"] > 1:
+        try:
+            from app.skills.onet_requirements import role_requirements
+            K = int(os.getenv("AGG_REQS", "1"))
+            titles = [j.get("title", "") for j in result.top_jobs[:K]] or [req.role_description]
+            for t in titles:
+                occ_reqs.update(r.lower() for r in role_requirements(t, 20))
+        except Exception as e:
+            logger.debug("occ_reqs for re-aim unavailable: %s", e)
+
+    def _occ_score(items):
+        return sum(1 for x in items if any((x.lower() in r or r in x.lower()) for r in occ_reqs))
+
+    coach_select = (lambda rr: _occ_score([f"{x.title} {x.fix}" for x in rr.recommendations])) if occ_reqs else None
+    strat_select = (lambda s: _occ_score([b.skill for b in s.blind_spots])) if occ_reqs else None
+
     # Step 3: Resume coach agent
     try:
         logger.info("Running resume_coach agent...")
         resume_recs, passed = _run_with_grounding(
             run_resume_coach,
-            dict(resume_text=req.resume_text or "", matched_jobs=result.top_jobs),
+            dict(resume_text=req.resume_text or "", matched_jobs=result.top_jobs,
+                 role_description=req.role_description, mode=req.mode, stay_reason=req.stay_reason),
             lambda r: extract_citations(r.recommendations, "why"),
-            result.top_jobs, "resume_coach",
+            result.top_jobs, "resume_coach", best_of=eb["best_of"], select_fn=coach_select,
         )
         result.agent_validation["resume_coach"] = passed
         result.raw_agent_output["resume_recs"] = resume_recs.model_dump()
+        # display string only; scoring reads raw_agent_output (see evaluation_scoring)
         result.resume_recs = [f"[{r.priority}] {r.title} — {r.fix}" for r in resume_recs.recommendations]
 
         # Pass 3: rerank resume recs by relevance to the full resume text
-        if RERANK_PASSES >= 3 and req.resume_text and result.resume_recs:
+        if rerank_passes >= 3 and req.resume_text and result.resume_recs:
             wrapped = [{"document": r} for r in result.resume_recs]
             reranked = rerank(req.resume_text, wrapped, top_n=len(wrapped))
             result.resume_recs = [r["document"] for r in reranked]
@@ -157,12 +286,13 @@ def run(req: SearchRequest) -> SearchResult:
         strategy, passed = _run_with_grounding(
             run_career_strategist,
             dict(role_description=req.role_description, resume_text=req.resume_text or "",
-                 matched_jobs=result.top_jobs, resume_recs=result.resume_recs),
+                 matched_jobs=result.top_jobs, resume_recs=result.resume_recs, mode=req.mode, stay_reason=req.stay_reason),
             lambda r: extract_citations(r.blind_spots, "why") + extract_citations(r.strategy, "evidence"),
-            result.top_jobs, "career_strategist",
+            result.top_jobs, "career_strategist", best_of=eb["best_of"], select_fn=strat_select,
         )
         result.agent_validation["career_strategist"] = passed
         result.raw_agent_output["career_strategy"] = strategy.model_dump()
+        # display string only; scoring reads raw_agent_output (see evaluation_scoring)
         result.blind_spots = [f"[{b.priority}] {b.skill}: {b.remediation}" for b in strategy.blind_spots]
 
     except Exception as e:

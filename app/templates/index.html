@@ -7,8 +7,6 @@
   <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
   <style>
     /* Page-specific overrides */
-    .upload-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-    @media (max-width: 600px) { .upload-row { grid-template-columns: 1fr; } }
     .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
     @media (max-width: 600px) { .form-grid { grid-template-columns: 1fr; } }
   </style>
@@ -51,6 +49,16 @@
       </div>
     </div>
 
+    <!-- Mode switch: search the corpus vs. bring your own target jobs -->
+    <div class="ms-foldertabs" role="tablist">
+      <button type="button" class="ms-foldertab active" data-tab="search"
+              role="tab" aria-selected="true" aria-controls="tabpanel-search"
+              onclick="switchTab('search')">🔎 Have Tool Search</button>
+      <button type="button" class="ms-foldertab" data-tab="upload"
+              role="tab" aria-selected="false" aria-controls="tabpanel-upload"
+              onclick="switchTab('upload')">📤 Upload Target Jobs</button>
+    </div>
+
     <div class="ms-card__body">
       <form action="/search" method="POST" enctype="multipart/form-data" id="searchForm">
 
@@ -65,6 +73,25 @@
             class="ms-textarea" rows="4" required
             placeholder="Senior Data Engineer with 5+ years in Python, Spark, and AWS.&#10;Seeking remote or DC-area hybrid positions in AI/ML infrastructure or MLOps.&#10;Strong background in cloud-native pipelines and LLM tooling."
           ></textarea>
+        </div>
+
+        <!-- Career intent: tailors context engineering (stay vs switch) -->
+        <div class="ms-field" style="margin-top:16px;">
+          <label class="ms-label">Career intent</label>
+          <span class="ms-label--hint">Advancing in your field, or changing careers? Career-changers get transferable-skill matching and a constructive transition roadmap.</span>
+          <div style="display:flex; gap:24px; margin-top:6px;">
+            <label style="font-weight:normal;"><input type="radio" name="mode" value="stay" checked /> Advancing / moving in my field</label>
+            <label style="font-weight:normal;"><input type="radio" name="mode" value="switch" /> Changing careers</label>
+          </div>
+          <div style="margin-top:8px;">
+            <span class="ms-label--hint">If staying in your field, what's driving the move? (tailors the advice)</span>
+            <select name="stay_reason" class="ms-input" style="max-width:340px;">
+              <option value="">Lateral / not sure</option>
+              <option value="advancement">More responsibility / next level</option>
+              <option value="comp_culture">Better company, pay, or culture</option>
+              <option value="displaced">Laid off / re-landing</option>
+            </select>
+          </div>
         </div>
 
         <!-- Geo + Extra Context row -->
@@ -85,25 +112,34 @@
           </div>
         </div>
 
-        <!-- File Uploads -->
-        <div class="upload-row" style="margin-top:20px;">
+        <!-- Resume (shared across both modes) -->
+        <div class="ms-field" style="margin-top:20px;">
+          <label class="ms-label">Resume <span style="font-weight:400;color:var(--text-secondary);">(optional)</span></label>
+          <span class="ms-label--hint">Embedded locally for semantic matching.</span>
+          <label class="ms-file-label" for="resume_file">
+            <span>📄</span>
+            <span id="resumeLabel">Choose file…</span>
+          </label>
+          <input type="file" id="resume_file" name="resume_file"
+                 class="ms-file-input" accept=".pdf,.txt,.docx"
+                 onchange="updateLabel(this,'resumeLabel')" />
+          <span class="ms-file-name">PDF · TXT · DOCX accepted</span>
+        </div>
 
-          <!-- Resume -->
-          <div class="ms-field">
-            <label class="ms-label">Resume <span style="font-weight:400;color:var(--text-secondary);">(optional)</span></label>
-            <span class="ms-label--hint">Embedded locally for semantic matching.</span>
-            <label class="ms-file-label" for="resume_file">
-              <span>📄</span>
-              <span id="resumeLabel">Choose file…</span>
+        <!-- Tab panel: Have Tool Search -->
+        <div id="tabpanel-search" class="ms-tabpanel" role="tabpanel" aria-labelledby="tab-search">
+          <div class="ms-field" style="margin-top:16px;">
+            <label style="font-weight:normal;">
+              <input type="checkbox" name="fetch_live" value="1" />
+              🔎 Search live jobs from Adzuna using my role + location (no upload needed)
             </label>
-            <input type="file" id="resume_file" name="resume_file"
-                   class="ms-file-input" accept=".pdf,.txt,.docx"
-                   onchange="updateLabel(this,'resumeLabel')" />
-            <span class="ms-file-name">PDF · TXT · DOCX accepted</span>
+            <span class="ms-label--hint">Leave unchecked to match against the existing local job corpus.</span>
           </div>
+        </div>
 
-          <!-- Jobs File -->
-          <div class="ms-field">
+        <!-- Tab panel: Upload Target Jobs -->
+        <div id="tabpanel-upload" class="ms-tabpanel hidden" role="tabpanel" aria-labelledby="tab-upload">
+          <div class="ms-field" style="margin-top:16px;">
             <label class="ms-label">Jobs CSV / XLSX <span style="font-weight:400;color:var(--text-secondary);">(optional)</span></label>
             <span class="ms-label--hint">Extends or replaces the default job corpus.</span>
             <label class="ms-file-label" for="jobs_file">
@@ -115,6 +151,55 @@
                    onchange="updateLabel(this,'jobsLabel')" />
             <span class="ms-file-name">CSV · XLSX · XLS accepted</span>
           </div>
+
+          <!-- CSV upload guide callout -->
+          <div class="ms-callout" style="margin-top:16px;">
+            <div class="ms-callout__title">📋 Jobs CSV / XLSX Upload Guide</div>
+            <p style="font-size:12px; color:var(--ms-gray-80); margin-bottom:8px;">
+              Your file must include at least <strong>title</strong>, <strong>company</strong>,
+              and <strong>description</strong> columns. All other columns are optional but
+              recommended for full pipeline tracking.
+            </p>
+            <table>
+              <thead>
+                <tr>
+                  <th>Column</th>
+                  <th>Required?</th>
+                  <th>Example value</th>
+                  <th>Notes</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr><td><code>title</code></td>          <td>✅ Yes</td><td>Senior Data Engineer</td>       <td>Job title exactly as posted</td></tr>
+                <tr><td><code>company</code></td>         <td>✅ Yes</td><td>Accenture Federal Services</td> <td>Employer name</td></tr>
+                <tr><td><code>description</code></td>     <td>✅ Yes</td><td>Build pipelines using…</td>    <td>Full job description text; drives matching</td></tr>
+                <tr><td><code>location</code></td>        <td>⬜ No</td> <td>Washington DC</td>             <td>Used for geo filtering</td></tr>
+                <tr><td><code>salary</code></td>          <td>⬜ No</td> <td>130000-165000</td>             <td>Range or single value; displayed only</td></tr>
+                <tr><td><code>url</code></td>             <td>⬜ No</td> <td>https://jobs.acme.com/…</td>   <td>Direct link to job posting</td></tr>
+                <tr><td><code>date_posted</code></td>     <td>⬜ No</td> <td>5/20/2026</td>                 <td>When employer posted the role</td></tr>
+                <tr><td><code>date_found</code></td>      <td>⬜ No</td> <td>5/31/2026</td>                 <td>When you discovered the role</td></tr>
+                <tr><td><code>date_of_last_update</code></td><td>⬜ No</td><td>5/31/2026</td>               <td>Last time you updated this row</td></tr>
+                <tr><td><code>source</code></td>          <td>⬜ No</td> <td>LinkedIn · demo · Indeed</td>  <td>Where you found the job</td></tr>
+                <tr><td><code>application_status</code></td><td>⬜ No</td><td>Applied</td>                  <td>One of the statuses listed below ↓</td></tr>
+              </tbody>
+            </table>
+            <p style="margin-top:8px; font-size:11px; color:var(--ms-gray-80);">
+              <strong>Valid application_status values:</strong>
+              Have Not Applied · Applied · Under Consideration · Interviewing · Offer Received · Rejected · Withdrawn
+            </p>
+          </div>
+        </div>
+
+        <!-- Effort dial (#2): trade compute for thoroughness -->
+        <div class="ms-field" style="margin-top:12px;">
+          <label class="ms-label">Search effort</label>
+          <span class="ms-label--hint">More effort = wider search + more options surfaced (slower). Not "more accurate" — quality comes from the matching, not raw compute.</span>
+          <select name="effort" class="ms-input" style="max-width:340px;">
+            <option value="quick">Quick — just show me what's out there</option>
+            <option value="balanced" selected>Balanced — daily use (default)</option>
+            <option value="thorough">Thorough — dig deeper, more options</option>
+            <option value="max">Max — widest search, most options (slower)</option>
+          </select>
         </div>
 
         <!-- Submit -->
@@ -131,43 +216,6 @@
 
       </form>
     </div>
-  </div>
-
-  <!-- ── CSV upload guide callout ──────────────────────────────────────────── -->
-  <div class="ms-callout" style="margin-bottom:20px;">
-    <div class="ms-callout__title">📋 Jobs CSV / XLSX Upload Guide</div>
-    <p style="font-size:12px; color:var(--ms-gray-80); margin-bottom:8px;">
-      Your file must include at least <strong>title</strong>, <strong>company</strong>,
-      and <strong>description</strong> columns. All other columns are optional but
-      recommended for full pipeline tracking.
-    </p>
-    <table>
-      <thead>
-        <tr>
-          <th>Column</th>
-          <th>Required?</th>
-          <th>Example value</th>
-          <th>Notes</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr><td><code>title</code></td>          <td>✅ Yes</td><td>Senior Data Engineer</td>       <td>Job title exactly as posted</td></tr>
-        <tr><td><code>company</code></td>         <td>✅ Yes</td><td>Accenture Federal Services</td> <td>Employer name</td></tr>
-        <tr><td><code>description</code></td>     <td>✅ Yes</td><td>Build pipelines using…</td>    <td>Full job description text; drives matching</td></tr>
-        <tr><td><code>location</code></td>        <td>⬜ No</td> <td>Washington DC</td>             <td>Used for geo filtering</td></tr>
-        <tr><td><code>salary</code></td>          <td>⬜ No</td> <td>130000-165000</td>             <td>Range or single value; displayed only</td></tr>
-        <tr><td><code>url</code></td>             <td>⬜ No</td> <td>https://jobs.acme.com/…</td>   <td>Direct link to job posting</td></tr>
-        <tr><td><code>date_posted</code></td>     <td>⬜ No</td> <td>5/20/2026</td>                 <td>When employer posted the role</td></tr>
-        <tr><td><code>date_found</code></td>      <td>⬜ No</td> <td>5/31/2026</td>                 <td>When you discovered the role</td></tr>
-        <tr><td><code>date_of_last_update</code></td><td>⬜ No</td><td>5/31/2026</td>               <td>Last time you updated this row</td></tr>
-        <tr><td><code>source</code></td>          <td>⬜ No</td> <td>LinkedIn · demo · Indeed</td>  <td>Where you found the job</td></tr>
-        <tr><td><code>application_status</code></td><td>⬜ No</td><td>Applied</td>                  <td>One of the statuses listed below ↓</td></tr>
-      </tbody>
-    </table>
-    <p style="margin-top:8px; font-size:11px; color:var(--ms-gray-80);">
-      <strong>Valid application_status values:</strong>
-      Have Not Applied · Applied · Under Consideration · Interviewing · Offer Received · Rejected · Withdrawn
-    </p>
   </div>
 
   <!-- ── How It Works tiles ────────────────────────────────────────────────── -->
@@ -205,6 +253,23 @@
       ? input.files[0].name
       : 'Choose file…';
   }
+
+  // Mode switch: "Have Tool Search" vs "Upload Target Jobs" are mutually
+  // exclusive — disable the inactive panel's fields so they never submit.
+  function switchTab(tab) {
+    ['search', 'upload'].forEach(function (t) {
+      const active = t === tab;
+      const btn    = document.querySelector('.ms-foldertab[data-tab="' + t + '"]');
+      const panel  = document.getElementById('tabpanel-' + t);
+      btn.classList.toggle('active', active);
+      btn.setAttribute('aria-selected', active);
+      panel.classList.toggle('hidden', !active);
+      panel.querySelectorAll('input, select, textarea').forEach(function (el) {
+        el.disabled = !active;
+      });
+    });
+  }
+  switchTab('search');
 
   document.getElementById('searchForm').addEventListener('submit', function() {
     const btn     = document.getElementById('submitBtn');

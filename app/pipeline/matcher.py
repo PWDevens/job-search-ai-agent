@@ -39,6 +39,7 @@ def find_top_jobs(
     geo_preference:   Optional[str] = None,
     resume_text:      Optional[str] = None,
     n:                int           = TOP_JOBS,
+    fetch:            Optional[int] = None,   # retrieval breadth (effort dial); default max(n*2, 50)
 ) -> List[Dict[str, Any]]:
     """
     Return the top-N matching jobs ranked by cosine similarity.
@@ -48,9 +49,9 @@ def find_top_jobs(
     matching (handles Remote, city abbreviations, state normalization, fuzzy matching).
     """
     query  = _build_query(role_description, resume_text)
-    # Retrieve 2× candidates so reranker has a wide field to work with.
+    # Retrieve a wide field for the reranker; effort dial widens it via `fetch`.
     # ponytail: RERANK_MODEL=none skips reranking and falls back to vector order.
-    fetch_count = max(n * 2, 50)
+    fetch_count = fetch or max(n * 2, 50)
     results = query_collection(CHROMA_JOBS_COL, [query], n_results=fetch_count)
     jobs = _format_results(results, fetch_count)
 
@@ -67,6 +68,11 @@ def find_top_jobs(
             "Geolocation filter '%s': %d → %d jobs",
             geo_preference, len(jobs), len(filtered)
         )
+        # Guard against filter emptying the list: fall back to unfiltered (nationwide)
+        if not filtered:
+            logger.info("Geo filter '%s' removed all %d jobs — keeping unfiltered (nationwide fallback)",
+                        geo_preference, len(jobs))
+            return jobs[:n]
         return filtered[:n]
 
     return jobs[:n]
@@ -100,6 +106,16 @@ def find_blind_spots(
     - If resume_text is None, queries ChromaDB resume collection
     - If ChromaDB query fails, uses job text only (logs warning)
     """
+    # C5: prefer authoritative O*NET occupation requirements missing from the resume — works for
+    # ALL fields (healthcare, trades, admin), unlike the tech-only _SKILL_KEYWORDS list below.
+    try:
+        from app.skills.onet_requirements import missing_requirements
+        auth = missing_requirements(role_description, resume_text or "", n)
+        if auth:
+            return auth
+    except Exception as exc:
+        logger.debug("authoritative blind-spot fallback unavailable: %s", exc)
+
     jobs          = find_top_jobs(role_description, resume_text=resume_text, n=20)
     all_job_text  = " ".join(j.get("document", "") for j in jobs).lower()
 
@@ -213,6 +229,9 @@ def _format_results(raw: Dict[str, Any], n: int) -> List[Dict[str, Any]]:
             "location":             meta.get("location", ""),
             "salary":               meta.get("salary",   ""),
             "url":                  meta.get("url",      ""),
+            # A0: parsed posting sections (targetable requirements vs the whole blob)
+            "requirements_text":      meta.get("requirements_text",      ""),
+            "responsibilities_text":  meta.get("responsibilities_text",  ""),
             # ── Date fields ───────────────────────────────────────────────────
             "date_posted":          meta.get("date_posted",         ""),
             "date_found":           meta.get("date_found",          ""),

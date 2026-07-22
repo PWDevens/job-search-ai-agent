@@ -3,11 +3,17 @@ Single embedding backend using sentence-transformers.
 Replaces the dual Ollama/sentence-transformers fallback path.
 """
 import logging
+import os
 from app.config import EMBED_MODEL
 
 logger = logging.getLogger(__name__)
 
 _model = None
+
+# Opt-in only: some models (e.g. Nomic) ship custom architecture code that
+# SentenceTransformer runs via trust_remote_code. OFF by default so the local-first
+# tool never executes remote model code unless explicitly enabled for an experiment.
+_TRUST_REMOTE = os.getenv("EMBED_TRUST_REMOTE", "0") == "1"
 
 
 def _get_model():
@@ -16,8 +22,8 @@ def _get_model():
     if _model is None:
         try:
             from sentence_transformers import SentenceTransformer
-            logger.info(f"Loading embedding model: {EMBED_MODEL}")
-            _model = SentenceTransformer(EMBED_MODEL)
+            logger.info(f"Loading embedding model: {EMBED_MODEL} (trust_remote_code={_TRUST_REMOTE})")
+            _model = SentenceTransformer(EMBED_MODEL, trust_remote_code=_TRUST_REMOTE)
         except Exception as e:
             logger.error(f"Failed to load embedding model {EMBED_MODEL}: {e}")
             raise

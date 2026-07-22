@@ -344,6 +344,37 @@ a:hover { color: var(--ms-blue-dark); text-decoration: underline; }
 .ms-pivot__panel { display: none; }
 .ms-pivot__panel.active { display: block; }
 
+/* ── Folder tabs (mode switch: search vs. upload) ────────────────────────────── */
+.ms-foldertabs {
+  display: flex;
+  gap: 4px;
+  padding: 10px 16px 0;
+  background: var(--ms-gray-10);
+  border-top: 1px solid var(--border-default);
+}
+
+.ms-foldertab {
+  clip-path: polygon(8% 0%, 92% 0%, 100% 100%, 0% 100%);
+  padding: 10px 24px 12px;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  background: var(--ms-gray-30);
+  border: none;
+  cursor: pointer;
+  transition: background var(--transition), color var(--transition);
+}
+
+.ms-foldertab:hover { background: var(--ms-gray-40); color: var(--text-primary); }
+
+.ms-foldertab.active {
+  background: var(--surface-card);
+  color: var(--ms-blue-dark);
+}
+
+.ms-tabpanel.hidden { display: none; }
+
 /* ── Data Table ──────────────────────────────────────────────────────────────── */
 .ms-table-wrapper {
   overflow-x: auto;

@@ -1,3 +1,7 @@
+# Skills taxonomy build artifacts (rebuilt from data/skills/sample_skills.csv or a raw drop)
+data/skills/skills.db
+data/skills/raw/
+
 # Python
 __pycache__/
 *.py[cod]
@@ -44,8 +48,10 @@ RUNPOD-SSH.txt.pub
 .claude/
 .pipeline/
 
-# Generated reports / eval output
-reports/
+# Generated reports / eval output (keep the tracking docs, ignore the artifacts)
+reports/*
+!reports/README.md
+!reports/IMPROVEMENT_LOG.md
 
 # Old docs archive
 docs/archive/
@@ -85,3 +91,10 @@ TESTING_GUIDE.md
 
 # Live job-search snapshots (generated)
 data/adzuna/
+
+# ESCO bulk download (runtime data drop, not committed)
+data/skills/*.zip
+data/skills/_esco_extract/
+
+# Per-cell / screen ChromaDB eval corpora (binary, rebuilt by ingest_jobs.py)
+data/chroma_*/

@@ -1,108 +1,1855 @@
-title,company,location,salary,description,url,date_posted,source
-Healthcare Data Analyst,Capital One,McLean VA,95000-125000,Analyze healthcare claims data and patient outcomes. Work with SQL databases and build dashboards in Tableau. Requires 3+ years healthcare or data background. Skills: SQL Python Excel healthcare knowledge,https://jobs.capitalone.com/healthcare-data,2024-06-01,LinkedIn
-Clinical Informatics Specialist,Johns Hopkins Medicine,Baltimore MD,85000-115000,Support EHR optimization and clinical data management. Implement new health information systems. Experience with Epic or Cerner required. Skills: EHR systems data analysis project management,https://www.hopkinsmedicine.org/jobs,2024-05-25,Indeed
-Health Information Manager,Cleveland Clinic,Cleveland OH,80000-110000,Manage patient health records and data quality. Ensure HIPAA compliance. Develop processes for medical records. Skills: HIPAA compliance EHR systems documentation,https://careers.clevelandclinic.org,2024-06-05,LinkedIn
-Healthcare Analytics Manager,United Healthcare,Knoxville TN,100000-140000,Lead analytics team for health plan optimization. Build predictive models for risk management. Requires SQL Python Tableau. Skills: SQL Python machine learning healthcare analytics,https://careers.unitedhealth.com,2024-05-30,LinkedIn
-Medical Coder Analyst,Optum,Lehi UT,70000-95000,Code medical procedures and diagnoses. Audit medical records for compliance. Use coding software and databases. Skills: medical coding ICD-10 SQL databases,https://careers.optum.com,2024-06-02,Indeed
-Healthcare Business Analyst,Cigna,Bloomfield CT,88000-120000,Analyze healthcare trends and operational efficiency. Create reports for leadership. Work with healthcare databases. Skills: SQL Excel healthcare analysis business intelligence,https://jobs.cigna.com,2024-05-28,LinkedIn
-Patient Data Coordinator,Mayo Clinic,Rochester MN,75000-105000,Coordinate patient data collection and management. Support research studies with data analysis. Skills: data management attention to detail EMR systems,https://jobs.mayoclinic.org,2024-06-08,Indeed
-Healthcare Quality Analyst,Aetna,Hartford CT,82000-112000,Monitor healthcare quality metrics and patient outcomes. Analyze claims data for trends. Improve care delivery processes. Skills: data analysis Excel SAS or Python healthcare quality,https://jobs.aetna.com,2024-06-01,LinkedIn
-Biomedical Data Scientist,Gilead Sciences,Foster City CA,120000-160000,Analyze biomedical and clinical trial data. Build predictive models for drug development. Requires PhD or strong data science background. Skills: Python R statistics machine learning biomedical,https://careers.gilead.com,2024-05-20,LinkedIn
-Population Health Analyst,Humana,Louisville KY,90000-125000,Analyze population health data and outcomes. Develop strategies to improve patient care. Work with large healthcare datasets. Skills: SQL Python healthcare data analysis,https://careers.humana.com,2024-06-03,Indeed
-Education Technology Specialist,Coursera,San Francisco CA,110000-150000,Design data systems for online learning platform. Analyze student engagement and learning outcomes. Requires SQL Python JavaScript. Skills: SQL Python JavaScript web development data visualization,https://jobs.coursera.org,2024-05-22,LinkedIn
-Learning Analytics Manager,Instructure,Salt Lake City UT,100000-140000,Lead analytics team for Canvas LMS. Build dashboards for student success metrics. Analyze learning outcomes data. Skills: SQL Python Tableau learning analytics,https://jobs.instructure.com,2024-06-05,LinkedIn
-Educational Data Scientist,Carnegie Learning,Pittsburgh PA,95000-135000,Build AI and machine learning models for adaptive learning. Analyze student performance data. Design experiments for learning efficacy. Skills: Python machine learning data science education,https://jobs.carnegielearning.com,2024-05-25,LinkedIn
-K-12 Education Data Analyst,Schoology,New York NY,85000-120000,Analyze student learning data from LMS platform. Create reports for schools and districts. Support data-driven decision making. Skills: SQL data analysis education Tableau,https://jobs.schoology.com,2024-06-01,Indeed
-Higher Ed Research Analyst,University of Michigan,Ann Arbor MI,70000-100000,Conduct institutional research and analysis. Work with student enrollment and outcome data. Create analytical reports. Skills: SAS SQL statistical analysis,https://careers.umich.edu,2024-05-28,LinkedIn
-Instructional Designer Analyst,LinkedIn Learning,San Francisco CA,105000-145000,Analyze course effectiveness and student engagement. Design learning experiences based on data. Build analytics dashboards. Skills: SQL data analysis instructional design,https://jobs.linkedin.com,2024-06-02,LinkedIn
-Student Success Analytics Coordinator,ASU Online,Phoenix AZ,75000-105000,Track and analyze student retention and success metrics. Support academic advisors with data insights. Skills: Excel data analysis SQL education,https://jobs.asu.edu,2024-05-30,Indeed
-Curriculum Data Specialist,Pearson Education,Upper Saddle River NJ,80000-115000,Analyze curriculum effectiveness and student learning outcomes. Support product development with data insights. Skills: data analysis SQL education assessment,https://jobs.pearson.com,2024-06-04,LinkedIn
-Assessment Data Manager,ETS Educational Testing,Princeton NJ,85000-120000,Manage assessment data and research studies. Analyze test score data. Ensure data quality and compliance. Skills: statistical analysis data management SAS SQL,https://jobs.ets.org,2024-05-31,Indeed
-EdTech Product Analyst,Duolingo,Pittsburgh PA,110000-150000,Analyze user engagement and learning outcomes. Drive product decisions with data. Build predictive models. Skills: SQL Python analytics machine learning,https://jobs.duolingo.com,2024-06-06,LinkedIn
-Data Scientist,Google,Mountain View CA,180000-250000,Build machine learning models for various products. Analyze large datasets. Design experiments. Requires MS Computer Science or equivalent. Skills: Python SQL machine learning statistics,https://careers.google.com,2024-05-15,LinkedIn
-Senior Data Scientist,Amazon,Seattle WA,160000-220000,Lead data science initiatives for AWS or retail division. Build predictive models for business impact. Mentor junior scientists. Requires 5+ years experience. Skills: Python SQL machine learning AWS,https://jobs.amazon.com,2024-05-20,LinkedIn
-Data Scientist Analytics,Microsoft,Redmond WA,155000-210000,Analyze telemetry data and user behavior. Build dashboards and predictive models. Requires strong SQL and Python skills. Skills: SQL Python Tableau machine learning,https://careers.microsoft.com,2024-06-01,LinkedIn
-Senior Analytics Engineer,Stripe,San Francisco CA,180000-240000,Build data infrastructure for analytics. Design data models and pipelines. Work with large-scale event data. Skills: SQL Python dbt Kafka data engineering,https://jobs.stripe.com,2024-05-25,LinkedIn
-Data Scientist Risk,JPMorgan Chase,New York NY,170000-230000,Develop models for credit risk and fraud detection. Analyze financial data. Requires quantitative background. Skills: Python SAS SQL machine learning statistics,https://careers.jpmorganchase.com,2024-05-22,LinkedIn
-Analytics Manager,Salesforce,San Francisco CA,150000-200000,Lead analytics team for customer solutions. Build insights from CRM data. Drive business impact. Skills: SQL Tableau Python analytics leadership,https://careers.salesforce.com,2024-06-03,LinkedIn
-Quantitative Analyst,Goldman Sachs,New York NY,200000-300000,Develop trading algorithms and risk models. Analyze market data. Requires strong math/programming. Skills: Python C++ machine learning statistics,https://careers.goldmansachs.com,2024-05-18,LinkedIn
-Data Engineer,Airbnb,San Francisco CA,165000-220000,Build data pipelines and infrastructure. Optimize data systems for analytics. Requires SQL and programming skills. Skills: SQL Python Spark Kafka,https://jobs.airbnb.com,2024-06-05,LinkedIn
-Analytics Consultant,Deloitte Consulting,Washington DC,110000-160000,Advise clients on analytics strategy and implementation. Build dashboards and models. Present insights to executives. Skills: SQL Tableau analytics Excel business intelligence,https://careers.deloitte.com,2024-05-28,LinkedIn
-Senior Analyst Business Intelligence,McKinsey & Company,New York NY,130000-180000,Build data models and dashboards for client engagements. Analyze business data and trends. Present to C-suite. Skills: SQL Tableau Python analytics,https://careers.mckinsey.com,2024-06-02,LinkedIn
-Infrastructure Data Analyst,Department of Transportation,Washington DC,85000-120000,Analyze transportation infrastructure data and trends. Build models for planning decisions. Work with GIS data. Skills: GIS SQL data analysis Tableau,https://careers.dot.gov,2024-05-25,Indeed
-Geospatial Data Scientist,Esri,Redlands CA,120000-160000,Develop GIS analytics solutions. Build machine learning models for spatial data. Work with ArcGIS and Python. Skills: GIS Python machine learning spatial analysis,https://careers.esri.com,2024-06-01,LinkedIn
-Infrastructure Analytics Manager,Jacobs Engineering,San Francisco CA,130000-170000,Lead analytics for infrastructure projects. Build dashboards for project performance. Analyze construction data. Skills: SQL Tableau GIS data analysis,https://careers.jacobs.com,2024-05-30,LinkedIn
-Water Resources Data Analyst,Black & Veatch,Overland Park KS,95000-135000,Analyze water system data and hydrologic information. Build models for water resource planning. Skills: GIS Python SQL hydrologic modeling,https://careers.bv.com,2024-06-03,Indeed
-Transportation Planner Data Analytics,HDR Engineering,Omaha NE,90000-130000,Analyze traffic and transportation data for planning. Build predictive models for infrastructure. Skills: GIS SQL data analysis transportation planning,https://careers.hdrinc.com,2024-05-28,LinkedIn
-Utilities Data Analyst,Duke Energy,Charlotte NC,88000-125000,Analyze utility system data for optimization. Monitor infrastructure performance. Build dashboards. Skills: SQL Tableau data analysis utilities,https://careers.duke-energy.com,2024-06-04,Indeed
-Geospatial Software Developer,NVIDIA,Santa Clara CA,140000-190000,Build geospatial analysis tools and algorithms. Optimize spatial processing. Requires strong programming and GIS knowledge. Skills: Python C++ GIS CUDA GPU,https://careers.nvidia.com,2024-05-22,LinkedIn
-Urban Planner Data Analyst,City of Seattle,Seattle WA,75000-110000,Analyze urban planning data and demographics. Support city planning decisions with analysis. Manage GIS data. Skills: GIS SQL data analysis Tableau,https://careers.seattle.gov,2024-06-02,Indeed
-Mining Operations Data Analyst,Rio Tinto,Salt Lake City UT,100000-140000,Analyze mining operations data for efficiency. Build production optimization models. Work with GIS and spatial data. Skills: GIS SQL Python data analysis,https://careers.riotinto.com,2024-05-31,LinkedIn
-Seismic Data Analyst,Exxon Mobil,Houston TX,110000-150000,Analyze seismic and subsurface data. Build models for oil and gas exploration. Work with spatial and time-series data. Skills: Python seismic interpretation GIS data analysis,https://careers.exxonmobil.com,2024-06-05,LinkedIn
-Climate Data Scientist,Climate Central,Princeton NJ,95000-130000,Analyze climate and weather data for research. Build predictive models for climate change impacts. Requires strong data science and climate knowledge. Skills: Python R climate science data analysis,https://careers.climatecentral.org,2024-05-26,LinkedIn
-Product Data Analyst,Spotify,New York NY,130000-170000,Analyze user behavior and music streaming data. Build dashboards for product teams. Drive feature development with insights. Skills: SQL Python Tableau A/B testing,https://jobs.spotify.com,2024-05-20,LinkedIn
-Senior Product Analyst,Netflix,Los Gatos CA,150000-200000,Lead analytics for content strategy. Analyze viewing data and user engagement. Build predictive models for content recommendations. Skills: SQL Python R machine learning analytics,https://jobs.netflix.com,2024-05-25,LinkedIn
-Product Manager Analytics,Uber,San Francisco CA,140000-190000,Build analytics infrastructure for ride-sharing platform. Analyze driver and user behavior. Optimize pricing and matching algorithms. Skills: SQL Python machine learning Tableau,https://jobs.uber.com,2024-06-01,Indeed
-Design Analytics Manager,Adobe,San Jose CA,140000-190000,Lead analytics team for design tools. Analyze user behavior and feature adoption. Drive product decisions with data. Skills: SQL Python Tableau analytics leadership,https://careers.adobe.com,2024-05-28,LinkedIn
-UX Research Data Scientist,Microsoft,Seattle WA,135000-180000,Conduct UX research and user testing analysis. Build data models for user behavior. Analyze A/B test results. Skills: Python R SQL user research analytics,https://careers.microsoft.com,2024-06-04,LinkedIn
-Analytics Engineer,Figma,San Francisco CA,150000-200000,Build data infrastructure and analytics pipelines. Design data models for product analytics. Optimize data systems. Skills: SQL Python dbt data engineering,https://jobs.figma.com,2024-06-02,LinkedIn
-Product Insights Manager,Slack,San Francisco CA,140000-185000,Analyze user engagement and feature adoption. Build dashboards for product teams. Conduct user research analysis. Skills: SQL Python analytics A/B testing,https://jobs.slack.com,2024-05-31,LinkedIn
-Content Analytics Specialist,Facebook Meta,Menlo Park CA,130000-175000,Analyze content consumption and creator behavior. Build dashboards for platform insights. Work with large-scale data. Skills: SQL Python Tableau machine learning,https://careers.meta.com,2024-06-05,LinkedIn
-Growth Data Analyst,Pinterest,San Francisco CA,125000-165000,Analyze user growth and retention metrics. Build models for growth optimization. A/B test new features. Skills: SQL Python Tableau analytics,https://careers.pinterest.com,2024-05-23,LinkedIn
-Product Analytics Lead,DoorDash,San Francisco CA,145000-195000,Lead analytics for marketplace platform. Analyze restaurant and consumer behavior. Optimize matching algorithms. Skills: SQL Python Tableau machine learning analytics,https://careers.doordash.com,2024-06-03,LinkedIn
-Analytics Manager Design,IBM,Armonk NY,130000-170000,Manage analytics for design systems and UX. Analyze user research data. Build dashboards for design teams. Skills: SQL Tableau analytics user research,https://careers.ibm.com,2024-05-30,LinkedIn
-User Experience Metrics Manager,Apple,Cupertino CA,150000-200000,Analyze user experience metrics and HCI research. Build dashboards for product teams. Conduct user behavior analysis. Skills: SQL Python Tableau user research analytics,https://careers.apple.com,2024-06-06,LinkedIn
-Senior Accountant,PwC,New York NY,95000-135000,Manage accounting operations for Fortune 500 clients. Prepare financial statements and disclosures. Analyze financial data for trends. Skills: GAAP accounting Excel financial analysis SOX compliance,https://careers.pwc.com,2024-06-01,LinkedIn
-Financial Analyst,Morgan Stanley,New York NY,110000-160000,Analyze investment portfolios and financial markets. Build financial models for investment decisions. Requires accounting or finance background. Skills: Excel financial modeling valuation analysis,https://careers.morganstanley.com,2024-05-25,LinkedIn
-Tax Accountant,Deloitte Tax,Chicago IL,90000-130000,Prepare tax returns and provide tax planning advice. Analyze tax implications of transactions. Ensure compliance with tax regulations. Skills: tax accounting Excel CPA knowledge,https://careers.deloitte.com,2024-06-02,Indeed
-Controller,Fortune 500 Company,San Francisco CA,130000-180000,Lead accounting department for $500M+ division. Oversee financial reporting and compliance. Manage accounting team. Skills: accounting leadership GAAP Excel financial reporting,https://careers.fortune500.com,2024-05-28,LinkedIn
-Audit Manager,Ernst & Young,Boston MA,100000-145000,Lead audit teams for large corporate clients. Evaluate internal controls and financial reporting. Prepare audit reports. Skills: audit GAAP Excel risk assessment,https://careers.ey.com,2024-05-31,Indeed
-Cost Accountant,Manufacturing Company,Cleveland OH,80000-115000,Analyze manufacturing costs and production efficiency. Build cost models for pricing decisions. Manage variance analysis. Skills: cost accounting Excel variance analysis,https://careers.manufacturingco.com,2024-06-03,LinkedIn
-Corporate Finance Manager,Technology Company,Seattle WA,120000-160000,Manage corporate finance and budgeting. Analyze financial performance and variances. Support strategic planning. Skills: corporate finance Excel financial analysis budgeting,https://careers.techco.com,2024-05-26,Indeed
-Accounting Manager,Healthcare System,Atlanta GA,85000-125000,Lead accounting team for hospital network. Manage patient billing and revenue cycle. Ensure HIPAA compliance. Skills: healthcare accounting Excel billing systems,https://careers.healthcare.com,2024-06-04,LinkedIn
-Forensic Accountant,Investigation Firm,Washington DC,95000-140000,Investigate financial fraud and irregularities. Analyze financial records and transactions. Prepare expert testimony. Skills: forensic accounting investigation analysis,https://careers.investigationfirm.com,2024-05-20,Indeed
-Regional Sales Director,Technology Solutions,San Francisco CA,130000-200000,Lead sales team generating $20M+ annual revenue. Manage enterprise accounts and partnerships. Develop sales strategy. Skills: sales leadership Salesforce account management negotiation,https://careers.techsolutions.com,2024-06-01,LinkedIn
-Area Sales Manager,Pharmaceutical Company,New York NY,110000-180000,Manage drug sales across territory with $15M+ annual revenue. Build relationships with healthcare providers. Coach sales reps. Skills: pharmaceutical sales CRM negotiation,https://careers.pharma.com,2024-05-25,Indeed
-Sales Account Executive,Enterprise Software,Chicago IL,85000-150000,Close enterprise deals $100K-$2M. Manage account relationships and upsells. Exceed quarterly quota targets. Skills: sales account management enterprise CRM,https://careers.softwareco.com,2024-06-02,LinkedIn
-Business Development Manager,Financial Services,Boston MA,95000-140000,Develop new business partnerships and revenue streams. Analyze market opportunities. Build client relationships. Skills: business development sales strategy market analysis,https://careers.financialservices.com,2024-05-28,Indeed
-Sales Operations Manager,SaaS Company,San Francisco CA,105000-155000,Support sales team with operations and analytics. Manage Salesforce CRM system. Analyze sales metrics and performance. Skills: sales operations Salesforce analytics Excel,https://careers.saasco.com,2024-06-03,LinkedIn
-Territory Sales Manager,Retail Company,Dallas TX,75000-120000,Build sales team and manage territory revenue. Drive new customer acquisition. Implement sales strategies. Skills: sales management retail leadership negotiation,https://careers.retail.com,2024-05-31,Indeed
-Inside Sales Manager,Call Center,Phoenix AZ,60000-100000,Lead inside sales team handling inbound leads. Manage conversion rates and revenue. Train sales staff. Skills: inside sales management CRM training,https://careers.callcenter.com,2024-06-04,LinkedIn
-Channel Sales Manager,Technology Company,Seattle WA,100000-150000,Manage partner channel sales program. Develop reseller partnerships. Track channel revenue growth. Skills: channel sales management partner development,https://careers.techco.com,2024-05-22,Indeed
-Commercial Sales Manager,Industrial Equipment,Los Angeles CA,90000-135000,Manage commercial sales team for industrial products. Build B2B relationships. Achieve sales targets. Skills: commercial sales B2B relationship management,https://careers.industrial.com,2024-06-05,Indeed
-Licensed Electrician,Electrical Contractor,Denver CO,55000-85000,Install and maintain electrical systems in commercial and residential buildings. Follow electrical codes and safety standards. Troubleshoot electrical problems. Skills: electrical installation troubleshooting code compliance,https://careers.electricalco.com,2024-06-01,LinkedIn
-Master Electrician,Commercial Services,Phoenix AZ,65000-95000,Lead electrical installation projects. Supervise apprentices. Ensure safety and quality standards. Skills: electrical leadership apprentice training project management,https://careers.commercialelectric.com,2024-05-28,Indeed
-Journeyman Electrician,Industrial Facilities,Houston TX,60000-90000,Install and maintain industrial electrical systems. Work on complex control systems. Troubleshoot equipment issues. Skills: industrial electrical systems control troubleshooting,https://careers.industrial.com,2024-06-03,LinkedIn
-Residential Electrician,Home Services,Dallas TX,50000-75000,Install electrical systems in residential properties. Perform maintenance and repairs. Customer service focus. Skills: residential electrical wiring service,https://careers.homeservices.com,2024-05-31,Indeed
-Electrical Supervisor,Construction Company,Los Angeles CA,70000-105000,Supervise electrical crews on construction projects. Manage budgets and schedules. Ensure safety compliance. Skills: electrical supervision project management safety,https://careers.construction.com,2024-06-04,LinkedIn
-Facilities Electrician,Hospital,Miami FL,55000-80000,Maintain electrical systems in healthcare facility. Respond to maintenance emergencies. Ensure HIPAA compliance. Skills: electrical maintenance facilities healthcare,https://careers.hospital.com,2024-05-25,Indeed
-Plant Electrician,Manufacturing,Chicago IL,60000-88000,Maintain electrical equipment in manufacturing facility. Troubleshoot production line problems. Perform preventive maintenance. Skills: plant electrical maintenance equipment,https://careers.manufacturing.com,2024-06-02,Indeed
-Electrical Engineer Technician,Engineering Firm,San Francisco CA,70000-100000,Support electrical engineering projects. Create electrical diagrams and specifications. Test electrical systems. Skills: electrical engineering CAD AutoCAD,https://careers.engineering.com,2024-06-05,Indeed
-Building Electrician,Real Estate Management,New York NY,55000-85000,Maintain electrical systems in office and commercial buildings. Perform inspections and repairs. Coordinate with vendors. Skills: building electrical maintenance management,https://careers.realestate.com,2024-05-20,LinkedIn
-HR Manager,Retail Corporation,Atlanta GA,75000-110000,Lead HR operations for 500+ employee organization. Manage recruiting and onboarding. Handle employee relations. Skills: HR recruiting employee relations HRIS systems,https://careers.retail.com,2024-06-01,LinkedIn
-Talent Acquisition Manager,Technology Company,San Francisco CA,90000-140000,Lead recruiting efforts for technical and non-technical roles. Manage hiring budgets. Build talent pipeline. Skills: recruiting talent acquisition LinkedIn sourcing,https://careers.techco.com,2024-05-28,Indeed
-HR Business Partner,Fortune 500,New York NY,85000-125000,Partner with business units on HR strategy. Support organizational changes. Advise on employee relations. Skills: HR business partnering employee relations strategy,https://careers.fortune500.com,2024-06-03,LinkedIn
-Compensation Analyst,Insurance Company,Hartford CT,70000-105000,Analyze compensation and benefits. Conduct market surveys. Ensure pay equity. Skills: compensation analysis benefits survey tools,https://careers.insurance.com,2024-05-31,Indeed
-Recruiter,Staffing Agency,Chicago IL,50000-90000,Source and recruit candidates for open positions. Screen resumes and conduct interviews. Close placements. Skills: recruiting sourcing LinkedIn job boards,https://careers.staffing.com,2024-06-04,LinkedIn
-Employee Relations Manager,Manufacturing,Detroit MI,65000-100000,Handle employee relations issues and disputes. Conduct investigations. Advise on compliance. Skills: employee relations compliance HR,https://careers.manufacturing.com,2024-05-25,Indeed
-Training Manager,Healthcare,Los Angeles CA,70000-110000,Develop and deliver employee training programs. Manage learning management system. Assess training effectiveness. Skills: training LMS curriculum development,https://careers.healthcare.com,2024-06-02,Indeed
-HR Coordinator,Nonprofit,San Francisco CA,50000-75000,Support HR operations and administrative tasks. Process payroll and benefits. Maintain employee records. Skills: HR administration payroll benefits,https://careers.nonprofit.com,2024-05-20,LinkedIn
-HR Director,Mid-Size Company,Boston MA,95000-150000,Lead HR strategy and operations. Manage HR team. Support organizational growth and culture. Skills: HR leadership strategy development,https://careers.midsize.com,2024-06-05,Indeed
-Operations Manager,Manufacturing,Columbus OH,90000-140000,Oversee daily facility operations. Manage inventory and supply chain. Implement process improvements. Skills: operations management lean six sigma,https://careers.manufacturing.com,2024-06-01,LinkedIn
-Supply Chain Manager,Logistics Company,Atlanta GA,95000-145000,Manage supplier relationships and procurement. Optimize supply chain efficiency. Reduce costs. Skills: supply chain procurement vendor management,https://careers.logistics.com,2024-05-28,Indeed
-Warehouse Manager,Distribution Center,Dallas TX,70000-110000,Manage warehouse operations and inventory. Oversee staff and safety. Track KPIs and metrics. Skills: warehouse management inventory control leadership,https://careers.distribution.com,2024-06-03,LinkedIn
-Process Improvement Manager,Healthcare,Chicago IL,85000-130000,Implement lean and process improvement initiatives. Analyze workflows and efficiency. Manage improvement projects. Skills: process improvement lean six sigma,https://careers.healthcare.com,2024-05-31,Indeed
-Procurement Manager,Retail Corporation,New York NY,80000-125000,Manage purchasing and vendor relationships. Negotiate contracts. Control inventory costs. Skills: procurement negotiation contracts supplier management,https://careers.retail.com,2024-06-04,Indeed
-Production Planner,Manufacturing,Detroit MI,75000-115000,Plan production schedules and manage demand. Coordinate with departments. Optimize capacity. Skills: production planning ERP systems forecasting,https://careers.manufacturing.com,2024-05-25,Indeed
-Logistics Coordinator,Shipping Company,Miami FL,55000-85000,Coordinate shipments and logistics operations. Track freight and inventory. Resolve delivery issues. Skills: logistics shipping coordination software,https://careers.shipping.com,2024-06-02,LinkedIn
-Project Controls Manager,Construction,Los Angeles CA,95000-145000,Manage project budgets and schedules. Track project performance metrics. Report to stakeholders. Skills: project management scheduling budgeting,https://careers.construction.com,2024-05-20,Indeed
-Operations Analyst,Financial Services,Boston MA,70000-110000,Analyze operational processes and efficiency. Identify improvement opportunities. Support business decisions. Skills: operations analysis Excel data analysis,https://careers.financialservices.com,2024-06-05,LinkedIn
-Technical Writer,SaaS Company,San Francisco CA,85000-130000,Create user documentation and API docs. Develop training materials. Manage documentation site. Skills: technical writing Markdown documentation tools,https://careers.saas.com,2024-06-01,LinkedIn
-Documentation Manager,Software Company,Seattle WA,95000-145000,Lead documentation team for software products. Manage documentation strategy. Improve user experience. Skills: documentation leadership content strategy,https://careers.software.com,2024-05-28,Indeed
-API Documentation Specialist,Cloud Services,San Francisco CA,90000-135000,Write API documentation and technical guides. Create code examples. Maintain developer portal. Skills: API documentation code examples technical writing,https://careers.cloud.com,2024-06-03,LinkedIn
-Content Strategist,Technology Company,Austin TX,85000-130000,Develop content strategy for products and users. Plan documentation roadmap. Analyze content effectiveness. Skills: content strategy documentation information architecture,https://careers.techco.com,2024-05-31,Indeed
-UX Writer,Digital Agency,New York NY,75000-115000,Write user-facing content for digital products. Improve user experience through language. Conduct user testing. Skills: UX writing content strategy user research,https://careers.agency.com,2024-06-04,LinkedIn
-Instructional Design Writer,EdTech Company,Denver CO,80000-125000,Create training and instructional content. Develop learning materials. Design learning experiences. Skills: instructional design content creation eLearning,https://careers.edtech.com,2024-05-25,Indeed
-Help Desk Documentation Writer,IT Services,Chicago IL,60000-95000,Create IT support documentation and knowledge base. Update help articles. Support help desk team. Skills: technical writing IT support documentation,https://careers.itservices.com,2024-06-02,LinkedIn
-Marketing Content Writer,Marketing Agency,Los Angeles CA,70000-110000,Write marketing copy and promotional content. Create blog posts and case studies. Develop content calendar. Skills: content writing marketing copywriting,https://careers.agency.com,2024-05-20,Indeed
-Policy Documentation Writer,Government,Washington DC,75000-120000,Write policy and compliance documentation. Ensure regulatory compliance. Maintain documentation standards. Skills: policy writing documentation regulatory compliance,https://careers.government.com,2024-06-05,Indeed
+title,company,location,salary,description,requirements,url,date_posted,source
+Business Intelligence Analyst,Northbridge Health,"Columbus, OH","78,000-118,000","Northbridge Health is hiring a Business Intelligence Analyst in Columbus, OH. Produce financial and market intelligence by querying data repositories and generating periodic reports. Devise methods for identifying data patterns and trends in available information sources.
+
+Responsibilities:
+- Generate standard or custom reports summarizing business, financial, or economic data for review by executives, managers, clients, and other stakeholders.
+- Maintain or update business intelligence tools, databases, dashboards, systems, or methods.
+- Manage timely flow of business intelligence information to users.
+- Provide technical support for existing reports, dashboards, or other tools.
+- Identify and analyze industry or geographic trends with business strategy implications.
+- Document specifications for business intelligence or information technology reports, dashboards, or other outputs.
+
+Required qualifications:
+- Bachelor's degree; 2-4 years of relevant experience
+- Proficiency with Amazon Web Services AWS software, Microsoft Azure software, Microsoft Excel, Microsoft Office software, Microsoft Power BI
+
+Core knowledge areas:
+- Computers and Electronics
+- Mathematics
+- English Language
+- Administration and Management
+- Customer and Personal Service
+
+Preferred qualifications:
+- Experience with Microsoft PowerPoint, Python, R, Salesforce software",Amazon Web Services AWS software; Microsoft Azure software; Microsoft Excel; Microsoft Office software; Microsoft Power BI; Computers and Electronics; Mathematics; English Language; Administration and Management; Customer and Personal Service,https://example.com/jobs/15-2051.01,2026-06-01,LinkedIn
+Business Intelligence Analyst,Capital One,"Charlotte, NC","78,000-118,000","Capital One is hiring a Business Intelligence Analyst in Charlotte, NC. Produce financial and market intelligence by querying data repositories and generating periodic reports. Devise methods for identifying data patterns and trends in available information sources.
+
+Responsibilities:
+- Generate standard or custom reports summarizing business, financial, or economic data for review by executives, managers, clients, and other stakeholders.
+- Maintain or update business intelligence tools, databases, dashboards, systems, or methods.
+- Manage timely flow of business intelligence information to users.
+- Provide technical support for existing reports, dashboards, or other tools.
+- Identify and analyze industry or geographic trends with business strategy implications.
+- Document specifications for business intelligence or information technology reports, dashboards, or other outputs.
+
+Required qualifications:
+- Bachelor's degree; 2-4 years of relevant experience
+- Proficiency with Amazon Web Services AWS software, Microsoft Azure software, Microsoft Excel, Microsoft Office software, Microsoft Power BI
+
+Core knowledge areas:
+- Computers and Electronics
+- Mathematics
+- English Language
+- Administration and Management
+- Customer and Personal Service
+
+Preferred qualifications:
+- Experience with Microsoft PowerPoint, Python, R, Salesforce software",Amazon Web Services AWS software; Microsoft Azure software; Microsoft Excel; Microsoft Office software; Microsoft Power BI; Computers and Electronics; Mathematics; English Language; Administration and Management; Customer and Personal Service,https://example.com/jobs/15-2051.01,2026-06-01,LinkedIn
+Health Informatics Specialist,Turner Construction,"Charlotte, NC","110,000-160,000","Turner Construction is hiring a Health Informatics Specialist in Charlotte, NC. Apply knowledge of nursing and informatics to assist in the design, development, and ongoing modification of computerized health care systems. May educate staff and assist in problem solving to promote the implementation of the health care system.
+
+Responsibilities:
+- Translate nursing practice information between nurses and systems engineers, analysts, or designers, using object-oriented models or other techniques.
+- Use informatics science to design or implement health information technology applications for resolution of clinical or health care administrative problems.
+- Develop or implement policies or practices to ensure the privacy, confidentiality, or security of patient information.
+- Analyze and interpret patient, nursing, or information systems data to improve nursing services.
+- Identify, collect, record, or analyze data relevant to the nursing care of patients.
+- Apply knowledge of computer science, information science, nursing, and informatics theory to nursing practice, education, administration, or research, in collaboration with other health informatics specialists.
+
+Required qualifications:
+- Graduate or professional degree; 5+ years of relevant experience
+- Proficiency with Microsoft Excel, Microsoft Office software, Microsoft Outlook, Microsoft Power BI, Microsoft PowerPoint
+
+Core knowledge areas:
+- Computers and Electronics
+- English Language
+- Medicine and Dentistry
+- Education and Training
+- Customer and Personal Service
+
+Preferred qualifications:
+- Experience with Microsoft Word, Python, R, SAS",Microsoft Excel; Microsoft Office software; Microsoft Outlook; Microsoft Power BI; Microsoft PowerPoint; Computers and Electronics; English Language; Medicine and Dentistry; Education and Training; Customer and Personal Service,https://example.com/jobs/15-1211.01,2026-06-01,LinkedIn
+Health Informatics Specialist,Meridian Logistics,"McLean, VA","110,000-160,000","Meridian Logistics is hiring a Health Informatics Specialist in McLean, VA. Apply knowledge of nursing and informatics to assist in the design, development, and ongoing modification of computerized health care systems. May educate staff and assist in problem solving to promote the implementation of the health care system.
+
+Responsibilities:
+- Translate nursing practice information between nurses and systems engineers, analysts, or designers, using object-oriented models or other techniques.
+- Use informatics science to design or implement health information technology applications for resolution of clinical or health care administrative problems.
+- Develop or implement policies or practices to ensure the privacy, confidentiality, or security of patient information.
+- Analyze and interpret patient, nursing, or information systems data to improve nursing services.
+- Identify, collect, record, or analyze data relevant to the nursing care of patients.
+- Apply knowledge of computer science, information science, nursing, and informatics theory to nursing practice, education, administration, or research, in collaboration with other health informatics specialists.
+
+Required qualifications:
+- Graduate or professional degree; 5+ years of relevant experience
+- Proficiency with Microsoft Excel, Microsoft Office software, Microsoft Outlook, Microsoft Power BI, Microsoft PowerPoint
+
+Core knowledge areas:
+- Computers and Electronics
+- English Language
+- Medicine and Dentistry
+- Education and Training
+- Customer and Personal Service
+
+Preferred qualifications:
+- Experience with Microsoft Word, Python, R, SAS",Microsoft Excel; Microsoft Office software; Microsoft Outlook; Microsoft Power BI; Microsoft PowerPoint; Computers and Electronics; English Language; Medicine and Dentistry; Education and Training; Customer and Personal Service,https://example.com/jobs/15-1211.01,2026-06-01,LinkedIn
+Climate Change Policy Analyst,Brightpath Solutions,"McLean, VA","110,000-160,000","Brightpath Solutions is hiring a Climate Change Policy Analyst in McLean, VA. Research and analyze policy developments related to climate change. Make climate-related recommendations for actions such as legislation, awareness campaigns, or fundraising approaches.
+
+Responsibilities:
+- Provide analytical support for policy briefs related to renewable energy, energy efficiency, or climate change.
+- Propose new or modified policies involving use of traditional and alternative fuels, transportation of goods, and other factors relating to climate and climate change.
+- Prepare study reports, memoranda, briefs, testimonies, or other written materials to inform government or environmental groups on environmental issues, such as climate change.
+- Analyze and distill climate-related research findings to inform legislators, regulatory agencies, or other stakeholders.
+- Make legislative recommendations related to climate change or environmental management, based on climate change policies, principles, programs, practices, and processes.
+- Present climate-related information at public interest, governmental, or other meetings.
+
+Required qualifications:
+- Graduate or professional degree; 5+ years of relevant experience
+- Proficiency with Microsoft Excel, Microsoft Office software, Microsoft PowerPoint, C++, ESRI ArcGIS software
+
+Core knowledge areas:
+- Law and Government
+- English Language
+- Mathematics
+- Communications and Media
+- Engineering and Technology
+
+Preferred qualifications:
+- Experience with Linux, Microsoft Word, Perl, Python",Microsoft Excel; Microsoft Office software; Microsoft PowerPoint; C++; ESRI ArcGIS software; Law and Government; English Language; Mathematics; Communications and Media; Engineering and Technology,https://example.com/jobs/19-2041.01,2026-06-01,LinkedIn
+Climate Change Policy Analyst,Summit Financial,"Atlanta, GA","110,000-160,000","Summit Financial is hiring a Climate Change Policy Analyst in Atlanta, GA. Research and analyze policy developments related to climate change. Make climate-related recommendations for actions such as legislation, awareness campaigns, or fundraising approaches.
+
+Responsibilities:
+- Provide analytical support for policy briefs related to renewable energy, energy efficiency, or climate change.
+- Propose new or modified policies involving use of traditional and alternative fuels, transportation of goods, and other factors relating to climate and climate change.
+- Prepare study reports, memoranda, briefs, testimonies, or other written materials to inform government or environmental groups on environmental issues, such as climate change.
+- Analyze and distill climate-related research findings to inform legislators, regulatory agencies, or other stakeholders.
+- Make legislative recommendations related to climate change or environmental management, based on climate change policies, principles, programs, practices, and processes.
+- Present climate-related information at public interest, governmental, or other meetings.
+
+Required qualifications:
+- Graduate or professional degree; 5+ years of relevant experience
+- Proficiency with Microsoft Excel, Microsoft Office software, Microsoft PowerPoint, C++, ESRI ArcGIS software
+
+Core knowledge areas:
+- Law and Government
+- English Language
+- Mathematics
+- Communications and Media
+- Engineering and Technology
+
+Preferred qualifications:
+- Experience with Linux, Microsoft Word, Perl, Python",Microsoft Excel; Microsoft Office software; Microsoft PowerPoint; C++; ESRI ArcGIS software; Law and Government; English Language; Mathematics; Communications and Media; Engineering and Technology,https://example.com/jobs/19-2041.01,2026-06-01,LinkedIn
+Management Analyst,Cedar Ridge Care,"Atlanta, GA","78,000-118,000","Cedar Ridge Care is hiring a Management Analyst in Atlanta, GA. Conduct organizational studies and evaluations, design systems and procedures, conduct work simplification and measurement studies, and prepare operations and procedures manuals to assist management in operating more efficiently and effectively. Includes program analysts and management consultants.
+
+Responsibilities:
+- Gather and organize information on problems or procedures.
+- Confer with personnel concerned to ensure successful functioning of newly implemented systems or procedures.
+- Analyze data gathered and develop solutions or alternative methods of proceeding.
+- Document findings of study and prepare recommendations for implementation of new systems, procedures, or organizational changes.
+- Plan study of work problems and procedures, such as organizational change, communications, information flow, integrated production methods, inventory control, or cost analysis.
+- Interview personnel and conduct on-site observation to ascertain unit functions, work performed, and methods, equipment, and personnel used.
+
+Required qualifications:
+- Bachelor's degree; 2-4 years of relevant experience
+- Proficiency with Atlassian JIRA, Microsoft Excel, Microsoft Office software, Microsoft Power BI, Microsoft PowerPoint
+
+Core knowledge areas:
+- English Language
+- Administration and Management
+- Customer and Personal Service
+- Mathematics
+- Education and Training
+
+Preferred qualifications:
+- Experience with Microsoft SharePoint, Microsoft Visio, Python, Salesforce software",Atlassian JIRA; Microsoft Excel; Microsoft Office software; Microsoft Power BI; Microsoft PowerPoint; English Language; Administration and Management; Customer and Personal Service; Mathematics; Education and Training,https://example.com/jobs/13-1111.00,2026-06-01,LinkedIn
+Management Analyst,Vantage Retail,Remote,"78,000-118,000","Vantage Retail is hiring a Management Analyst in Remote. Conduct organizational studies and evaluations, design systems and procedures, conduct work simplification and measurement studies, and prepare operations and procedures manuals to assist management in operating more efficiently and effectively. Includes program analysts and management consultants.
+
+Responsibilities:
+- Gather and organize information on problems or procedures.
+- Confer with personnel concerned to ensure successful functioning of newly implemented systems or procedures.
+- Analyze data gathered and develop solutions or alternative methods of proceeding.
+- Document findings of study and prepare recommendations for implementation of new systems, procedures, or organizational changes.
+- Plan study of work problems and procedures, such as organizational change, communications, information flow, integrated production methods, inventory control, or cost analysis.
+- Interview personnel and conduct on-site observation to ascertain unit functions, work performed, and methods, equipment, and personnel used.
+
+Required qualifications:
+- Bachelor's degree; 2-4 years of relevant experience
+- Proficiency with Atlassian JIRA, Microsoft Excel, Microsoft Office software, Microsoft Power BI, Microsoft PowerPoint
+
+Core knowledge areas:
+- English Language
+- Administration and Management
+- Customer and Personal Service
+- Mathematics
+- Education and Training
+
+Preferred qualifications:
+- Experience with Microsoft SharePoint, Microsoft Visio, Python, Salesforce software",Atlassian JIRA; Microsoft Excel; Microsoft Office software; Microsoft Power BI; Microsoft PowerPoint; English Language; Administration and Management; Customer and Personal Service; Mathematics; Education and Training,https://example.com/jobs/13-1111.00,2026-06-01,LinkedIn
+Electrical and Electronic Engineering Technologists and Technician,Onyx Technologies,Remote,"55,000-82,000","Onyx Technologies is hiring an Electrical and Electronic Engineering Technologists and Technician in Remote. Apply electrical and electronic theory and related knowledge, usually under the direction of engineering staff, to design, build, repair, adjust, and modify electrical components, circuitry, controls, and machinery for subsequent evaluation and use by engineering staff in making engineering design decisions.
+
+Responsibilities:
+- Modify, maintain, or repair electronics equipment or systems to ensure proper functioning.
+- Replace defective components or parts, using hand tools and precision instruments.
+- Set up and operate specialized or standard test equipment to diagnose, test, or analyze the performance of electronic components, assemblies, or systems.
+- Read blueprints, wiring diagrams, schematic drawings, or engineering instructions for assembling electronics units, applying knowledge of electronic theory and components.
+- Identify and resolve equipment malfunctions, working with manufacturers or field representatives as necessary to procure replacement parts.
+- Assemble electrical systems or prototypes, using hand tools or measuring instruments.
+
+Required qualifications:
+- Associate's degree or vocational training plus apprenticeship; 1-2 years of relevant experience
+- Proficiency with Microsoft Excel, Microsoft Office software, Microsoft Outlook, Adobe Acrobat, Autodesk AutoCAD
+
+Core knowledge areas:
+- Computers and Electronics
+- Engineering and Technology
+- English Language
+- Design
+- Mathematics
+
+Preferred qualifications:
+- Experience with Autodesk Revit, Bentley MicroStation, C, C++",Microsoft Excel; Microsoft Office software; Microsoft Outlook; Adobe Acrobat; Autodesk AutoCAD; Computers and Electronics; Engineering and Technology; English Language; Design; Mathematics,https://example.com/jobs/17-3023.00,2026-06-01,LinkedIn
+Electrical and Electronic Engineering Technologists and Technician,Harborview Systems,"Columbus, OH","55,000-82,000","Harborview Systems is hiring an Electrical and Electronic Engineering Technologists and Technician in Columbus, OH. Apply electrical and electronic theory and related knowledge, usually under the direction of engineering staff, to design, build, repair, adjust, and modify electrical components, circuitry, controls, and machinery for subsequent evaluation and use by engineering staff in making engineering design decisions.
+
+Responsibilities:
+- Modify, maintain, or repair electronics equipment or systems to ensure proper functioning.
+- Replace defective components or parts, using hand tools and precision instruments.
+- Set up and operate specialized or standard test equipment to diagnose, test, or analyze the performance of electronic components, assemblies, or systems.
+- Read blueprints, wiring diagrams, schematic drawings, or engineering instructions for assembling electronics units, applying knowledge of electronic theory and components.
+- Identify and resolve equipment malfunctions, working with manufacturers or field representatives as necessary to procure replacement parts.
+- Assemble electrical systems or prototypes, using hand tools or measuring instruments.
+
+Required qualifications:
+- Associate's degree or vocational training plus apprenticeship; 1-2 years of relevant experience
+- Proficiency with Microsoft Excel, Microsoft Office software, Microsoft Outlook, Adobe Acrobat, Autodesk AutoCAD
+
+Core knowledge areas:
+- Computers and Electronics
+- Engineering and Technology
+- English Language
+- Design
+- Mathematics
+
+Preferred qualifications:
+- Experience with Autodesk Revit, Bentley MicroStation, C, C++",Microsoft Excel; Microsoft Office software; Microsoft Outlook; Adobe Acrobat; Autodesk AutoCAD; Computers and Electronics; Engineering and Technology; English Language; Design; Mathematics,https://example.com/jobs/17-3023.00,2026-06-01,LinkedIn
+Data Scientist,Pinnacle Services,"Columbus, OH","78,000-118,000","Pinnacle Services is hiring a Data Scientist in Columbus, OH. Develop and implement a set of techniques or analytics applications to transform raw data into meaningful information using data-oriented programming languages and visualization software. Apply data mining, data modeling, natural language processing, and machine learning to extract and analyze information from large structured and unstructured datasets. Visualize, interpret, and report data findings. May create dynamic data reports.
+
+Responsibilities:
+
+Required qualifications:
+- Bachelor's degree; 2-4 years of relevant experience
+- Proficiency with Amazon Web Services AWS software, Apache Hadoop, Apache Spark, C++, Git
+
+Preferred qualifications:
+- Experience with Microsoft Azure software, Microsoft Excel, Microsoft Power BI, Microsoft PowerPoint",Amazon Web Services AWS software; Apache Hadoop; Apache Spark; C++; Git,https://example.com/jobs/15-2051.00,2026-06-01,LinkedIn
+Data Scientist,Greenfield Manufacturing,"Charlotte, NC","78,000-118,000","Greenfield Manufacturing is hiring a Data Scientist in Charlotte, NC. Develop and implement a set of techniques or analytics applications to transform raw data into meaningful information using data-oriented programming languages and visualization software. Apply data mining, data modeling, natural language processing, and machine learning to extract and analyze information from large structured and unstructured datasets. Visualize, interpret, and report data findings. May create dynamic data reports.
+
+Responsibilities:
+
+Required qualifications:
+- Bachelor's degree; 2-4 years of relevant experience
+- Proficiency with Amazon Web Services AWS software, Apache Hadoop, Apache Spark, C++, Git
+
+Preferred qualifications:
+- Experience with Microsoft Azure software, Microsoft Excel, Microsoft Power BI, Microsoft PowerPoint",Amazon Web Services AWS software; Apache Hadoop; Apache Spark; C++; Git,https://example.com/jobs/15-2051.00,2026-06-01,LinkedIn
+Instructional Coordinator,Northbridge Health,"Charlotte, NC","110,000-160,000","Northbridge Health is hiring an Instructional Coordinator in Charlotte, NC. Develop instructional material, coordinate educational content, and incorporate current technology into instruction in order to provide guidelines to educators and instructors for developing curricula and conducting courses. May train and coach teachers. Includes educational consultants and specialists, and instructional material directors.
+
+Responsibilities:
+- Observe work of teaching staff to evaluate performance and to recommend changes that could strengthen teaching skills.
+- Plan and conduct teacher training programs and conferences dealing with new classroom procedures, instructional materials and equipment, and teaching aids.
+- Interpret and enforce provisions of state education codes and rules and regulations of state education boards.
+- Conduct or participate in workshops, committees, and conferences designed to promote the intellectual, social, and physical welfare of students.
+- Advise teaching and administrative staff in curriculum development, use of materials and equipment, and implementation of state and federal programs and procedures.
+- Advise and teach students.
+
+Required qualifications:
+- Graduate or professional degree; 5+ years of relevant experience
+- Proficiency with Articulate Storyline, Learning management system LMS, Microsoft Excel, Microsoft Office software, Microsoft Outlook
+
+Core knowledge areas:
+- Education and Training
+- English Language
+- Administration and Management
+- Mathematics
+- Computers and Electronics
+
+Preferred qualifications:
+- Experience with Microsoft PowerPoint, TechSmith Camtasia, Adobe Acrobat, Adobe After Effects",Articulate Storyline; Learning management system LMS; Microsoft Excel; Microsoft Office software; Microsoft Outlook; Education and Training; English Language; Administration and Management; Mathematics; Computers and Electronics,https://example.com/jobs/25-9031.00,2026-06-01,LinkedIn
+Instructional Coordinator,Capital One,"McLean, VA","110,000-160,000","Capital One is hiring an Instructional Coordinator in McLean, VA. Develop instructional material, coordinate educational content, and incorporate current technology into instruction in order to provide guidelines to educators and instructors for developing curricula and conducting courses. May train and coach teachers. Includes educational consultants and specialists, and instructional material directors.
+
+Responsibilities:
+- Observe work of teaching staff to evaluate performance and to recommend changes that could strengthen teaching skills.
+- Plan and conduct teacher training programs and conferences dealing with new classroom procedures, instructional materials and equipment, and teaching aids.
+- Interpret and enforce provisions of state education codes and rules and regulations of state education boards.
+- Conduct or participate in workshops, committees, and conferences designed to promote the intellectual, social, and physical welfare of students.
+- Advise teaching and administrative staff in curriculum development, use of materials and equipment, and implementation of state and federal programs and procedures.
+- Advise and teach students.
+
+Required qualifications:
+- Graduate or professional degree; 5+ years of relevant experience
+- Proficiency with Articulate Storyline, Learning management system LMS, Microsoft Excel, Microsoft Office software, Microsoft Outlook
+
+Core knowledge areas:
+- Education and Training
+- English Language
+- Administration and Management
+- Mathematics
+- Computers and Electronics
+
+Preferred qualifications:
+- Experience with Microsoft PowerPoint, TechSmith Camtasia, Adobe Acrobat, Adobe After Effects",Articulate Storyline; Learning management system LMS; Microsoft Excel; Microsoft Office software; Microsoft Outlook; Education and Training; English Language; Administration and Management; Mathematics; Computers and Electronics,https://example.com/jobs/25-9031.00,2026-06-01,LinkedIn
+Financial Quantitative Analyst,Turner Construction,"McLean, VA","110,000-160,000","Turner Construction is hiring a Financial Quantitative Analyst in McLean, VA. Develop quantitative techniques to inform securities investing, equities investing, pricing, or valuation of financial instruments. Develop mathematical or statistical models for risk management, asset optimization, pricing, or relative value analysis.
+
+Responsibilities:
+- Apply mathematical or statistical techniques to address practical issues in finance, such as derivative valuation, securities trading, risk management, or financial market regulation.
+- Research or develop analytical tools to address issues such as portfolio construction or optimization, performance measurement, attribution, profit and loss measurement, or pricing models.
+- Interpret results of financial analysis procedures.
+- Develop core analytical capabilities or model libraries, using advanced statistical, quantitative, or econometric techniques.
+- Define or recommend model specifications or data collection methods.
+- Produce written summary reports of financial research results.
+
+Required qualifications:
+- Graduate or professional degree; 5+ years of relevant experience
+- Proficiency with C++, Microsoft Excel, Microsoft Office software, Microsoft PowerPoint, Microsoft Visual Basic for Applications VBA
+
+Core knowledge areas:
+- Mathematics
+- Economics and Accounting
+- Computers and Electronics
+- English Language
+- Engineering and Technology
+
+Preferred qualifications:
+- Experience with Python, R, SAS, Structured query language SQL",C++; Microsoft Excel; Microsoft Office software; Microsoft PowerPoint; Microsoft Visual Basic for Applications VBA; Mathematics; Economics and Accounting; Computers and Electronics; English Language; Engineering and Technology,https://example.com/jobs/13-2099.01,2026-06-01,LinkedIn
+Financial Quantitative Analyst,Meridian Logistics,"Atlanta, GA","110,000-160,000","Meridian Logistics is hiring a Financial Quantitative Analyst in Atlanta, GA. Develop quantitative techniques to inform securities investing, equities investing, pricing, or valuation of financial instruments. Develop mathematical or statistical models for risk management, asset optimization, pricing, or relative value analysis.
+
+Responsibilities:
+- Apply mathematical or statistical techniques to address practical issues in finance, such as derivative valuation, securities trading, risk management, or financial market regulation.
+- Research or develop analytical tools to address issues such as portfolio construction or optimization, performance measurement, attribution, profit and loss measurement, or pricing models.
+- Interpret results of financial analysis procedures.
+- Develop core analytical capabilities or model libraries, using advanced statistical, quantitative, or econometric techniques.
+- Define or recommend model specifications or data collection methods.
+- Produce written summary reports of financial research results.
+
+Required qualifications:
+- Graduate or professional degree; 5+ years of relevant experience
+- Proficiency with C++, Microsoft Excel, Microsoft Office software, Microsoft PowerPoint, Microsoft Visual Basic for Applications VBA
+
+Core knowledge areas:
+- Mathematics
+- Economics and Accounting
+- Computers and Electronics
+- English Language
+- Engineering and Technology
+
+Preferred qualifications:
+- Experience with Python, R, SAS, Structured query language SQL",C++; Microsoft Excel; Microsoft Office software; Microsoft PowerPoint; Microsoft Visual Basic for Applications VBA; Mathematics; Economics and Accounting; Computers and Electronics; English Language; Engineering and Technology,https://example.com/jobs/13-2099.01,2026-06-01,LinkedIn
+Operations Research Analyst,Brightpath Solutions,"Atlanta, GA","110,000-160,000","Brightpath Solutions is hiring an Operations Research Analyst in Atlanta, GA. Formulate and apply mathematical modeling and other optimizing methods to develop and interpret information that assists management with decisionmaking, policy formulation, or other managerial functions. May collect and analyze data and develop decision support software, services, or products. May develop and supply optimal time, cost, or logistics networks for program evaluation, review, or implementation.
+
+Responsibilities:
+- Present the results of mathematical modeling and data analysis to management or other end users.
+- Define data requirements, and gather and validate information, applying judgment and statistical tests.
+- Perform validation and testing of models to ensure adequacy, and reformulate models, as necessary.
+- Prepare management reports defining and evaluating problems and recommending solutions.
+- Collaborate with others in the organization to ensure successful implementation of chosen problem solutions.
+- Formulate mathematical or simulation models of problems, relating constants and variables, restrictions, alternatives, conflicting objectives, and their numerical parameters.
+
+Required qualifications:
+- Graduate or professional degree; 5+ years of relevant experience
+- Proficiency with Microsoft Excel, Microsoft Office software, Microsoft Outlook, Microsoft Power BI, Microsoft PowerPoint
+
+Core knowledge areas:
+- Mathematics
+- Computers and Electronics
+- Engineering and Technology
+- Production and Processing
+- English Language
+
+Preferred qualifications:
+- Experience with Python, Salesforce software, Structured query language SQL, Tableau",Microsoft Excel; Microsoft Office software; Microsoft Outlook; Microsoft Power BI; Microsoft PowerPoint; Mathematics; Computers and Electronics; Engineering and Technology; Production and Processing; English Language,https://example.com/jobs/15-2031.00,2026-06-01,LinkedIn
+Operations Research Analyst,Summit Financial,Remote,"110,000-160,000","Summit Financial is hiring an Operations Research Analyst in Remote. Formulate and apply mathematical modeling and other optimizing methods to develop and interpret information that assists management with decisionmaking, policy formulation, or other managerial functions. May collect and analyze data and develop decision support software, services, or products. May develop and supply optimal time, cost, or logistics networks for program evaluation, review, or implementation.
+
+Responsibilities:
+- Present the results of mathematical modeling and data analysis to management or other end users.
+- Define data requirements, and gather and validate information, applying judgment and statistical tests.
+- Perform validation and testing of models to ensure adequacy, and reformulate models, as necessary.
+- Prepare management reports defining and evaluating problems and recommending solutions.
+- Collaborate with others in the organization to ensure successful implementation of chosen problem solutions.
+- Formulate mathematical or simulation models of problems, relating constants and variables, restrictions, alternatives, conflicting objectives, and their numerical parameters.
+
+Required qualifications:
+- Graduate or professional degree; 5+ years of relevant experience
+- Proficiency with Microsoft Excel, Microsoft Office software, Microsoft Outlook, Microsoft Power BI, Microsoft PowerPoint
+
+Core knowledge areas:
+- Mathematics
+- Computers and Electronics
+- Engineering and Technology
+- Production and Processing
+- English Language
+
+Preferred qualifications:
+- Experience with Python, Salesforce software, Structured query language SQL, Tableau",Microsoft Excel; Microsoft Office software; Microsoft Outlook; Microsoft Power BI; Microsoft PowerPoint; Mathematics; Computers and Electronics; Engineering and Technology; Production and Processing; English Language,https://example.com/jobs/15-2031.00,2026-06-01,LinkedIn
+Water Resource Specialist,Cedar Ridge Care,Remote,"78,000-118,000","Cedar Ridge Care is hiring a Water Resource Specialist in Remote. Design or implement programs and strategies related to water resource issues such as supply, quality, and regulatory compliance issues.
+
+Responsibilities:
+- Perform hydrologic, hydraulic, or water quality modeling.
+- Analyze storm water systems to identify opportunities for water resource improvements.
+- Conduct, or oversee the conduct of, investigations on matters such as water storage, wastewater discharge, pollutants, permits, or other compliance and regulatory issues.
+- Develop strategies for watershed operations to meet water supply and conservation goals or to ensure regulatory compliance with clean water laws or regulations.
+- Conduct technical studies for water resources on topics such as pollutants and water treatment options.
+- Review or evaluate designs for water detention facilities, storm drains, flood control facilities, or other hydraulic structures.
+
+Required qualifications:
+- Bachelor's degree; 2-4 years of relevant experience
+- Proficiency with ESRI ArcGIS software, Geographic information system GIS systems, Microsoft Excel, Microsoft Office software, Autodesk AutoCAD
+
+Core knowledge areas:
+- Engineering and Technology
+- Mathematics
+- Design
+- Physics
+- Computers and Electronics
+
+Preferred qualifications:
+- Experience with Microsoft Outlook, Microsoft PowerPoint, Microsoft Word, Structured query language SQL",ESRI ArcGIS software; Geographic information system GIS systems; Microsoft Excel; Microsoft Office software; Autodesk AutoCAD; Engineering and Technology; Mathematics; Design; Physics; Computers and Electronics,https://example.com/jobs/11-9121.02,2026-06-01,LinkedIn
+Water Resource Specialist,Vantage Retail,"Columbus, OH","78,000-118,000","Vantage Retail is hiring a Water Resource Specialist in Columbus, OH. Design or implement programs and strategies related to water resource issues such as supply, quality, and regulatory compliance issues.
+
+Responsibilities:
+- Perform hydrologic, hydraulic, or water quality modeling.
+- Analyze storm water systems to identify opportunities for water resource improvements.
+- Conduct, or oversee the conduct of, investigations on matters such as water storage, wastewater discharge, pollutants, permits, or other compliance and regulatory issues.
+- Develop strategies for watershed operations to meet water supply and conservation goals or to ensure regulatory compliance with clean water laws or regulations.
+- Conduct technical studies for water resources on topics such as pollutants and water treatment options.
+- Review or evaluate designs for water detention facilities, storm drains, flood control facilities, or other hydraulic structures.
+
+Required qualifications:
+- Bachelor's degree; 2-4 years of relevant experience
+- Proficiency with ESRI ArcGIS software, Geographic information system GIS systems, Microsoft Excel, Microsoft Office software, Autodesk AutoCAD
+
+Core knowledge areas:
+- Engineering and Technology
+- Mathematics
+- Design
+- Physics
+- Computers and Electronics
+
+Preferred qualifications:
+- Experience with Microsoft Outlook, Microsoft PowerPoint, Microsoft Word, Structured query language SQL",ESRI ArcGIS software; Geographic information system GIS systems; Microsoft Excel; Microsoft Office software; Autodesk AutoCAD; Engineering and Technology; Mathematics; Design; Physics; Computers and Electronics,https://example.com/jobs/11-9121.02,2026-06-01,LinkedIn
+Transportation Planner,Onyx Technologies,"Columbus, OH","78,000-118,000","Onyx Technologies is hiring a Transportation Planner in Columbus, OH. Prepare studies for proposed transportation projects. Gather, compile, and analyze data. Study the use and operation of transportation systems. Develop transportation models or simulations.
+
+Responsibilities:
+- Define regional or local transportation planning problems or priorities.
+- Participate in public meetings or hearings to explain planning proposals, to gather feedback from those affected by projects, or to achieve consensus on project designs.
+- Prepare reports or recommendations on transportation planning.
+- Collaborate with engineers to research, analyze, or resolve complex transportation design issues.
+- Recommend transportation system improvements or projects, based on economic, population, land-use, or traffic projections.
+- Develop computer models to address transportation planning issues.
+
+Required qualifications:
+- Bachelor's degree; 2-4 years of relevant experience
+- Proficiency with ESRI ArcGIS software, Geographic information system GIS systems, Microsoft Access, Microsoft Excel, Microsoft Office software
+
+Core knowledge areas:
+- Transportation
+- English Language
+- Mathematics
+- Geography
+- Law and Government
+
+Preferred qualifications:
+- Experience with Microsoft Outlook, Microsoft Power BI, Microsoft PowerPoint, Microsoft Word",ESRI ArcGIS software; Geographic information system GIS systems; Microsoft Access; Microsoft Excel; Microsoft Office software; Transportation; English Language; Mathematics; Geography; Law and Government,https://example.com/jobs/19-3099.01,2026-06-01,LinkedIn
+Transportation Planner,Harborview Systems,"Charlotte, NC","78,000-118,000","Harborview Systems is hiring a Transportation Planner in Charlotte, NC. Prepare studies for proposed transportation projects. Gather, compile, and analyze data. Study the use and operation of transportation systems. Develop transportation models or simulations.
+
+Responsibilities:
+- Define regional or local transportation planning problems or priorities.
+- Participate in public meetings or hearings to explain planning proposals, to gather feedback from those affected by projects, or to achieve consensus on project designs.
+- Prepare reports or recommendations on transportation planning.
+- Collaborate with engineers to research, analyze, or resolve complex transportation design issues.
+- Recommend transportation system improvements or projects, based on economic, population, land-use, or traffic projections.
+- Develop computer models to address transportation planning issues.
+
+Required qualifications:
+- Bachelor's degree; 2-4 years of relevant experience
+- Proficiency with ESRI ArcGIS software, Geographic information system GIS systems, Microsoft Access, Microsoft Excel, Microsoft Office software
+
+Core knowledge areas:
+- Transportation
+- English Language
+- Mathematics
+- Geography
+- Law and Government
+
+Preferred qualifications:
+- Experience with Microsoft Outlook, Microsoft Power BI, Microsoft PowerPoint, Microsoft Word",ESRI ArcGIS software; Geographic information system GIS systems; Microsoft Access; Microsoft Excel; Microsoft Office software; Transportation; English Language; Mathematics; Geography; Law and Government,https://example.com/jobs/19-3099.01,2026-06-01,LinkedIn
+Market Research Analysts and Marketing Specialist,Pinnacle Services,"Charlotte, NC","78,000-118,000","Pinnacle Services is hiring a Market Research Analysts and Marketing Specialist in Charlotte, NC. Research conditions in local, regional, national, or online markets. Gather information to determine potential sales of a product or service, or plan a marketing or advertising campaign. May gather information on competitors, prices, sales, and methods of marketing and distribution. May employ search marketing tactics, analyze web metrics, and develop recommendations to increase search engine ranking and visibility to target markets.
+
+Responsibilities:
+- Prepare reports of findings, illustrating data graphically and translating complex findings into written text.
+- Collect and analyze data on customer demographics, preferences, needs, and buying habits to identify potential markets and factors affecting product demand.
+- Conduct research on consumer opinions and marketing strategies, collaborating with marketing professionals, statisticians, pollsters, and other professionals.
+- Measure and assess customer and employee satisfaction.
+- Devise and evaluate methods and procedures for collecting data, such as surveys, opinion polls, or questionnaires, or arrange to obtain existing data.
+- Measure the effectiveness of marketing, advertising, and communications programs and strategies.
+
+Required qualifications:
+- Bachelor's degree; 2-4 years of relevant experience
+- Proficiency with Adobe Creative Cloud software, Canva, Google Analytics, Microsoft Excel, Microsoft Office software
+
+Core knowledge areas:
+- English Language
+- Customer and Personal Service
+- Sales and Marketing
+- Mathematics
+- Administration and Management
+
+Preferred qualifications:
+- Experience with Microsoft Outlook, Microsoft PowerPoint, Salesforce software, TikTok",Adobe Creative Cloud software; Canva; Google Analytics; Microsoft Excel; Microsoft Office software; English Language; Customer and Personal Service; Sales and Marketing; Mathematics; Administration and Management,https://example.com/jobs/13-1161.00,2026-06-01,LinkedIn
+Market Research Analysts and Marketing Specialist,Greenfield Manufacturing,"McLean, VA","78,000-118,000","Greenfield Manufacturing is hiring a Market Research Analysts and Marketing Specialist in McLean, VA. Research conditions in local, regional, national, or online markets. Gather information to determine potential sales of a product or service, or plan a marketing or advertising campaign. May gather information on competitors, prices, sales, and methods of marketing and distribution. May employ search marketing tactics, analyze web metrics, and develop recommendations to increase search engine ranking and visibility to target markets.
+
+Responsibilities:
+- Prepare reports of findings, illustrating data graphically and translating complex findings into written text.
+- Collect and analyze data on customer demographics, preferences, needs, and buying habits to identify potential markets and factors affecting product demand.
+- Conduct research on consumer opinions and marketing strategies, collaborating with marketing professionals, statisticians, pollsters, and other professionals.
+- Measure and assess customer and employee satisfaction.
+- Devise and evaluate methods and procedures for collecting data, such as surveys, opinion polls, or questionnaires, or arrange to obtain existing data.
+- Measure the effectiveness of marketing, advertising, and communications programs and strategies.
+
+Required qualifications:
+- Bachelor's degree; 2-4 years of relevant experience
+- Proficiency with Adobe Creative Cloud software, Canva, Google Analytics, Microsoft Excel, Microsoft Office software
+
+Core knowledge areas:
+- English Language
+- Customer and Personal Service
+- Sales and Marketing
+- Mathematics
+- Administration and Management
+
+Preferred qualifications:
+- Experience with Microsoft Outlook, Microsoft PowerPoint, Salesforce software, TikTok",Adobe Creative Cloud software; Canva; Google Analytics; Microsoft Excel; Microsoft Office software; English Language; Customer and Personal Service; Sales and Marketing; Mathematics; Administration and Management,https://example.com/jobs/13-1161.00,2026-06-01,LinkedIn
+Accountants and Auditor,Northbridge Health,"McLean, VA","78,000-118,000","Northbridge Health is hiring an Accountants and Auditor in McLean, VA. Examine, analyze, and interpret accounting records to prepare financial statements, give advice, or audit and evaluate statements prepared by others. Install or advise on systems of recording costs or other financial and budgetary data.
+
+Responsibilities:
+- Prepare detailed reports on audit findings.
+- Report to management about asset utilization and audit results, and recommend changes in operations and financial activities.
+- Collect and analyze data to detect deficient controls, duplicated effort, extravagance, fraud, or non-compliance with laws, regulations, and management policies.
+- Inspect account books and accounting systems for efficiency, effectiveness, and use of accepted accounting procedures to record transactions.
+- Supervise auditing of establishments, and determine scope of investigation required.
+- Confer with company officials about financial and regulatory matters.
+
+Required qualifications:
+- Bachelor's degree; 2-4 years of relevant experience
+- Proficiency with Intuit QuickBooks, Microsoft Excel, Microsoft Office software, Microsoft Outlook, Microsoft PowerPoint
+
+Core knowledge areas:
+- Economics and Accounting
+- English Language
+- Mathematics
+- Administration and Management
+- Customer and Personal Service
+
+Preferred qualifications:
+- Experience with SAP software, Adobe Acrobat, Alteryx software, Epic Systems",Intuit QuickBooks; Microsoft Excel; Microsoft Office software; Microsoft Outlook; Microsoft PowerPoint; Economics and Accounting; English Language; Mathematics; Administration and Management; Customer and Personal Service,https://example.com/jobs/13-2011.00,2026-06-01,LinkedIn
+Accountants and Auditor,Capital One,"Atlanta, GA","78,000-118,000","Capital One is hiring an Accountants and Auditor in Atlanta, GA. Examine, analyze, and interpret accounting records to prepare financial statements, give advice, or audit and evaluate statements prepared by others. Install or advise on systems of recording costs or other financial and budgetary data.
+
+Responsibilities:
+- Prepare detailed reports on audit findings.
+- Report to management about asset utilization and audit results, and recommend changes in operations and financial activities.
+- Collect and analyze data to detect deficient controls, duplicated effort, extravagance, fraud, or non-compliance with laws, regulations, and management policies.
+- Inspect account books and accounting systems for efficiency, effectiveness, and use of accepted accounting procedures to record transactions.
+- Supervise auditing of establishments, and determine scope of investigation required.
+- Confer with company officials about financial and regulatory matters.
+
+Required qualifications:
+- Bachelor's degree; 2-4 years of relevant experience
+- Proficiency with Intuit QuickBooks, Microsoft Excel, Microsoft Office software, Microsoft Outlook, Microsoft PowerPoint
+
+Core knowledge areas:
+- Economics and Accounting
+- English Language
+- Mathematics
+- Administration and Management
+- Customer and Personal Service
+
+Preferred qualifications:
+- Experience with SAP software, Adobe Acrobat, Alteryx software, Epic Systems",Intuit QuickBooks; Microsoft Excel; Microsoft Office software; Microsoft Outlook; Microsoft PowerPoint; Economics and Accounting; English Language; Mathematics; Administration and Management; Customer and Personal Service,https://example.com/jobs/13-2011.00,2026-06-01,LinkedIn
+Financial and Investment Analyst,Turner Construction,"Atlanta, GA","78,000-118,000","Turner Construction is hiring a Financial and Investment Analyst in Atlanta, GA. Conduct quantitative analyses of information involving investment programs or financial data of public or private institutions, including valuation of businesses.
+
+Responsibilities:
+
+Required qualifications:
+- Bachelor's degree; 2-4 years of relevant experience
+- Proficiency with Microsoft Excel, Microsoft Office software, Microsoft Outlook, Microsoft Power BI, Microsoft PowerPoint
+
+Preferred qualifications:
+- Experience with SAP software, Structured query language SQL, Tableau, Alteryx software",Microsoft Excel; Microsoft Office software; Microsoft Outlook; Microsoft Power BI; Microsoft PowerPoint,https://example.com/jobs/13-2051.00,2026-06-01,LinkedIn
+Financial and Investment Analyst,Meridian Logistics,Remote,"78,000-118,000","Meridian Logistics is hiring a Financial and Investment Analyst in Remote. Conduct quantitative analyses of information involving investment programs or financial data of public or private institutions, including valuation of businesses.
+
+Responsibilities:
+
+Required qualifications:
+- Bachelor's degree; 2-4 years of relevant experience
+- Proficiency with Microsoft Excel, Microsoft Office software, Microsoft Outlook, Microsoft Power BI, Microsoft PowerPoint
+
+Preferred qualifications:
+- Experience with SAP software, Structured query language SQL, Tableau, Alteryx software",Microsoft Excel; Microsoft Office software; Microsoft Outlook; Microsoft Power BI; Microsoft PowerPoint,https://example.com/jobs/13-2051.00,2026-06-01,LinkedIn
+Treasurers and Controller,Brightpath Solutions,Remote,"78,000-118,000","Brightpath Solutions is hiring a Treasurers and Controller in Remote. Direct financial activities, such as planning, procurement, and investments for all or part of an organization.
+
+Responsibilities:
+- Evaluate needs for procurement of funds and investment of surpluses and make appropriate recommendations.
+- Delegate authority for the receipt, disbursement, banking, protection, and custody of funds, securities, and financial instruments.
+- Develop and maintain relationships with banking, insurance, and external accounting personnel to facilitate financial activities.
+- Monitor financial activities and details, such as cash flow and reserve levels, to ensure that all legal and regulatory requirements are met.
+- Receive, record, and authorize requests for disbursements in accordance with company policies and procedures.
+- Develop internal control policies, guidelines, and procedures for activities, such as budget administration, cash and credit management, and accounting.
+
+Required qualifications:
+- Bachelor's degree; 2-4 years of relevant experience
+- Proficiency with Intuit QuickBooks, Microsoft Excel, Microsoft Office software, Microsoft PowerPoint, SAP software
+
+Core knowledge areas:
+- Economics and Accounting
+- English Language
+- Administration and Management
+- Mathematics
+- Personnel and Human Resources
+
+Preferred qualifications:
+- Experience with Hypertext markup language HTML, Microsoft Access, Microsoft Outlook, Microsoft Project",Intuit QuickBooks; Microsoft Excel; Microsoft Office software; Microsoft PowerPoint; SAP software; Economics and Accounting; English Language; Administration and Management; Mathematics; Personnel and Human Resources,https://example.com/jobs/11-3031.01,2026-06-01,LinkedIn
+Treasurers and Controller,Summit Financial,"Columbus, OH","78,000-118,000","Summit Financial is hiring a Treasurers and Controller in Columbus, OH. Direct financial activities, such as planning, procurement, and investments for all or part of an organization.
+
+Responsibilities:
+- Evaluate needs for procurement of funds and investment of surpluses and make appropriate recommendations.
+- Delegate authority for the receipt, disbursement, banking, protection, and custody of funds, securities, and financial instruments.
+- Develop and maintain relationships with banking, insurance, and external accounting personnel to facilitate financial activities.
+- Monitor financial activities and details, such as cash flow and reserve levels, to ensure that all legal and regulatory requirements are met.
+- Receive, record, and authorize requests for disbursements in accordance with company policies and procedures.
+- Develop internal control policies, guidelines, and procedures for activities, such as budget administration, cash and credit management, and accounting.
+
+Required qualifications:
+- Bachelor's degree; 2-4 years of relevant experience
+- Proficiency with Intuit QuickBooks, Microsoft Excel, Microsoft Office software, Microsoft PowerPoint, SAP software
+
+Core knowledge areas:
+- Economics and Accounting
+- English Language
+- Administration and Management
+- Mathematics
+- Personnel and Human Resources
+
+Preferred qualifications:
+- Experience with Hypertext markup language HTML, Microsoft Access, Microsoft Outlook, Microsoft Project",Intuit QuickBooks; Microsoft Excel; Microsoft Office software; Microsoft PowerPoint; SAP software; Economics and Accounting; English Language; Administration and Management; Mathematics; Personnel and Human Resources,https://example.com/jobs/11-3031.01,2026-06-01,LinkedIn
+Quality Control Systems Manager,Cedar Ridge Care,"Columbus, OH","78,000-118,000","Cedar Ridge Care is hiring a Quality Control Systems Manager in Columbus, OH. Plan, direct, or coordinate quality assurance programs. Formulate quality control policies and control quality of laboratory and production efforts.
+
+Responsibilities:
+- Stop production if serious product defects are present.
+- Review and update standard operating procedures or quality assurance manuals.
+- Monitor performance of quality control systems to ensure effectiveness and efficiency.
+- Review quality documentation necessary for regulatory submissions and inspections.
+- Analyze quality control test results and provide feedback and interpretation to production management or staff.
+- Verify that raw materials, purchased parts or components, in-process samples, and finished products meet established testing and inspection standards.
+
+Required qualifications:
+- Bachelor's degree; 2-4 years of relevant experience
+- Proficiency with Microsoft Excel, Microsoft Office software, Microsoft Outlook, Microsoft PowerPoint, Adobe Acrobat
+
+Core knowledge areas:
+- Production and Processing
+- Education and Training
+- English Language
+- Chemistry
+- Customer and Personal Service
+
+Preferred qualifications:
+- Experience with Atlassian JIRA, Extensible markup language XML, Linux, Microsoft Access",Microsoft Excel; Microsoft Office software; Microsoft Outlook; Microsoft PowerPoint; Adobe Acrobat; Production and Processing; Education and Training; English Language; Chemistry; Customer and Personal Service,https://example.com/jobs/11-3051.01,2026-06-01,LinkedIn
+Quality Control Systems Manager,Vantage Retail,"Charlotte, NC","78,000-118,000","Vantage Retail is hiring a Quality Control Systems Manager in Charlotte, NC. Plan, direct, or coordinate quality assurance programs. Formulate quality control policies and control quality of laboratory and production efforts.
+
+Responsibilities:
+- Stop production if serious product defects are present.
+- Review and update standard operating procedures or quality assurance manuals.
+- Monitor performance of quality control systems to ensure effectiveness and efficiency.
+- Review quality documentation necessary for regulatory submissions and inspections.
+- Analyze quality control test results and provide feedback and interpretation to production management or staff.
+- Verify that raw materials, purchased parts or components, in-process samples, and finished products meet established testing and inspection standards.
+
+Required qualifications:
+- Bachelor's degree; 2-4 years of relevant experience
+- Proficiency with Microsoft Excel, Microsoft Office software, Microsoft Outlook, Microsoft PowerPoint, Adobe Acrobat
+
+Core knowledge areas:
+- Production and Processing
+- Education and Training
+- English Language
+- Chemistry
+- Customer and Personal Service
+
+Preferred qualifications:
+- Experience with Atlassian JIRA, Extensible markup language XML, Linux, Microsoft Access",Microsoft Excel; Microsoft Office software; Microsoft Outlook; Microsoft PowerPoint; Adobe Acrobat; Production and Processing; Education and Training; English Language; Chemistry; Customer and Personal Service,https://example.com/jobs/11-3051.01,2026-06-01,LinkedIn
+Financial Manager,Onyx Technologies,"Charlotte, NC","78,000-118,000","Onyx Technologies is hiring a Financial Manager in Charlotte, NC. Plan, direct, or coordinate accounting, investing, banking, insurance, securities, and other financial activities of a branch, office, or department of an establishment.
+
+Responsibilities:
+- Establish and maintain relationships with individual or business customers or provide assistance with problems these customers may encounter.
+- Oversee the flow of cash or financial instruments.
+- Plan, direct, or coordinate the activities of workers in branches, offices, or departments of establishments, such as branch banks, brokerage firms, risk and insurance departments, or credit departments.
+- Recruit staff members.
+- Evaluate data pertaining to costs to plan budgets.
+- Oversee training programs.
+
+Required qualifications:
+- Bachelor's degree; 2-4 years of relevant experience
+- Proficiency with Microsoft Excel, Microsoft Office software, Microsoft Outlook, Microsoft PowerPoint, SAP software
+
+Core knowledge areas:
+- Customer and Personal Service
+- Administration and Management
+- Economics and Accounting
+- Mathematics
+- Administrative
+
+Preferred qualifications:
+- Experience with Adobe Acrobat, Alteryx software, IBM SPSS Statistics, Intuit QuickBooks",Microsoft Excel; Microsoft Office software; Microsoft Outlook; Microsoft PowerPoint; SAP software; Customer and Personal Service; Administration and Management; Economics and Accounting; Mathematics; Administrative,https://example.com/jobs/11-3031.00,2026-06-01,LinkedIn
+Financial Manager,Harborview Systems,"McLean, VA","78,000-118,000","Harborview Systems is hiring a Financial Manager in McLean, VA. Plan, direct, or coordinate accounting, investing, banking, insurance, securities, and other financial activities of a branch, office, or department of an establishment.
+
+Responsibilities:
+- Establish and maintain relationships with individual or business customers or provide assistance with problems these customers may encounter.
+- Oversee the flow of cash or financial instruments.
+- Plan, direct, or coordinate the activities of workers in branches, offices, or departments of establishments, such as branch banks, brokerage firms, risk and insurance departments, or credit departments.
+- Recruit staff members.
+- Evaluate data pertaining to costs to plan budgets.
+- Oversee training programs.
+
+Required qualifications:
+- Bachelor's degree; 2-4 years of relevant experience
+- Proficiency with Microsoft Excel, Microsoft Office software, Microsoft Outlook, Microsoft PowerPoint, SAP software
+
+Core knowledge areas:
+- Customer and Personal Service
+- Administration and Management
+- Economics and Accounting
+- Mathematics
+- Administrative
+
+Preferred qualifications:
+- Experience with Adobe Acrobat, Alteryx software, IBM SPSS Statistics, Intuit QuickBooks",Microsoft Excel; Microsoft Office software; Microsoft Outlook; Microsoft PowerPoint; SAP software; Customer and Personal Service; Administration and Management; Economics and Accounting; Mathematics; Administrative,https://example.com/jobs/11-3031.00,2026-06-01,LinkedIn
+Sales Manager,Pinnacle Services,"McLean, VA","78,000-118,000","Pinnacle Services is hiring a Sales Manager in McLean, VA. Plan, direct, or coordinate the actual distribution or movement of a product or service to the customer. Coordinate sales distribution by establishing sales territories, quotas, and goals and establish training programs for sales representatives. Analyze sales statistics gathered by staff to determine sales potential and inventory requirements and monitor the preferences of customers.
+
+Responsibilities:
+- Oversee regional and local sales managers and their staffs.
+- Resolve customer complaints regarding sales and service.
+- Monitor customer preferences to determine focus of sales efforts.
+- Confer with potential customers regarding equipment needs, and advise customers on types of equipment to purchase.
+- Review operational records and reports to project sales and determine profitability.
+- Plan and direct staffing, training, and performance evaluations to develop and control sales and service programs.
+
+Required qualifications:
+- Bachelor's degree; 2-4 years of relevant experience
+- Proficiency with Microsoft Excel, Microsoft Office software, Microsoft Outlook, Microsoft PowerPoint, Salesforce software
+
+Core knowledge areas:
+- Sales and Marketing
+- Customer and Personal Service
+- English Language
+- Administration and Management
+- Personnel and Human Resources
+
+Preferred qualifications:
+- Experience with Adobe Acrobat, Adobe Creative Cloud software, Bentley MicroStation, Eclipse IDE",Microsoft Excel; Microsoft Office software; Microsoft Outlook; Microsoft PowerPoint; Salesforce software; Sales and Marketing; Customer and Personal Service; English Language; Administration and Management; Personnel and Human Resources,https://example.com/jobs/11-2022.00,2026-06-01,LinkedIn
+Sales Manager,Greenfield Manufacturing,"Atlanta, GA","78,000-118,000","Greenfield Manufacturing is hiring a Sales Manager in Atlanta, GA. Plan, direct, or coordinate the actual distribution or movement of a product or service to the customer. Coordinate sales distribution by establishing sales territories, quotas, and goals and establish training programs for sales representatives. Analyze sales statistics gathered by staff to determine sales potential and inventory requirements and monitor the preferences of customers.
+
+Responsibilities:
+- Oversee regional and local sales managers and their staffs.
+- Resolve customer complaints regarding sales and service.
+- Monitor customer preferences to determine focus of sales efforts.
+- Confer with potential customers regarding equipment needs, and advise customers on types of equipment to purchase.
+- Review operational records and reports to project sales and determine profitability.
+- Plan and direct staffing, training, and performance evaluations to develop and control sales and service programs.
+
+Required qualifications:
+- Bachelor's degree; 2-4 years of relevant experience
+- Proficiency with Microsoft Excel, Microsoft Office software, Microsoft Outlook, Microsoft PowerPoint, Salesforce software
+
+Core knowledge areas:
+- Sales and Marketing
+- Customer and Personal Service
+- English Language
+- Administration and Management
+- Personnel and Human Resources
+
+Preferred qualifications:
+- Experience with Adobe Acrobat, Adobe Creative Cloud software, Bentley MicroStation, Eclipse IDE",Microsoft Excel; Microsoft Office software; Microsoft Outlook; Microsoft PowerPoint; Salesforce software; Sales and Marketing; Customer and Personal Service; English Language; Administration and Management; Personnel and Human Resources,https://example.com/jobs/11-2022.00,2026-06-01,LinkedIn
+Training and Development Manager,Northbridge Health,"Atlanta, GA","78,000-118,000","Northbridge Health is hiring a Training and Development Manager in Atlanta, GA. Plan, direct, or coordinate the training and development activities and staff of an organization.
+
+Responsibilities:
+- Analyze training needs to develop new training programs or modify and improve existing programs.
+- Evaluate instructor performance and the effectiveness of training programs, providing recommendations for improvement.
+- Plan, develop, and provide training and staff development programs, using knowledge of the effectiveness of methods such as classroom training, demonstrations, on-the-job training, meetings, conferences, and workshops.
+- Confer with management and conduct surveys to identify training needs based on projected production processes, changes, and other factors.
+- Conduct orientation sessions and arrange on-the-job training for new hires.
+- Train instructors and supervisors in techniques and skills for training and dealing with employees.
+
+Required qualifications:
+- Bachelor's degree; 2-4 years of relevant experience
+- Proficiency with Learning management system LMS, Microsoft Excel, Microsoft Office software, Microsoft Outlook, Microsoft PowerPoint
+
+Core knowledge areas:
+- Education and Training
+- English Language
+- Administration and Management
+- Personnel and Human Resources
+- Customer and Personal Service
+
+Preferred qualifications:
+- Experience with Adobe Acrobat, Adobe Illustrator, Adobe Photoshop, Apache Cassandra",Learning management system LMS; Microsoft Excel; Microsoft Office software; Microsoft Outlook; Microsoft PowerPoint; Education and Training; English Language; Administration and Management; Personnel and Human Resources; Customer and Personal Service,https://example.com/jobs/11-3131.00,2026-06-01,LinkedIn
+Training and Development Manager,Capital One,Remote,"78,000-118,000","Capital One is hiring a Training and Development Manager in Remote. Plan, direct, or coordinate the training and development activities and staff of an organization.
+
+Responsibilities:
+- Analyze training needs to develop new training programs or modify and improve existing programs.
+- Evaluate instructor performance and the effectiveness of training programs, providing recommendations for improvement.
+- Plan, develop, and provide training and staff development programs, using knowledge of the effectiveness of methods such as classroom training, demonstrations, on-the-job training, meetings, conferences, and workshops.
+- Confer with management and conduct surveys to identify training needs based on projected production processes, changes, and other factors.
+- Conduct orientation sessions and arrange on-the-job training for new hires.
+- Train instructors and supervisors in techniques and skills for training and dealing with employees.
+
+Required qualifications:
+- Bachelor's degree; 2-4 years of relevant experience
+- Proficiency with Learning management system LMS, Microsoft Excel, Microsoft Office software, Microsoft Outlook, Microsoft PowerPoint
+
+Core knowledge areas:
+- Education and Training
+- English Language
+- Administration and Management
+- Personnel and Human Resources
+- Customer and Personal Service
+
+Preferred qualifications:
+- Experience with Adobe Acrobat, Adobe Illustrator, Adobe Photoshop, Apache Cassandra",Learning management system LMS; Microsoft Excel; Microsoft Office software; Microsoft Outlook; Microsoft PowerPoint; Education and Training; English Language; Administration and Management; Personnel and Human Resources; Customer and Personal Service,https://example.com/jobs/11-3131.00,2026-06-01,LinkedIn
+Electrician,Turner Construction,Remote,"55,000-82,000","Turner Construction is hiring an Electrician in Remote. Install, maintain, and repair electrical wiring, equipment, and fixtures. Ensure that work is in accordance with relevant codes. May install or service street lights, intercom systems, or electrical control systems.
+
+Responsibilities:
+- Prepare sketches or follow blueprints to determine the location of wiring or equipment and to ensure conformance to building and safety codes.
+- Place conduit, pipes, or tubing, inside designated partitions, walls, or other concealed areas, and pull insulated wires or cables through the conduit to complete circuits between boxes.
+- Work from ladders, scaffolds, or roofs to install, maintain, or repair electrical wiring, equipment, or fixtures.
+- Use a variety of tools or equipment, such as power construction equipment, measuring devices, power tools, and testing equipment, such as oscilloscopes, ammeters, or test lamps.
+- Assemble, install, test, or maintain electrical or electronic wiring, equipment, appliances, apparatus, or fixtures, using hand tools or power tools.
+- Connect wires to circuit breakers, transformers, or other components.
+
+Required qualifications:
+- Associate's degree or vocational training plus apprenticeship; 1-2 years of relevant experience
+- Proficiency with Adobe Acrobat, Autodesk AutoCAD, Microsoft Excel, Microsoft Office software, Microsoft Outlook
+
+Core knowledge areas:
+- Building and Construction
+- Administration and Management
+- Mechanical
+- Mathematics
+- Design
+
+Preferred qualifications:
+- Experience with Microsoft Windows, Microsoft Word, SAP software, AVEVA InTouch HMI",Adobe Acrobat; Autodesk AutoCAD; Microsoft Excel; Microsoft Office software; Microsoft Outlook; Building and Construction; Administration and Management; Mechanical; Mathematics; Design,https://example.com/jobs/47-2111.00,2026-06-01,LinkedIn
+Electrician,Meridian Logistics,"Columbus, OH","55,000-82,000","Meridian Logistics is hiring an Electrician in Columbus, OH. Install, maintain, and repair electrical wiring, equipment, and fixtures. Ensure that work is in accordance with relevant codes. May install or service street lights, intercom systems, or electrical control systems.
+
+Responsibilities:
+- Prepare sketches or follow blueprints to determine the location of wiring or equipment and to ensure conformance to building and safety codes.
+- Place conduit, pipes, or tubing, inside designated partitions, walls, or other concealed areas, and pull insulated wires or cables through the conduit to complete circuits between boxes.
+- Work from ladders, scaffolds, or roofs to install, maintain, or repair electrical wiring, equipment, or fixtures.
+- Use a variety of tools or equipment, such as power construction equipment, measuring devices, power tools, and testing equipment, such as oscilloscopes, ammeters, or test lamps.
+- Assemble, install, test, or maintain electrical or electronic wiring, equipment, appliances, apparatus, or fixtures, using hand tools or power tools.
+- Connect wires to circuit breakers, transformers, or other components.
+
+Required qualifications:
+- Associate's degree or vocational training plus apprenticeship; 1-2 years of relevant experience
+- Proficiency with Adobe Acrobat, Autodesk AutoCAD, Microsoft Excel, Microsoft Office software, Microsoft Outlook
+
+Core knowledge areas:
+- Building and Construction
+- Administration and Management
+- Mechanical
+- Mathematics
+- Design
+
+Preferred qualifications:
+- Experience with Microsoft Windows, Microsoft Word, SAP software, AVEVA InTouch HMI",Adobe Acrobat; Autodesk AutoCAD; Microsoft Excel; Microsoft Office software; Microsoft Outlook; Building and Construction; Administration and Management; Mechanical; Mathematics; Design,https://example.com/jobs/47-2111.00,2026-06-01,LinkedIn
+Human Resources Manager,Brightpath Solutions,"Columbus, OH","78,000-118,000","Brightpath Solutions is hiring a Human Resources Manager in Columbus, OH. Plan, direct, or coordinate human resources activities and staff of an organization.
+
+Responsibilities:
+- Serve as a link between management and employees by handling questions, interpreting and administering contracts and helping resolve work-related problems.
+- Plan, direct, supervise, and coordinate work activities of subordinates and staff relating to employment, compensation, labor relations, and employee relations.
+- Perform difficult staffing duties, including dealing with understaffing, refereeing disputes, firing employees, and administering disciplinary procedures.
+- Represent organization at personnel-related hearings and investigations.
+- Negotiate bargaining agreements and help interpret labor contracts.
+- Advise managers on organizational policy matters, such as equal employment opportunity and sexual harassment, and recommend needed changes.
+
+Required qualifications:
+- Bachelor's degree; 2-4 years of relevant experience
+- Proficiency with Applicant tracking software, Microsoft Excel, Microsoft Office software, Microsoft Outlook, Microsoft PowerPoint
+
+Core knowledge areas:
+- Personnel and Human Resources
+- English Language
+- Administration and Management
+- Customer and Personal Service
+- Education and Training
+
+Preferred qualifications:
+- Experience with Oracle HRIS, Workday software, Facebook, IBM SPSS Statistics",Applicant tracking software; Microsoft Excel; Microsoft Office software; Microsoft Outlook; Microsoft PowerPoint; Personnel and Human Resources; English Language; Administration and Management; Customer and Personal Service; Education and Training,https://example.com/jobs/11-3121.00,2026-06-01,LinkedIn
+Human Resources Manager,Summit Financial,"Charlotte, NC","78,000-118,000","Summit Financial is hiring a Human Resources Manager in Charlotte, NC. Plan, direct, or coordinate human resources activities and staff of an organization.
+
+Responsibilities:
+- Serve as a link between management and employees by handling questions, interpreting and administering contracts and helping resolve work-related problems.
+- Plan, direct, supervise, and coordinate work activities of subordinates and staff relating to employment, compensation, labor relations, and employee relations.
+- Perform difficult staffing duties, including dealing with understaffing, refereeing disputes, firing employees, and administering disciplinary procedures.
+- Represent organization at personnel-related hearings and investigations.
+- Negotiate bargaining agreements and help interpret labor contracts.
+- Advise managers on organizational policy matters, such as equal employment opportunity and sexual harassment, and recommend needed changes.
+
+Required qualifications:
+- Bachelor's degree; 2-4 years of relevant experience
+- Proficiency with Applicant tracking software, Microsoft Excel, Microsoft Office software, Microsoft Outlook, Microsoft PowerPoint
+
+Core knowledge areas:
+- Personnel and Human Resources
+- English Language
+- Administration and Management
+- Customer and Personal Service
+- Education and Training
+
+Preferred qualifications:
+- Experience with Oracle HRIS, Workday software, Facebook, IBM SPSS Statistics",Applicant tracking software; Microsoft Excel; Microsoft Office software; Microsoft Outlook; Microsoft PowerPoint; Personnel and Human Resources; English Language; Administration and Management; Customer and Personal Service; Education and Training,https://example.com/jobs/11-3121.00,2026-06-01,LinkedIn
+Talent Director,Cedar Ridge Care,"Charlotte, NC","78,000-118,000","Cedar Ridge Care is hiring a Talent Director in Charlotte, NC. Audition and interview performers to select most appropriate talent for parts in stage, television, radio, or motion picture productions.
+
+Responsibilities:
+- Audition and interview performers to match their attributes to specific roles or to increase the pool of available acting talent.
+- Prepare actors for auditions by providing scripts and information about roles and casting requirements.
+- Select performers for roles or submit lists of suitable performers to producers or directors for final selection.
+- Contact agents and actors to provide notification of audition and performance opportunities and to set up audition times.
+- Serve as liaisons between directors, actors, and agents.
+- Negotiate contract agreements with performers, with agents, or between performers and agents or production companies.
+
+Required qualifications:
+- Bachelor's degree; 2-4 years of relevant experience
+- Proficiency with Microsoft Excel, Microsoft Office software, Microsoft PowerPoint, Salesforce software, Amazon Web Services AWS software
+
+Core knowledge areas:
+- English Language
+- Customer and Personal Service
+- Communications and Media
+- Personnel and Human Resources
+- Administration and Management
+
+Preferred qualifications:
+- Experience with Linux, Microsoft Windows, Microsoft Word, Oracle Java",Microsoft Excel; Microsoft Office software; Microsoft PowerPoint; Salesforce software; Amazon Web Services AWS software; English Language; Customer and Personal Service; Communications and Media; Personnel and Human Resources; Administration and Management,https://example.com/jobs/27-2012.04,2026-06-01,LinkedIn
+Talent Director,Vantage Retail,"McLean, VA","78,000-118,000","Vantage Retail is hiring a Talent Director in McLean, VA. Audition and interview performers to select most appropriate talent for parts in stage, television, radio, or motion picture productions.
+
+Responsibilities:
+- Audition and interview performers to match their attributes to specific roles or to increase the pool of available acting talent.
+- Prepare actors for auditions by providing scripts and information about roles and casting requirements.
+- Select performers for roles or submit lists of suitable performers to producers or directors for final selection.
+- Contact agents and actors to provide notification of audition and performance opportunities and to set up audition times.
+- Serve as liaisons between directors, actors, and agents.
+- Negotiate contract agreements with performers, with agents, or between performers and agents or production companies.
+
+Required qualifications:
+- Bachelor's degree; 2-4 years of relevant experience
+- Proficiency with Microsoft Excel, Microsoft Office software, Microsoft PowerPoint, Salesforce software, Amazon Web Services AWS software
+
+Core knowledge areas:
+- English Language
+- Customer and Personal Service
+- Communications and Media
+- Personnel and Human Resources
+- Administration and Management
+
+Preferred qualifications:
+- Experience with Linux, Microsoft Windows, Microsoft Word, Oracle Java",Microsoft Excel; Microsoft Office software; Microsoft PowerPoint; Salesforce software; Amazon Web Services AWS software; English Language; Customer and Personal Service; Communications and Media; Personnel and Human Resources; Administration and Management,https://example.com/jobs/27-2012.04,2026-06-01,LinkedIn
+Human Resources Specialist,Onyx Technologies,"McLean, VA","78,000-118,000","Onyx Technologies is hiring a Human Resources Specialist in McLean, VA. Recruit, screen, interview, or place individuals within an organization. May perform other activities in multiple human resources areas.
+
+Responsibilities:
+- Interpret and explain human resources policies, procedures, laws, standards, or regulations.
+- Hire employees and process hiring-related paperwork.
+- Maintain current knowledge of Equal Employment Opportunity (EEO) and affirmative action guidelines and laws, such as the Americans with Disabilities Act (ADA).
+- Prepare or maintain employment records related to events, such as hiring, termination, leaves, transfers, or promotions, using human resources management system software.
+- Address employee relations issues, such as harassment allegations, work complaints, or other employee concerns.
+- Review employment applications and job orders to match applicants with job requirements.
+
+Required qualifications:
+- Bachelor's degree; 2-4 years of relevant experience
+- Proficiency with Applicant tracking software, Microsoft Excel, Microsoft Office software, Microsoft Outlook, Microsoft PowerPoint
+
+Core knowledge areas:
+- Personnel and Human Resources
+- Administrative
+- Administration and Management
+- English Language
+- Customer and Personal Service
+
+Preferred qualifications:
+- Experience with Oracle HRIS, Workday software, Adobe Acrobat, Adobe Creative Cloud software",Applicant tracking software; Microsoft Excel; Microsoft Office software; Microsoft Outlook; Microsoft PowerPoint; Personnel and Human Resources; Administrative; Administration and Management; English Language; Customer and Personal Service,https://example.com/jobs/13-1071.00,2026-06-01,LinkedIn
+Human Resources Specialist,Harborview Systems,"Atlanta, GA","78,000-118,000","Harborview Systems is hiring a Human Resources Specialist in Atlanta, GA. Recruit, screen, interview, or place individuals within an organization. May perform other activities in multiple human resources areas.
+
+Responsibilities:
+- Interpret and explain human resources policies, procedures, laws, standards, or regulations.
+- Hire employees and process hiring-related paperwork.
+- Maintain current knowledge of Equal Employment Opportunity (EEO) and affirmative action guidelines and laws, such as the Americans with Disabilities Act (ADA).
+- Prepare or maintain employment records related to events, such as hiring, termination, leaves, transfers, or promotions, using human resources management system software.
+- Address employee relations issues, such as harassment allegations, work complaints, or other employee concerns.
+- Review employment applications and job orders to match applicants with job requirements.
+
+Required qualifications:
+- Bachelor's degree; 2-4 years of relevant experience
+- Proficiency with Applicant tracking software, Microsoft Excel, Microsoft Office software, Microsoft Outlook, Microsoft PowerPoint
+
+Core knowledge areas:
+- Personnel and Human Resources
+- Administrative
+- Administration and Management
+- English Language
+- Customer and Personal Service
+
+Preferred qualifications:
+- Experience with Oracle HRIS, Workday software, Adobe Acrobat, Adobe Creative Cloud software",Applicant tracking software; Microsoft Excel; Microsoft Office software; Microsoft Outlook; Microsoft PowerPoint; Personnel and Human Resources; Administrative; Administration and Management; English Language; Customer and Personal Service,https://example.com/jobs/13-1071.00,2026-06-01,LinkedIn
+Compensation,Pinnacle Services,"Atlanta, GA","78,000-118,000","Pinnacle Services is hiring a Compensation in Atlanta, GA. Conduct programs of compensation and benefits and job analysis for employer. May specialize in specific areas, such as position classification and pension programs.
+
+Responsibilities:
+- Administer employee insurance, pension, and savings plans, working with insurance brokers and plan carriers.
+- Ensure company compliance with federal and state laws, including reporting requirements.
+- Research employee benefit and health and safety practices, and recommend changes or modifications to existing policies.
+- Advise managers and employees on state and federal employment regulations, collective agreements, benefit and compensation policies, personnel procedures, and classification programs.
+- Plan and develop curricula and materials for training programs and conduct training.
+- Assist in preparing and maintaining personnel records and handbooks.
+
+Required qualifications:
+- Bachelor's degree; 2-4 years of relevant experience
+- Proficiency with Microsoft Excel, Microsoft Office software, Microsoft Outlook, Microsoft PowerPoint, Oracle HRIS
+
+Core knowledge areas:
+- Personnel and Human Resources
+- English Language
+- Customer and Personal Service
+- Mathematics
+- Administration and Management
+
+Preferred qualifications:
+- Experience with Workday software, IBM SPSS Statistics, Kronos Workforce Timekeeper, Microsoft Access",Microsoft Excel; Microsoft Office software; Microsoft Outlook; Microsoft PowerPoint; Oracle HRIS; Personnel and Human Resources; English Language; Customer and Personal Service; Mathematics; Administration and Management,https://example.com/jobs/13-1141.00,2026-06-01,LinkedIn
+Compensation,Greenfield Manufacturing,Remote,"78,000-118,000","Greenfield Manufacturing is hiring a Compensation in Remote. Conduct programs of compensation and benefits and job analysis for employer. May specialize in specific areas, such as position classification and pension programs.
+
+Responsibilities:
+- Administer employee insurance, pension, and savings plans, working with insurance brokers and plan carriers.
+- Ensure company compliance with federal and state laws, including reporting requirements.
+- Research employee benefit and health and safety practices, and recommend changes or modifications to existing policies.
+- Advise managers and employees on state and federal employment regulations, collective agreements, benefit and compensation policies, personnel procedures, and classification programs.
+- Plan and develop curricula and materials for training programs and conduct training.
+- Assist in preparing and maintaining personnel records and handbooks.
+
+Required qualifications:
+- Bachelor's degree; 2-4 years of relevant experience
+- Proficiency with Microsoft Excel, Microsoft Office software, Microsoft Outlook, Microsoft PowerPoint, Oracle HRIS
+
+Core knowledge areas:
+- Personnel and Human Resources
+- English Language
+- Customer and Personal Service
+- Mathematics
+- Administration and Management
+
+Preferred qualifications:
+- Experience with Workday software, IBM SPSS Statistics, Kronos Workforce Timekeeper, Microsoft Access",Microsoft Excel; Microsoft Office software; Microsoft Outlook; Microsoft PowerPoint; Oracle HRIS; Personnel and Human Resources; English Language; Customer and Personal Service; Mathematics; Administration and Management,https://example.com/jobs/13-1141.00,2026-06-01,LinkedIn
+General and Operations Manager,Northbridge Health,Remote,"78,000-118,000","Northbridge Health is hiring a General and Operations Manager in Remote. Plan, direct, or coordinate the operations of public or private sector organizations, overseeing multiple departments or locations. Duties and responsibilities include formulating policies, managing daily operations, and planning the use of materials and human resources, but are too diverse and general in nature to be classified in any one functional area of management or administration, such as personnel, purchasing, or administrative services. Usually manage through subordinate supervisors. Excludes First-Line Supervisors.
+
+Responsibilities:
+- Review financial statements, sales or activity reports, or other performance data to measure productivity or goal achievement or to identify areas needing cost reduction or program improvement.
+- Direct and coordinate activities of businesses or departments concerned with the production, pricing, sales, or distribution of products.
+- Direct administrative activities directly related to making products or providing services.
+- Prepare staff work schedules and assign specific duties.
+- Direct or coordinate financial or budget activities to fund operations, maximize investments, or increase efficiency.
+- Plan or direct activities, such as sales promotions, that require coordination with other department managers.
+
+Required qualifications:
+- Bachelor's degree; 2-4 years of relevant experience
+- Proficiency with Microsoft Excel, Microsoft Office software, Microsoft PowerPoint, Adobe Acrobat, Adobe Creative Cloud software
+
+Core knowledge areas:
+- Administration and Management
+- Customer and Personal Service
+- English Language
+- Production and Processing
+- Mathematics
+
+Preferred qualifications:
+- Experience with Adobe Photoshop, Amazon Web Services AWS software, Apache Hadoop, Apple macOS",Microsoft Excel; Microsoft Office software; Microsoft PowerPoint; Adobe Acrobat; Adobe Creative Cloud software; Administration and Management; Customer and Personal Service; English Language; Production and Processing; Mathematics,https://example.com/jobs/11-1021.00,2026-06-01,LinkedIn
+General and Operations Manager,Capital One,"Columbus, OH","78,000-118,000","Capital One is hiring a General and Operations Manager in Columbus, OH. Plan, direct, or coordinate the operations of public or private sector organizations, overseeing multiple departments or locations. Duties and responsibilities include formulating policies, managing daily operations, and planning the use of materials and human resources, but are too diverse and general in nature to be classified in any one functional area of management or administration, such as personnel, purchasing, or administrative services. Usually manage through subordinate supervisors. Excludes First-Line Supervisors.
+
+Responsibilities:
+- Review financial statements, sales or activity reports, or other performance data to measure productivity or goal achievement or to identify areas needing cost reduction or program improvement.
+- Direct and coordinate activities of businesses or departments concerned with the production, pricing, sales, or distribution of products.
+- Direct administrative activities directly related to making products or providing services.
+- Prepare staff work schedules and assign specific duties.
+- Direct or coordinate financial or budget activities to fund operations, maximize investments, or increase efficiency.
+- Plan or direct activities, such as sales promotions, that require coordination with other department managers.
+
+Required qualifications:
+- Bachelor's degree; 2-4 years of relevant experience
+- Proficiency with Microsoft Excel, Microsoft Office software, Microsoft PowerPoint, Adobe Acrobat, Adobe Creative Cloud software
+
+Core knowledge areas:
+- Administration and Management
+- Customer and Personal Service
+- English Language
+- Production and Processing
+- Mathematics
+
+Preferred qualifications:
+- Experience with Adobe Photoshop, Amazon Web Services AWS software, Apache Hadoop, Apple macOS",Microsoft Excel; Microsoft Office software; Microsoft PowerPoint; Adobe Acrobat; Adobe Creative Cloud software; Administration and Management; Customer and Personal Service; English Language; Production and Processing; Mathematics,https://example.com/jobs/11-1021.00,2026-06-01,LinkedIn
+Supply Chain Manager,Turner Construction,"Columbus, OH","78,000-118,000","Turner Construction is hiring a Supply Chain Manager in Columbus, OH. Direct or coordinate production, purchasing, warehousing, distribution, or financial forecasting services or activities to limit costs and improve accuracy, customer service, or safety. Examine existing procedures or opportunities for streamlining activities to meet product distribution needs. Direct the movement, storage, or processing of inventory.
+
+Responsibilities:
+- Determine appropriate equipment and staffing levels to load, unload, move, or store materials.
+- Manage activities related to strategic or tactical purchasing, material requirements planning, controlling inventory, warehousing, or receiving.
+- Select transportation routes to maximize economy by combining shipments or consolidating warehousing and distribution.
+- Define performance metrics for measurement, comparison, or evaluation of supply chain factors, such as product cost or quality.
+- Implement new or improved supply chain processes to improve efficiency or performance.
+- Develop procedures for coordination of supply chain management with other functional areas, such as sales, marketing, finance, production, or quality assurance.
+
+Required qualifications:
+- Bachelor's degree; 2-4 years of relevant experience
+- Proficiency with Inventory management systems, Microsoft Excel, Microsoft Office software, Microsoft Outlook, Microsoft PowerPoint
+
+Core knowledge areas:
+- Transportation
+- Administration and Management
+- English Language
+- Economics and Accounting
+- Customer and Personal Service
+
+Preferred qualifications:
+- Experience with SAP software, Warehouse management system WMS, MEDITECH software, Microsoft Access",Inventory management systems; Microsoft Excel; Microsoft Office software; Microsoft Outlook; Microsoft PowerPoint; Transportation; Administration and Management; English Language; Economics and Accounting; Customer and Personal Service,https://example.com/jobs/11-3071.04,2026-06-01,LinkedIn
+Supply Chain Manager,Meridian Logistics,"Charlotte, NC","78,000-118,000","Meridian Logistics is hiring a Supply Chain Manager in Charlotte, NC. Direct or coordinate production, purchasing, warehousing, distribution, or financial forecasting services or activities to limit costs and improve accuracy, customer service, or safety. Examine existing procedures or opportunities for streamlining activities to meet product distribution needs. Direct the movement, storage, or processing of inventory.
+
+Responsibilities:
+- Determine appropriate equipment and staffing levels to load, unload, move, or store materials.
+- Manage activities related to strategic or tactical purchasing, material requirements planning, controlling inventory, warehousing, or receiving.
+- Select transportation routes to maximize economy by combining shipments or consolidating warehousing and distribution.
+- Define performance metrics for measurement, comparison, or evaluation of supply chain factors, such as product cost or quality.
+- Implement new or improved supply chain processes to improve efficiency or performance.
+- Develop procedures for coordination of supply chain management with other functional areas, such as sales, marketing, finance, production, or quality assurance.
+
+Required qualifications:
+- Bachelor's degree; 2-4 years of relevant experience
+- Proficiency with Inventory management systems, Microsoft Excel, Microsoft Office software, Microsoft Outlook, Microsoft PowerPoint
+
+Core knowledge areas:
+- Transportation
+- Administration and Management
+- English Language
+- Economics and Accounting
+- Customer and Personal Service
+
+Preferred qualifications:
+- Experience with SAP software, Warehouse management system WMS, MEDITECH software, Microsoft Access",Inventory management systems; Microsoft Excel; Microsoft Office software; Microsoft Outlook; Microsoft PowerPoint; Transportation; Administration and Management; English Language; Economics and Accounting; Customer and Personal Service,https://example.com/jobs/11-3071.04,2026-06-01,LinkedIn
+Facilities Manager,Brightpath Solutions,"Charlotte, NC","55,000-82,000","Brightpath Solutions is hiring a Facilities Manager in Charlotte, NC. Plan, direct, or coordinate operations and functionalities of facilities and buildings. May include surrounding grounds or multiple facilities of an organization's campus.
+
+Responsibilities:
+- Monitor the facility to ensure that it remains safe, secure, and well-maintained.
+- Oversee the maintenance and repair of machinery, equipment, and electrical and mechanical systems.
+- Oversee construction and renovation projects to improve efficiency and to ensure that facilities meet environmental, health, and security standards, and comply with government regulations.
+- Plan, administer, and control budgets for contracts, equipment, and supplies.
+- Participate in architectural and engineering planning and design, including space and installation management.
+- Set goals and deadlines for the department.
+
+Required qualifications:
+- Associate's degree or vocational training plus apprenticeship; 1-2 years of relevant experience
+- Proficiency with Microsoft Excel, Microsoft Office software, Microsoft Outlook, Microsoft PowerPoint, Microsoft Word
+
+Core knowledge areas:
+- Customer and Personal Service
+- Administration and Management
+- English Language
+- Public Safety and Security
+- Personnel and Human Resources
+
+Preferred qualifications:
+- Experience with Adobe Acrobat, Autodesk AutoCAD, Autodesk Revit, Google Docs",Microsoft Excel; Microsoft Office software; Microsoft Outlook; Microsoft PowerPoint; Microsoft Word; Customer and Personal Service; Administration and Management; English Language; Public Safety and Security; Personnel and Human Resources,https://example.com/jobs/11-3013.00,2026-06-01,LinkedIn
+Facilities Manager,Summit Financial,"McLean, VA","55,000-82,000","Summit Financial is hiring a Facilities Manager in McLean, VA. Plan, direct, or coordinate operations and functionalities of facilities and buildings. May include surrounding grounds or multiple facilities of an organization's campus.
+
+Responsibilities:
+- Monitor the facility to ensure that it remains safe, secure, and well-maintained.
+- Oversee the maintenance and repair of machinery, equipment, and electrical and mechanical systems.
+- Oversee construction and renovation projects to improve efficiency and to ensure that facilities meet environmental, health, and security standards, and comply with government regulations.
+- Plan, administer, and control budgets for contracts, equipment, and supplies.
+- Participate in architectural and engineering planning and design, including space and installation management.
+- Set goals and deadlines for the department.
+
+Required qualifications:
+- Associate's degree or vocational training plus apprenticeship; 1-2 years of relevant experience
+- Proficiency with Microsoft Excel, Microsoft Office software, Microsoft Outlook, Microsoft PowerPoint, Microsoft Word
+
+Core knowledge areas:
+- Customer and Personal Service
+- Administration and Management
+- English Language
+- Public Safety and Security
+- Personnel and Human Resources
+
+Preferred qualifications:
+- Experience with Adobe Acrobat, Autodesk AutoCAD, Autodesk Revit, Google Docs",Microsoft Excel; Microsoft Office software; Microsoft Outlook; Microsoft PowerPoint; Microsoft Word; Customer and Personal Service; Administration and Management; English Language; Public Safety and Security; Personnel and Human Resources,https://example.com/jobs/11-3013.00,2026-06-01,LinkedIn
+Logistics Engineer,Cedar Ridge Care,"McLean, VA","78,000-118,000","Cedar Ridge Care is hiring a Logistics Engineer in McLean, VA. Design or analyze operational solutions for projects such as transportation optimization, network modeling, process and methods analysis, cost containment, capacity enhancement, routing and shipment optimization, or information management.
+
+Responsibilities:
+- Identify cost-reduction or process-improvement logistic opportunities.
+- Analyze or interpret logistics data involving customer service, forecasting, procurement, manufacturing, inventory, transportation, or warehousing.
+- Prepare logistic strategies or conceptual designs for production facilities.
+- Conduct logistics studies or analyses, such as time studies, zero-base analyses, rate analyses, network analyses, flow-path analyses, or supply chain analyses.
+- Develop logistic metrics, internal analysis tools, or key performance indicators for business units.
+- Identify or develop business rules or standard operating procedures to streamline operating processes.
+
+Required qualifications:
+- Bachelor's degree; 2-4 years of relevant experience
+- Proficiency with Microsoft Excel, Microsoft Office software, Microsoft PowerPoint, SAP software, Autodesk AutoCAD
+
+Core knowledge areas:
+- Engineering and Technology
+- Mathematics
+- Transportation
+- Production and Processing
+- Computers and Electronics
+
+Preferred qualifications:
+- Experience with C++, Microsoft Access, Microsoft Outlook, Microsoft Power BI",Microsoft Excel; Microsoft Office software; Microsoft PowerPoint; SAP software; Autodesk AutoCAD; Engineering and Technology; Mathematics; Transportation; Production and Processing; Computers and Electronics,https://example.com/jobs/13-1081.01,2026-06-01,LinkedIn
+Logistics Engineer,Vantage Retail,"Atlanta, GA","78,000-118,000","Vantage Retail is hiring a Logistics Engineer in Atlanta, GA. Design or analyze operational solutions for projects such as transportation optimization, network modeling, process and methods analysis, cost containment, capacity enhancement, routing and shipment optimization, or information management.
+
+Responsibilities:
+- Identify cost-reduction or process-improvement logistic opportunities.
+- Analyze or interpret logistics data involving customer service, forecasting, procurement, manufacturing, inventory, transportation, or warehousing.
+- Prepare logistic strategies or conceptual designs for production facilities.
+- Conduct logistics studies or analyses, such as time studies, zero-base analyses, rate analyses, network analyses, flow-path analyses, or supply chain analyses.
+- Develop logistic metrics, internal analysis tools, or key performance indicators for business units.
+- Identify or develop business rules or standard operating procedures to streamline operating processes.
+
+Required qualifications:
+- Bachelor's degree; 2-4 years of relevant experience
+- Proficiency with Microsoft Excel, Microsoft Office software, Microsoft PowerPoint, SAP software, Autodesk AutoCAD
+
+Core knowledge areas:
+- Engineering and Technology
+- Mathematics
+- Transportation
+- Production and Processing
+- Computers and Electronics
+
+Preferred qualifications:
+- Experience with C++, Microsoft Access, Microsoft Outlook, Microsoft Power BI",Microsoft Excel; Microsoft Office software; Microsoft PowerPoint; SAP software; Autodesk AutoCAD; Engineering and Technology; Mathematics; Transportation; Production and Processing; Computers and Electronics,https://example.com/jobs/13-1081.01,2026-06-01,LinkedIn
+Technical Writer,Onyx Technologies,"Atlanta, GA","78,000-118,000","Onyx Technologies is hiring a Technical Writer in Atlanta, GA. Write technical materials, such as equipment manuals, appendices, or operating and maintenance instructions. May assist in layout work.
+
+Responsibilities:
+- Organize material and complete writing assignment according to set standards regarding order, clarity, conciseness, style, and terminology.
+- Maintain records and files of work and revisions.
+- Edit, standardize, or make changes to material prepared by other writers or establishment personnel.
+- Select photographs, drawings, sketches, diagrams, and charts to illustrate material.
+- Interview production and engineering personnel and read journals and other material to become familiar with product technologies and production methods.
+- Develop or maintain online help documentation.
+
+Required qualifications:
+- Bachelor's degree; 2-4 years of relevant experience
+- Proficiency with Atlassian Confluence, Atlassian JIRA, Extensible markup language XML, Microsoft Excel, Microsoft Office software
+
+Core knowledge areas:
+- English Language
+- Computers and Electronics
+- Administrative
+- Communications and Media
+- Administration and Management
+
+Preferred qualifications:
+- Experience with Microsoft Outlook, Microsoft PowerPoint, Microsoft SharePoint, Microsoft Visio",Atlassian Confluence; Atlassian JIRA; Extensible markup language XML; Microsoft Excel; Microsoft Office software; English Language; Computers and Electronics; Administrative; Communications and Media; Administration and Management,https://example.com/jobs/27-3042.00,2026-06-01,LinkedIn
+Technical Writer,Harborview Systems,Remote,"78,000-118,000","Harborview Systems is hiring a Technical Writer in Remote. Write technical materials, such as equipment manuals, appendices, or operating and maintenance instructions. May assist in layout work.
+
+Responsibilities:
+- Organize material and complete writing assignment according to set standards regarding order, clarity, conciseness, style, and terminology.
+- Maintain records and files of work and revisions.
+- Edit, standardize, or make changes to material prepared by other writers or establishment personnel.
+- Select photographs, drawings, sketches, diagrams, and charts to illustrate material.
+- Interview production and engineering personnel and read journals and other material to become familiar with product technologies and production methods.
+- Develop or maintain online help documentation.
+
+Required qualifications:
+- Bachelor's degree; 2-4 years of relevant experience
+- Proficiency with Atlassian Confluence, Atlassian JIRA, Extensible markup language XML, Microsoft Excel, Microsoft Office software
+
+Core knowledge areas:
+- English Language
+- Computers and Electronics
+- Administrative
+- Communications and Media
+- Administration and Management
+
+Preferred qualifications:
+- Experience with Microsoft Outlook, Microsoft PowerPoint, Microsoft SharePoint, Microsoft Visio",Atlassian Confluence; Atlassian JIRA; Extensible markup language XML; Microsoft Excel; Microsoft Office software; English Language; Computers and Electronics; Administrative; Communications and Media; Administration and Management,https://example.com/jobs/27-3042.00,2026-06-01,LinkedIn
+Document Management Specialist,Pinnacle Services,Remote,"78,000-118,000","Pinnacle Services is hiring a Document Management Specialist in Remote. Implement and administer enterprise-wide document management systems and related procedures that allow organizations to capture, store, retrieve, share, and destroy electronic records and documents.
+
+Responsibilities:
+- Assist in determining document management policies to facilitate efficient, legal, and secure access to electronic content.
+- Assist in the development of document or content classification taxonomies to facilitate information capture, search, and retrieval.
+- Implement electronic document processing, retrieval, and distribution systems in collaboration with other information technology specialists.
+- Identify and classify documents or other electronic content according to characteristics such as security level, function, and metadata.
+- Develop, document, or maintain standards, best practices, or system usage procedures.
+- Assist in the assessment, acquisition, or deployment of new electronic document management systems.
+
+Required qualifications:
+- Bachelor's degree; 2-4 years of relevant experience
+- Proficiency with Microsoft Excel, Microsoft Office software, Microsoft Outlook, Microsoft PowerPoint, Microsoft SharePoint
+
+Core knowledge areas:
+- English Language
+- Administration and Management
+- Computers and Electronics
+- Customer and Personal Service
+- Administrative
+
+Preferred qualifications:
+- Experience with Microsoft Word, Adobe Acrobat, Adobe InDesign, Adobe Photoshop",Microsoft Excel; Microsoft Office software; Microsoft Outlook; Microsoft PowerPoint; Microsoft SharePoint; English Language; Administration and Management; Computers and Electronics; Customer and Personal Service; Administrative,https://example.com/jobs/15-1299.03,2026-06-01,LinkedIn
+Document Management Specialist,Greenfield Manufacturing,"Columbus, OH","78,000-118,000","Greenfield Manufacturing is hiring a Document Management Specialist in Columbus, OH. Implement and administer enterprise-wide document management systems and related procedures that allow organizations to capture, store, retrieve, share, and destroy electronic records and documents.
+
+Responsibilities:
+- Assist in determining document management policies to facilitate efficient, legal, and secure access to electronic content.
+- Assist in the development of document or content classification taxonomies to facilitate information capture, search, and retrieval.
+- Implement electronic document processing, retrieval, and distribution systems in collaboration with other information technology specialists.
+- Identify and classify documents or other electronic content according to characteristics such as security level, function, and metadata.
+- Develop, document, or maintain standards, best practices, or system usage procedures.
+- Assist in the assessment, acquisition, or deployment of new electronic document management systems.
+
+Required qualifications:
+- Bachelor's degree; 2-4 years of relevant experience
+- Proficiency with Microsoft Excel, Microsoft Office software, Microsoft Outlook, Microsoft PowerPoint, Microsoft SharePoint
+
+Core knowledge areas:
+- English Language
+- Administration and Management
+- Computers and Electronics
+- Customer and Personal Service
+- Administrative
+
+Preferred qualifications:
+- Experience with Microsoft Word, Adobe Acrobat, Adobe InDesign, Adobe Photoshop",Microsoft Excel; Microsoft Office software; Microsoft Outlook; Microsoft PowerPoint; Microsoft SharePoint; English Language; Administration and Management; Computers and Electronics; Customer and Personal Service; Administrative,https://example.com/jobs/15-1299.03,2026-06-01,LinkedIn
+Search Marketing Strategist,Northbridge Health,"Columbus, OH","78,000-118,000","Northbridge Health is hiring a Search Marketing Strategist in Columbus, OH. Employ search marketing tactics to increase visibility and engagement with content, products, or services in Internet-enabled devices or interfaces. Examine search query behaviors on general or specialty search engines or other Internet-based content. Analyze research, data, or technology to understand user intent and measure outcomes for ongoing optimization.
+
+Responsibilities:
+- Manage tracking and reporting of search-related activities and provide analyses to marketing executives.
+- Optimize digital assets, such as text, graphics, or multimedia assets, for search engine optimization (SEO) or for display and usability on internet-connected devices.
+- Collect and analyze Web metrics, such as visits, time on site, page views per visit, transaction volume and revenue, traffic mix, click-through rates, conversion rates, cost per acquisition, or cost per click.
+- Participate in the development or implementation of online marketing strategy.
+- Optimize Web site exposure by analyzing search engine patterns to direct online placement of keywords or other content.
+- Coordinate with developers to optimize Web site architecture, server configuration, or page construction for search engine consumption and optimal visibility.
+
+Required qualifications:
+- Bachelor's degree; 2-4 years of relevant experience
+- Proficiency with Adobe Analytics, Ahrefs Site Explorer, Bing Ads, Cascading style sheets CSS, Content management systems CMS
+
+Core knowledge areas:
+- Sales and Marketing
+- Computers and Electronics
+- English Language
+- Communications and Media
+- Mathematics
+
+Preferred qualifications:
+- Experience with Google, Google Ads, Google Analytics, Google Looker Analytics",Adobe Analytics; Ahrefs Site Explorer; Bing Ads; Cascading style sheets CSS; Content management systems CMS; Sales and Marketing; Computers and Electronics; English Language; Communications and Media; Mathematics,https://example.com/jobs/13-1161.01,2026-06-01,LinkedIn
+Search Marketing Strategist,Capital One,"Charlotte, NC","78,000-118,000","Capital One is hiring a Search Marketing Strategist in Charlotte, NC. Employ search marketing tactics to increase visibility and engagement with content, products, or services in Internet-enabled devices or interfaces. Examine search query behaviors on general or specialty search engines or other Internet-based content. Analyze research, data, or technology to understand user intent and measure outcomes for ongoing optimization.
+
+Responsibilities:
+- Manage tracking and reporting of search-related activities and provide analyses to marketing executives.
+- Optimize digital assets, such as text, graphics, or multimedia assets, for search engine optimization (SEO) or for display and usability on internet-connected devices.
+- Collect and analyze Web metrics, such as visits, time on site, page views per visit, transaction volume and revenue, traffic mix, click-through rates, conversion rates, cost per acquisition, or cost per click.
+- Participate in the development or implementation of online marketing strategy.
+- Optimize Web site exposure by analyzing search engine patterns to direct online placement of keywords or other content.
+- Coordinate with developers to optimize Web site architecture, server configuration, or page construction for search engine consumption and optimal visibility.
+
+Required qualifications:
+- Bachelor's degree; 2-4 years of relevant experience
+- Proficiency with Adobe Analytics, Ahrefs Site Explorer, Bing Ads, Cascading style sheets CSS, Content management systems CMS
+
+Core knowledge areas:
+- Sales and Marketing
+- Computers and Electronics
+- English Language
+- Communications and Media
+- Mathematics
+
+Preferred qualifications:
+- Experience with Google, Google Ads, Google Analytics, Google Looker Analytics",Adobe Analytics; Ahrefs Site Explorer; Bing Ads; Cascading style sheets CSS; Content management systems CMS; Sales and Marketing; Computers and Electronics; English Language; Communications and Media; Mathematics,https://example.com/jobs/13-1161.01,2026-06-01,LinkedIn
+Nursing Assistant,Turner Construction,"Charlotte, NC","55,000-82,000","Turner Construction is hiring a Nursing Assistant in Charlotte, NC. Provide or assist with basic care or support under the direction of onsite licensed nursing staff. Perform duties such as monitoring of health status, feeding, bathing, dressing, grooming, toileting, or ambulation of patients in a health or nursing facility. May include medication administration and other health-related tasks. Includes nursing care attendants, nursing aides, and nursing attendants.
+
+Responsibilities:
+- Turn or reposition bedridden patients.
+- Answer patient call signals, signal lights, bells, or intercom systems to determine patients' needs.
+- Feed patients or assist patients to eat or drink.
+- Measure and record food and liquid intake or urinary and fecal output, reporting changes to medical or nursing staff.
+- Provide physical support to assist patients to perform daily living activities, such as getting out of bed, bathing, dressing, using the toilet, standing, walking, or exercising.
+- Document or otherwise report observations of patient behavior, complaints, or physical symptoms to nurses.
+
+Required qualifications:
+- Associate's degree or vocational training plus apprenticeship; 1-2 years of relevant experience
+- Proficiency with Apache Spark, Epic Systems, MEDITECH software, Microsoft Excel, Microsoft Office software
+
+Core knowledge areas:
+- Customer and Personal Service
+- Administration and Management
+- English Language
+- Public Safety and Security
+- Medicine and Dentistry
+
+Preferred qualifications:
+- Experience with Microsoft Outlook, Microsoft Word, Billing software, FaceTime",Apache Spark; Epic Systems; MEDITECH software; Microsoft Excel; Microsoft Office software; Customer and Personal Service; Administration and Management; English Language; Public Safety and Security; Medicine and Dentistry,https://example.com/jobs/31-1131.00,2026-06-01,LinkedIn
+Nursing Assistant,Meridian Logistics,"McLean, VA","55,000-82,000","Meridian Logistics is hiring a Nursing Assistant in McLean, VA. Provide or assist with basic care or support under the direction of onsite licensed nursing staff. Perform duties such as monitoring of health status, feeding, bathing, dressing, grooming, toileting, or ambulation of patients in a health or nursing facility. May include medication administration and other health-related tasks. Includes nursing care attendants, nursing aides, and nursing attendants.
+
+Responsibilities:
+- Turn or reposition bedridden patients.
+- Answer patient call signals, signal lights, bells, or intercom systems to determine patients' needs.
+- Feed patients or assist patients to eat or drink.
+- Measure and record food and liquid intake or urinary and fecal output, reporting changes to medical or nursing staff.
+- Provide physical support to assist patients to perform daily living activities, such as getting out of bed, bathing, dressing, using the toilet, standing, walking, or exercising.
+- Document or otherwise report observations of patient behavior, complaints, or physical symptoms to nurses.
+
+Required qualifications:
+- Associate's degree or vocational training plus apprenticeship; 1-2 years of relevant experience
+- Proficiency with Apache Spark, Epic Systems, MEDITECH software, Microsoft Excel, Microsoft Office software
+
+Core knowledge areas:
+- Customer and Personal Service
+- Administration and Management
+- English Language
+- Public Safety and Security
+- Medicine and Dentistry
+
+Preferred qualifications:
+- Experience with Microsoft Outlook, Microsoft Word, Billing software, FaceTime",Apache Spark; Epic Systems; MEDITECH software; Microsoft Excel; Microsoft Office software; Customer and Personal Service; Administration and Management; English Language; Public Safety and Security; Medicine and Dentistry,https://example.com/jobs/31-1131.00,2026-06-01,LinkedIn
+Medical Assistant,Brightpath Solutions,"McLean, VA","55,000-82,000","Brightpath Solutions is hiring a Medical Assistant in McLean, VA. Perform administrative and certain clinical duties under the direction of a physician. Administrative duties may include scheduling appointments, maintaining medical records, billing, and coding information for insurance purposes. Clinical duties may include taking and recording vital signs and medical histories, preparing patients for examination, drawing blood, and administering medications as directed by physician.
+
+Responsibilities:
+- Interview patients to obtain medical information and measure their vital signs, weight, and height.
+- Clean and sterilize instruments and dispose of contaminated supplies.
+- Record patients' medical history, vital statistics, or information such as test results in medical records.
+- Explain treatment procedures, medications, diets, or physicians' instructions to patients.
+- Prepare treatment rooms for patient examinations, keeping the rooms neat and clean.
+- Collect blood, tissue, or other laboratory specimens, log the specimens, and prepare them for testing.
+
+Required qualifications:
+- Associate's degree or vocational training plus apprenticeship; 1-2 years of relevant experience
+- Proficiency with Epic Systems, Microsoft Office software, eClinicalWorks EHR software, Intuit QuickBooks, MEDITECH software
+
+Core knowledge areas:
+- English Language
+- Customer and Personal Service
+- Medicine and Dentistry
+- Administrative
+- Computers and Electronics
+
+Preferred qualifications:
+- Experience with Microsoft Access, Microsoft Excel, Microsoft Outlook, Microsoft PowerPoint",Epic Systems; Microsoft Office software; eClinicalWorks EHR software; Intuit QuickBooks; MEDITECH software; English Language; Customer and Personal Service; Medicine and Dentistry; Administrative; Computers and Electronics,https://example.com/jobs/31-9092.00,2026-06-01,LinkedIn
+Medical Assistant,Summit Financial,"Atlanta, GA","55,000-82,000","Summit Financial is hiring a Medical Assistant in Atlanta, GA. Perform administrative and certain clinical duties under the direction of a physician. Administrative duties may include scheduling appointments, maintaining medical records, billing, and coding information for insurance purposes. Clinical duties may include taking and recording vital signs and medical histories, preparing patients for examination, drawing blood, and administering medications as directed by physician.
+
+Responsibilities:
+- Interview patients to obtain medical information and measure their vital signs, weight, and height.
+- Clean and sterilize instruments and dispose of contaminated supplies.
+- Record patients' medical history, vital statistics, or information such as test results in medical records.
+- Explain treatment procedures, medications, diets, or physicians' instructions to patients.
+- Prepare treatment rooms for patient examinations, keeping the rooms neat and clean.
+- Collect blood, tissue, or other laboratory specimens, log the specimens, and prepare them for testing.
+
+Required qualifications:
+- Associate's degree or vocational training plus apprenticeship; 1-2 years of relevant experience
+- Proficiency with Epic Systems, Microsoft Office software, eClinicalWorks EHR software, Intuit QuickBooks, MEDITECH software
+
+Core knowledge areas:
+- English Language
+- Customer and Personal Service
+- Medicine and Dentistry
+- Administrative
+- Computers and Electronics
+
+Preferred qualifications:
+- Experience with Microsoft Access, Microsoft Excel, Microsoft Outlook, Microsoft PowerPoint",Epic Systems; Microsoft Office software; eClinicalWorks EHR software; Intuit QuickBooks; MEDITECH software; English Language; Customer and Personal Service; Medicine and Dentistry; Administrative; Computers and Electronics,https://example.com/jobs/31-9092.00,2026-06-01,LinkedIn
+Patient Representative,Cedar Ridge Care,"Atlanta, GA","55,000-82,000","Cedar Ridge Care is hiring a Patient Representative in Atlanta, GA. Assist patients in obtaining services, understanding policies and making health care decisions.
+
+Responsibilities:
+- Coordinate communication between patients, family members, medical staff, administrative staff, or regulatory agencies.
+- Interview patients or their representatives to identify problems relating to care.
+- Refer patients to appropriate health care services or resources.
+- Maintain knowledge of community services and resources available to patients.
+- Explain policies, procedures, or services to patients using medical or administrative knowledge.
+- Investigate and direct patient inquiries or complaints to appropriate medical staff members and follow up to ensure satisfactory resolution.
+
+Required qualifications:
+- Associate's degree or vocational training plus apprenticeship; 1-2 years of relevant experience
+- Proficiency with Epic Systems, Microsoft Excel, Microsoft Office software, Microsoft Outlook, eClinicalWorks EHR software
+
+Core knowledge areas:
+- Customer and Personal Service
+- Medicine and Dentistry
+- Sociology and Anthropology
+- Administrative
+- Psychology
+
+Preferred qualifications:
+- Experience with Google Docs, Henry Schein Dentrix, MEDITECH software, Microsoft Access",Epic Systems; Microsoft Excel; Microsoft Office software; Microsoft Outlook; eClinicalWorks EHR software; Customer and Personal Service; Medicine and Dentistry; Sociology and Anthropology; Administrative; Psychology,https://example.com/jobs/29-2099.08,2026-06-01,LinkedIn
+Patient Representative,Vantage Retail,Remote,"55,000-82,000","Vantage Retail is hiring a Patient Representative in Remote. Assist patients in obtaining services, understanding policies and making health care decisions.
+
+Responsibilities:
+- Coordinate communication between patients, family members, medical staff, administrative staff, or regulatory agencies.
+- Interview patients or their representatives to identify problems relating to care.
+- Refer patients to appropriate health care services or resources.
+- Maintain knowledge of community services and resources available to patients.
+- Explain policies, procedures, or services to patients using medical or administrative knowledge.
+- Investigate and direct patient inquiries or complaints to appropriate medical staff members and follow up to ensure satisfactory resolution.
+
+Required qualifications:
+- Associate's degree or vocational training plus apprenticeship; 1-2 years of relevant experience
+- Proficiency with Epic Systems, Microsoft Excel, Microsoft Office software, Microsoft Outlook, eClinicalWorks EHR software
+
+Core knowledge areas:
+- Customer and Personal Service
+- Medicine and Dentistry
+- Sociology and Anthropology
+- Administrative
+- Psychology
+
+Preferred qualifications:
+- Experience with Google Docs, Henry Schein Dentrix, MEDITECH software, Microsoft Access",Epic Systems; Microsoft Excel; Microsoft Office software; Microsoft Outlook; eClinicalWorks EHR software; Customer and Personal Service; Medicine and Dentistry; Sociology and Anthropology; Administrative; Psychology,https://example.com/jobs/29-2099.08,2026-06-01,LinkedIn
+Licensed Practical and Licensed Vocational Nurse,Onyx Technologies,Remote,"55,000-82,000","Onyx Technologies is hiring a Licensed Practical and Licensed Vocational Nurse in Remote. Care for ill, injured, or convalescing patients or persons with disabilities in hospitals, nursing homes, clinics, private homes, group homes, and similar institutions. May work under the supervision of a registered nurse. Licensing required.
+
+Responsibilities:
+- Observe patients, charting and reporting changes in patients' conditions, such as adverse reactions to medication or treatment, and taking any necessary action.
+- Measure and record patients' vital signs, such as height, weight, temperature, blood pressure, pulse, or respiration.
+- Administer prescribed medications or start intravenous fluids, noting times and amounts on patients' charts.
+- Provide basic patient care or treatments, such as taking temperatures or blood pressures, dressing wounds, treating bedsores, giving enemas or douches, rubbing with alcohol, massaging, or performing catheterizations.
+- Answer patients' calls and determine how to assist them.
+- Supervise nurses' aides or assistants.
+
+Required qualifications:
+- Associate's degree or vocational training plus apprenticeship; 1-2 years of relevant experience
+- Proficiency with eClinicalWorks EHR software, Epic Systems, MEDITECH software, Microsoft Excel, Microsoft Office software
+
+Core knowledge areas:
+- Customer and Personal Service
+- English Language
+- Psychology
+- Medicine and Dentistry
+- Administration and Management
+
+Preferred qualifications:
+- Experience with Microsoft Outlook, Microsoft Windows, Microsoft Word, Zoom",eClinicalWorks EHR software; Epic Systems; MEDITECH software; Microsoft Excel; Microsoft Office software; Customer and Personal Service; English Language; Psychology; Medicine and Dentistry; Administration and Management,https://example.com/jobs/29-2061.00,2026-06-01,LinkedIn
+Licensed Practical and Licensed Vocational Nurse,Harborview Systems,"Columbus, OH","55,000-82,000","Harborview Systems is hiring a Licensed Practical and Licensed Vocational Nurse in Columbus, OH. Care for ill, injured, or convalescing patients or persons with disabilities in hospitals, nursing homes, clinics, private homes, group homes, and similar institutions. May work under the supervision of a registered nurse. Licensing required.
+
+Responsibilities:
+- Observe patients, charting and reporting changes in patients' conditions, such as adverse reactions to medication or treatment, and taking any necessary action.
+- Measure and record patients' vital signs, such as height, weight, temperature, blood pressure, pulse, or respiration.
+- Administer prescribed medications or start intravenous fluids, noting times and amounts on patients' charts.
+- Provide basic patient care or treatments, such as taking temperatures or blood pressures, dressing wounds, treating bedsores, giving enemas or douches, rubbing with alcohol, massaging, or performing catheterizations.
+- Answer patients' calls and determine how to assist them.
+- Supervise nurses' aides or assistants.
+
+Required qualifications:
+- Associate's degree or vocational training plus apprenticeship; 1-2 years of relevant experience
+- Proficiency with eClinicalWorks EHR software, Epic Systems, MEDITECH software, Microsoft Excel, Microsoft Office software
+
+Core knowledge areas:
+- Customer and Personal Service
+- English Language
+- Psychology
+- Medicine and Dentistry
+- Administration and Management
+
+Preferred qualifications:
+- Experience with Microsoft Outlook, Microsoft Windows, Microsoft Word, Zoom",eClinicalWorks EHR software; Epic Systems; MEDITECH software; Microsoft Excel; Microsoft Office software; Customer and Personal Service; English Language; Psychology; Medicine and Dentistry; Administration and Management,https://example.com/jobs/29-2061.00,2026-06-01,LinkedIn
+Software Developer,Pinnacle Services,"Columbus, OH","78,000-118,000","Pinnacle Services is hiring a Software Developer in Columbus, OH. Research, design, and develop computer and network software or specialized utility programs. Analyze user needs and develop software solutions, applying principles and techniques of computer science, engineering, and mathematical analysis. Update software or enhance existing software capabilities. May work with computer hardware engineers to integrate hardware and software systems, and develop specifications and performance requirements. May maintain databases within an application area, working individually or coordinating database development as part of a team.
+
+Responsibilities:
+- Analyze user needs and software requirements to determine feasibility of design within time and cost constraints.
+- Develop or direct software system testing or validation procedures, programming, or documentation.
+- Confer with systems analysts, engineers, programmers and others to design systems and to obtain information on project limitations and capabilities, performance requirements and interfaces.
+- Modify existing software to correct errors, adapt it to new hardware, or upgrade interfaces and improve performance.
+- Prepare reports or correspondence concerning project specifications, activities, or status.
+- Analyze information to determine, recommend, and plan installation of a new system or modification of an existing system.
+
+Required qualifications:
+- Bachelor's degree; 2-4 years of relevant experience
+- Proficiency with Amazon Web Services AWS software, Apache Kafka, Atlassian JIRA, C, C#
+
+Core knowledge areas:
+- Computers and Electronics
+- Mathematics
+- Customer and Personal Service
+- English Language
+- Education and Training
+
+Preferred qualifications:
+- Experience with C++, Cascading style sheets CSS, Docker, Git",Amazon Web Services AWS software; Apache Kafka; Atlassian JIRA; C; C#; Computers and Electronics; Mathematics; Customer and Personal Service; English Language; Education and Training,https://example.com/jobs/15-1252.00,2026-06-01,LinkedIn
+Software Developer,Greenfield Manufacturing,"Charlotte, NC","78,000-118,000","Greenfield Manufacturing is hiring a Software Developer in Charlotte, NC. Research, design, and develop computer and network software or specialized utility programs. Analyze user needs and develop software solutions, applying principles and techniques of computer science, engineering, and mathematical analysis. Update software or enhance existing software capabilities. May work with computer hardware engineers to integrate hardware and software systems, and develop specifications and performance requirements. May maintain databases within an application area, working individually or coordinating database development as part of a team.
+
+Responsibilities:
+- Analyze user needs and software requirements to determine feasibility of design within time and cost constraints.
+- Develop or direct software system testing or validation procedures, programming, or documentation.
+- Confer with systems analysts, engineers, programmers and others to design systems and to obtain information on project limitations and capabilities, performance requirements and interfaces.
+- Modify existing software to correct errors, adapt it to new hardware, or upgrade interfaces and improve performance.
+- Prepare reports or correspondence concerning project specifications, activities, or status.
+- Analyze information to determine, recommend, and plan installation of a new system or modification of an existing system.
+
+Required qualifications:
+- Bachelor's degree; 2-4 years of relevant experience
+- Proficiency with Amazon Web Services AWS software, Apache Kafka, Atlassian JIRA, C, C#
+
+Core knowledge areas:
+- Computers and Electronics
+- Mathematics
+- Customer and Personal Service
+- English Language
+- Education and Training
+
+Preferred qualifications:
+- Experience with C++, Cascading style sheets CSS, Docker, Git",Amazon Web Services AWS software; Apache Kafka; Atlassian JIRA; C; C#; Computers and Electronics; Mathematics; Customer and Personal Service; English Language; Education and Training,https://example.com/jobs/15-1252.00,2026-06-01,LinkedIn
+Blockchain Engineer,Northbridge Health,"Charlotte, NC","78,000-118,000","Northbridge Health is hiring a Blockchain Engineer in Charlotte, NC. Maintain and support distributed and decentralized blockchain-based networks or block-chain applications such as cryptocurrency exchange, payment processing, document sharing, and digital voting. Design and deploy secure block-chain design patterns and solutions over geographically distributed networks using advanced technologies. May assist with infrastructure setup and testing for application transparency and security.
+
+Responsibilities:
+
+Required qualifications:
+- Bachelor's degree; 2-4 years of relevant experience
+- Proficiency with Amazon Web Services AWS software, C#, C++, Docker, Git
+
+Preferred qualifications:
+- Experience with Go, JavaScript, Kubernetes, Microsoft Azure software",Amazon Web Services AWS software; C#; C++; Docker; Git,https://example.com/jobs/15-1299.07,2026-06-01,LinkedIn
+Blockchain Engineer,Capital One,"McLean, VA","78,000-118,000","Capital One is hiring a Blockchain Engineer in McLean, VA. Maintain and support distributed and decentralized blockchain-based networks or block-chain applications such as cryptocurrency exchange, payment processing, document sharing, and digital voting. Design and deploy secure block-chain design patterns and solutions over geographically distributed networks using advanced technologies. May assist with infrastructure setup and testing for application transparency and security.
+
+Responsibilities:
+
+Required qualifications:
+- Bachelor's degree; 2-4 years of relevant experience
+- Proficiency with Amazon Web Services AWS software, C#, C++, Docker, Git
+
+Preferred qualifications:
+- Experience with Go, JavaScript, Kubernetes, Microsoft Azure software",Amazon Web Services AWS software; C#; C++; Docker; Git,https://example.com/jobs/15-1299.07,2026-06-01,LinkedIn
+Web Developer,Turner Construction,"McLean, VA","55,000-82,000","Turner Construction is hiring a Web Developer in McLean, VA. Develop and implement websites, web applications, application databases, and interactive web interfaces. Evaluate code to ensure that it is properly structured, meets industry standards, and is compatible with browsers and devices. Optimize website performance, scalability, and server-side code and processes. May develop website infrastructure and integrate websites with other computer applications.
+
+Responsibilities:
+- Write supporting code for Web applications or Web sites.
+- Design, build, or maintain Web sites, using authoring or scripting languages, content creation tools, management tools, and digital media.
+- Back up files from Web sites to local directories for instant recovery in case of problems.
+- Select programming languages, design tools, or applications.
+- Evaluate code to ensure that it is valid, is properly structured, meets industry standards, and is compatible with browsers, devices, or operating systems.
+- Develop databases that support Web applications and Web sites.
+
+Required qualifications:
+- Associate's degree or vocational training plus apprenticeship; 1-2 years of relevant experience
+- Proficiency with Amazon Web Services AWS software, Apache Kafka, Atlassian JIRA, C#, Cascading style sheets CSS
+
+Core knowledge areas:
+- Computers and Electronics
+- English Language
+- Mathematics
+- Communications and Media
+- Customer and Personal Service
+
+Preferred qualifications:
+- Experience with Docker, Git, GitHub, Go",Amazon Web Services AWS software; Apache Kafka; Atlassian JIRA; C#; Cascading style sheets CSS; Computers and Electronics; English Language; Mathematics; Communications and Media; Customer and Personal Service,https://example.com/jobs/15-1254.00,2026-06-01,LinkedIn
+Web Developer,Meridian Logistics,"Atlanta, GA","55,000-82,000","Meridian Logistics is hiring a Web Developer in Atlanta, GA. Develop and implement websites, web applications, application databases, and interactive web interfaces. Evaluate code to ensure that it is properly structured, meets industry standards, and is compatible with browsers and devices. Optimize website performance, scalability, and server-side code and processes. May develop website infrastructure and integrate websites with other computer applications.
+
+Responsibilities:
+- Write supporting code for Web applications or Web sites.
+- Design, build, or maintain Web sites, using authoring or scripting languages, content creation tools, management tools, and digital media.
+- Back up files from Web sites to local directories for instant recovery in case of problems.
+- Select programming languages, design tools, or applications.
+- Evaluate code to ensure that it is valid, is properly structured, meets industry standards, and is compatible with browsers, devices, or operating systems.
+- Develop databases that support Web applications and Web sites.
+
+Required qualifications:
+- Associate's degree or vocational training plus apprenticeship; 1-2 years of relevant experience
+- Proficiency with Amazon Web Services AWS software, Apache Kafka, Atlassian JIRA, C#, Cascading style sheets CSS
+
+Core knowledge areas:
+- Computers and Electronics
+- English Language
+- Mathematics
+- Communications and Media
+- Customer and Personal Service
+
+Preferred qualifications:
+- Experience with Docker, Git, GitHub, Go",Amazon Web Services AWS software; Apache Kafka; Atlassian JIRA; C#; Cascading style sheets CSS; Computers and Electronics; English Language; Mathematics; Communications and Media; Customer and Personal Service,https://example.com/jobs/15-1254.00,2026-06-01,LinkedIn
+Computer Hardware Engineer,Brightpath Solutions,"Atlanta, GA","78,000-118,000","Brightpath Solutions is hiring a Computer Hardware Engineer in Atlanta, GA. Research, design, develop, or test computer or computer-related equipment for commercial, industrial, military, or scientific use. May supervise the manufacturing and installation of computer or computer-related equipment and components.
+
+Responsibilities:
+- Update knowledge and skills to keep up with rapid advancements in computer technology.
+- Design and develop computer hardware and support peripherals, including central processing units (CPUs), support logic, microprocessors, custom integrated circuits, and printers and disk drives.
+- Confer with engineering staff and consult specifications to evaluate interface between hardware and software and operational and performance requirements of overall system.
+- Build, test, and modify product prototypes, using working models or theoretical models constructed with computer simulation.
+- Write detailed functional specifications that document the hardware development process and support hardware introduction.
+- Test and verify hardware and support peripherals to ensure that they meet specifications and requirements, by recording and analyzing test data.
+
+Required qualifications:
+- Bachelor's degree; 2-4 years of relevant experience
+- Proficiency with C, C++, Linux, Magellan Firmware, PCI Express PCIe
+
+Core knowledge areas:
+- Computers and Electronics
+- Engineering and Technology
+- Design
+- Mathematics
+- English Language
+
+Preferred qualifications:
+- Experience with Perl, Python, Simulation program with integrated circuit emphasis SPICE, SystemVerilog",C; C++; Linux; Magellan Firmware; PCI Express PCIe; Computers and Electronics; Engineering and Technology; Design; Mathematics; English Language,https://example.com/jobs/17-2061.00,2026-06-01,LinkedIn
+Computer Hardware Engineer,Summit Financial,Remote,"78,000-118,000","Summit Financial is hiring a Computer Hardware Engineer in Remote. Research, design, develop, or test computer or computer-related equipment for commercial, industrial, military, or scientific use. May supervise the manufacturing and installation of computer or computer-related equipment and components.
+
+Responsibilities:
+- Update knowledge and skills to keep up with rapid advancements in computer technology.
+- Design and develop computer hardware and support peripherals, including central processing units (CPUs), support logic, microprocessors, custom integrated circuits, and printers and disk drives.
+- Confer with engineering staff and consult specifications to evaluate interface between hardware and software and operational and performance requirements of overall system.
+- Build, test, and modify product prototypes, using working models or theoretical models constructed with computer simulation.
+- Write detailed functional specifications that document the hardware development process and support hardware introduction.
+- Test and verify hardware and support peripherals to ensure that they meet specifications and requirements, by recording and analyzing test data.
+
+Required qualifications:
+- Bachelor's degree; 2-4 years of relevant experience
+- Proficiency with C, C++, Linux, Magellan Firmware, PCI Express PCIe
+
+Core knowledge areas:
+- Computers and Electronics
+- Engineering and Technology
+- Design
+- Mathematics
+- English Language
+
+Preferred qualifications:
+- Experience with Perl, Python, Simulation program with integrated circuit emphasis SPICE, SystemVerilog",C; C++; Linux; Magellan Firmware; PCI Express PCIe; Computers and Electronics; Engineering and Technology; Design; Mathematics; English Language,https://example.com/jobs/17-2061.00,2026-06-01,LinkedIn
+Legal Secretaries and Administrative Assistant,Cedar Ridge Care,Remote,"55,000-82,000","Cedar Ridge Care is hiring a Legal Secretaries and Administrative Assistant in Remote. Perform secretarial duties using legal terminology, procedures, and documents. Prepare legal papers and correspondence, such as summonses, complaints, motions, and subpoenas. May also assist with legal research.
+
+Responsibilities:
+- Organize and maintain law libraries, documents, and case files.
+- Mail, fax, or arrange for delivery of legal correspondence to clients, witnesses, and court officials.
+- Prepare and distribute invoices to bill clients or pay account expenses.
+- Prepare, proofread, or process legal documents, such as summonses, subpoenas, complaints, appeals, motions, or pretrial agreements.
+- Make photocopies of correspondence, documents, and other printed matter.
+- Assist attorneys in collecting information such as employment, medical, and other records.
+
+Required qualifications:
+- Associate's degree or vocational training plus apprenticeship; 1-2 years of relevant experience
+- Proficiency with Microsoft Excel, Microsoft Office software, Microsoft Outlook, Microsoft PowerPoint, Microsoft Word
+
+Core knowledge areas:
+- Administrative
+- English Language
+- Law and Government
+- Customer and Personal Service
+- Computers and Electronics
+
+Preferred qualifications:
+- Experience with Adobe Acrobat, Intuit QuickBooks, Microsoft Access, Microsoft Visio",Microsoft Excel; Microsoft Office software; Microsoft Outlook; Microsoft PowerPoint; Microsoft Word; Administrative; English Language; Law and Government; Customer and Personal Service; Computers and Electronics,https://example.com/jobs/43-6012.00,2026-06-01,LinkedIn
+Legal Secretaries and Administrative Assistant,Vantage Retail,"Columbus, OH","55,000-82,000","Vantage Retail is hiring a Legal Secretaries and Administrative Assistant in Columbus, OH. Perform secretarial duties using legal terminology, procedures, and documents. Prepare legal papers and correspondence, such as summonses, complaints, motions, and subpoenas. May also assist with legal research.
+
+Responsibilities:
+- Organize and maintain law libraries, documents, and case files.
+- Mail, fax, or arrange for delivery of legal correspondence to clients, witnesses, and court officials.
+- Prepare and distribute invoices to bill clients or pay account expenses.
+- Prepare, proofread, or process legal documents, such as summonses, subpoenas, complaints, appeals, motions, or pretrial agreements.
+- Make photocopies of correspondence, documents, and other printed matter.
+- Assist attorneys in collecting information such as employment, medical, and other records.
+
+Required qualifications:
+- Associate's degree or vocational training plus apprenticeship; 1-2 years of relevant experience
+- Proficiency with Microsoft Excel, Microsoft Office software, Microsoft Outlook, Microsoft PowerPoint, Microsoft Word
+
+Core knowledge areas:
+- Administrative
+- English Language
+- Law and Government
+- Customer and Personal Service
+- Computers and Electronics
+
+Preferred qualifications:
+- Experience with Adobe Acrobat, Intuit QuickBooks, Microsoft Access, Microsoft Visio",Microsoft Excel; Microsoft Office software; Microsoft Outlook; Microsoft PowerPoint; Microsoft Word; Administrative; English Language; Law and Government; Customer and Personal Service; Computers and Electronics,https://example.com/jobs/43-6012.00,2026-06-01,LinkedIn
+Public Relations Specialist,Onyx Technologies,"Columbus, OH","78,000-118,000","Onyx Technologies is hiring a Public Relations Specialist in Columbus, OH. Promote or create an intended public image for individuals, groups, or organizations. May write or select material for release to various communications media. May specialize in using social media.
+
+Responsibilities:
+- Respond to requests for information from the media or designate an appropriate spokesperson or information source.
+- Plan or direct development or communication of programs to maintain favorable public or stockholder perceptions of an organization's accomplishments, agenda, or environmental responsibility.
+- Post and update content on the company's Web site and social media outlets.
+- Write press releases or other media communications to promote clients.
+- Establish or maintain cooperative relationships with representatives of community, consumer, employee, or public interest groups.
+- Confer with other managers to identify trends or key group interests or concerns or to provide advice on business decisions.
+
+Required qualifications:
+- Bachelor's degree; 2-4 years of relevant experience
+- Proficiency with Adobe Creative Cloud software, Adobe InDesign, Adobe Photoshop, Canva, Microsoft Excel
+
+Core knowledge areas:
+- Communications and Media
+- English Language
+- Administration and Management
+- Customer and Personal Service
+- Sales and Marketing
+
+Preferred qualifications:
+- Experience with Microsoft Office software, Microsoft Outlook, Microsoft PowerPoint, Microsoft SharePoint",Adobe Creative Cloud software; Adobe InDesign; Adobe Photoshop; Canva; Microsoft Excel; Communications and Media; English Language; Administration and Management; Customer and Personal Service; Sales and Marketing,https://example.com/jobs/27-3031.00,2026-06-01,LinkedIn
+Public Relations Specialist,Harborview Systems,"Charlotte, NC","78,000-118,000","Harborview Systems is hiring a Public Relations Specialist in Charlotte, NC. Promote or create an intended public image for individuals, groups, or organizations. May write or select material for release to various communications media. May specialize in using social media.
+
+Responsibilities:
+- Respond to requests for information from the media or designate an appropriate spokesperson or information source.
+- Plan or direct development or communication of programs to maintain favorable public or stockholder perceptions of an organization's accomplishments, agenda, or environmental responsibility.
+- Post and update content on the company's Web site and social media outlets.
+- Write press releases or other media communications to promote clients.
+- Establish or maintain cooperative relationships with representatives of community, consumer, employee, or public interest groups.
+- Confer with other managers to identify trends or key group interests or concerns or to provide advice on business decisions.
+
+Required qualifications:
+- Bachelor's degree; 2-4 years of relevant experience
+- Proficiency with Adobe Creative Cloud software, Adobe InDesign, Adobe Photoshop, Canva, Microsoft Excel
+
+Core knowledge areas:
+- Communications and Media
+- English Language
+- Administration and Management
+- Customer and Personal Service
+- Sales and Marketing
+
+Preferred qualifications:
+- Experience with Microsoft Office software, Microsoft Outlook, Microsoft PowerPoint, Microsoft SharePoint",Adobe Creative Cloud software; Adobe InDesign; Adobe Photoshop; Canva; Microsoft Excel; Communications and Media; English Language; Administration and Management; Customer and Personal Service; Sales and Marketing,https://example.com/jobs/27-3031.00,2026-06-01,LinkedIn
+Office Machine Operator,Pinnacle Services,"Charlotte, NC","40,000-62,000","Pinnacle Services is hiring an Office Machine Operator in Charlotte, NC. Operate one or more of a variety of office machines, such as photocopying, photographic, and duplicating machines, or other office machines.
+
+Responsibilities:
+- Read job orders to determine the type of work to be done, the quantities to be produced, and the materials needed.
+- Deliver completed work.
+- Place original copies in feed trays, feed originals into feed rolls, or position originals on tables beneath camera lenses.
+- Sort, assemble, and proof completed work.
+- Operate office machines such as high speed business photocopiers, readers, scanners, addressing machines, stencil-cutting machines, microfilm readers or printers, folding and inserting machines, bursters, and binder machines.
+- Complete records of production, including work volumes and outputs, materials used, and any backlogs.
+
+Required qualifications:
+- High school diploma; some vocational training or certification; some prior experience
+- Proficiency with Adobe Acrobat, Adobe Illustrator, Adobe InDesign, Adobe Photoshop, Microsoft Access
+
+Core knowledge areas:
+- English Language
+- Customer and Personal Service
+- Production and Processing
+- Computers and Electronics
+- Mathematics
+
+Preferred qualifications:
+- Experience with Microsoft Excel, Microsoft Office software, Microsoft Outlook, Microsoft PowerPoint",Adobe Acrobat; Adobe Illustrator; Adobe InDesign; Adobe Photoshop; Microsoft Access; English Language; Customer and Personal Service; Production and Processing; Computers and Electronics; Mathematics,https://example.com/jobs/43-9071.00,2026-06-01,LinkedIn
+Office Machine Operator,Greenfield Manufacturing,"McLean, VA","40,000-62,000","Greenfield Manufacturing is hiring an Office Machine Operator in McLean, VA. Operate one or more of a variety of office machines, such as photocopying, photographic, and duplicating machines, or other office machines.
+
+Responsibilities:
+- Read job orders to determine the type of work to be done, the quantities to be produced, and the materials needed.
+- Deliver completed work.
+- Place original copies in feed trays, feed originals into feed rolls, or position originals on tables beneath camera lenses.
+- Sort, assemble, and proof completed work.
+- Operate office machines such as high speed business photocopiers, readers, scanners, addressing machines, stencil-cutting machines, microfilm readers or printers, folding and inserting machines, bursters, and binder machines.
+- Complete records of production, including work volumes and outputs, materials used, and any backlogs.
+
+Required qualifications:
+- High school diploma; some vocational training or certification; some prior experience
+- Proficiency with Adobe Acrobat, Adobe Illustrator, Adobe InDesign, Adobe Photoshop, Microsoft Access
+
+Core knowledge areas:
+- English Language
+- Customer and Personal Service
+- Production and Processing
+- Computers and Electronics
+- Mathematics
+
+Preferred qualifications:
+- Experience with Microsoft Excel, Microsoft Office software, Microsoft Outlook, Microsoft PowerPoint",Adobe Acrobat; Adobe Illustrator; Adobe InDesign; Adobe Photoshop; Microsoft Access; English Language; Customer and Personal Service; Production and Processing; Computers and Electronics; Mathematics,https://example.com/jobs/43-9071.00,2026-06-01,LinkedIn

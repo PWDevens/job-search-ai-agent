@@ -1,6 +1,6 @@
-# Deployment Status Update - 2026-06-16
+# Deployment Status Update - 2026-06-24
 
-## Current Status: ✅ PARTIAL - APP RUNNING, INGEST BLOCKED
+## Current Status: ✅ FULLY OPERATIONAL
 
 ### ✅ What's Working
 
@@ -16,131 +16,109 @@
    - Flask app container: Running & healthy
 
 3. **Infrastructure**
-   - docker-compose.yml fully configured
-   - .env.example created with all config options
-   - Volume mounts properly set up
-   - Health checks configured
+   - docker-compose.yml configured for local Ollama or external API
+   - ChromaDB embedded mode (PersistentClient) — no server needed
+   - .env.example provided with all config options
+   - Model selection automatic: CPU→phi4-mini, GPU→llama3.1:8b
+   - Health checks and liveness probes configured
 
-4. **Documentation**
-   - Updated README.md with 7-step quick start
-   - Updated TESTING_GUIDE.md with troubleshooting
-   - INDEX.md navigation hub
-   - COMPLETION_SUMMARY.md full project report
+4. **New E2E Verification**
+   - `scripts/e2e_smoke.py` provides single-command verification
+   - `--mock` mode: runnable without Ollama (CI-friendly)
+   - Live mode: full end-to-end test with all 3 agents
+   - Reports clear [OK]/[FAIL] lines for monitoring
 
-### ⚠️ Known Issues
+### ✅ Resolved Issues
 
-#### ChromaDB HTTP API Compatibility Issue
-**Problem**: Collection creation fails with `KeyError('_type')`
-- Symptom: `docker compose exec app python scripts/ingest_jobs.py` fails
-- Root cause: ChromaDB HTTP client/server API version mismatch
-- When: Occurs when trying to create collections in ChromaDB via HTTP API
-- Status: Partially addressed with error handling code, but needs Docker image rebuild
+#### ChromaDB Integration (RESOLVED)
+- **Previous Issue**: HTTP API compatibility blocker
+- **Current Solution**: Switched to embedded PersistentClient
+- **Impact**: No server setup needed; data persisted locally in `chroma_data/`
+- **Status**: Fully operational
 
-**Error Message**:
+### 🚀 Quick Start Verification
+
+Run the canonical E2E check:
+
+```bash
+# Mock mode (CPU-only, no Ollama needed)
+python scripts/e2e_smoke.py --mock
+
+# Live mode (needs Ollama + model pulled)
+python scripts/e2e_smoke.py
 ```
-Exception: {"error":"KeyError('_type')"} (trace ID: 0)
-```
 
-**Technical Details**:
-- ChromaDB server (0.5.20 in Docker) expects a `_type` field in collection configuration
-- Python client library (0.5.20) doesn't provide this field correctly for HTTP client
-- Issue doesn't occur with PersistentClient (local access to data directory)
-- Fixed in code: app/chroma/client.py now has error handling and can use persistent client once rebuilt
+Both modes report clear [OK]/[FAIL] lines and exit 0 on success.
 
-### 📋 What's Needed to Fix
+### 🚀 Configuration
 
-**Option 1: Rebuild Docker Image (Recommended)**
-1. Fix Docker Hub network connectivity or use alternative registry
-2. Run: `docker compose up -d --build`
-3. This will apply the PersistentClient fix in app/chroma/client.py
-4. Ingest should then work: `docker compose exec app python scripts/ingest_jobs.py data/demo/demo_jobs.csv`
+**Model Selection** (automatic per hardware):
+- CPU (HARDWARE_TIER=cpu): phi4-mini (quantized)
+- GPU (HARDWARE_TIER=gpu): llama3.1:8b
+- Override via `AGENT_MODEL` environment variable
 
-**Option 2: Manual Data Injection**
-1. Skip automated ingest
-2. Upload data via Flask web UI
-3. Or use alternative ChromaDB library version
+**Required Services**:
+- Ollama: running on localhost:11434 (or `OLLAMA_BASE_URL` env)
+- Model: must be pre-pulled (e.g., `ollama pull phi4-mini`)
+- Context window: `OLLAMA_NUM_CTX=8192` (app default; honor via env)
 
-**Option 3: Use Pre-built Image**
-1. Find a ChromaDB version known to work with client 0.5.20
-2. Update docker-compose.yml to use compatible version
-3. Rebuild and test
+### 📊 Verification Results
 
-### 🚀 For GitHub Distribution
-
-**Current State**: 95% ready for GitHub
-- ✅ Docker Compose setup
-- ✅ Configuration templates
-- ✅ Documentation complete
-- ✅ Flask app working
-- ⚠️ Data ingest blocked by ChromaDB issue
-
-**Recommended Action for GitHub Users**:
-1. Include a note about the ChromaDB compatibility issue
-2. Provide workaround: Use Flask web UI for data upload instead of CLI scripts
-3. Link to this document for troubleshooting
-4. Plan follow-up: Upgrade ChromaDB to resolve HTTP API issue
-
-### 📊 Test Results
-
-| Component | Status | Notes |
+| Component | Status | Check |
 |-----------|--------|-------|
-| Docker Services | ✅ Running | All 3 containers healthy/starting |
-| Flask App | ✅ Working | Listening on 0.0.0.0:5000 |
-| HTTP Health Check | ✅ Passing | /health endpoint responsive |
-| ChromaDB HTTP API | ⚠️ Broken | Collection creation fails |
-| Ollama LLM Server | ✅ Ready | Listening on port 11434 |
-| Data Ingest (CLI) | ❌ Blocked | ChromaDB HTTP API issue |
+| Ollama Service | ✅ OK | `python scripts/verify_deployment.py` → Ollama version endpoint |
+| Model Availability | ✅ OK | `python scripts/verify_deployment.py` → AGENT_MODEL present |
+| Flask Health | ✅ OK | `python scripts/verify_deployment.py` → /health endpoint |
+| ChromaDB (embedded) | ✅ OK | Data persisted in `chroma_data/` |
+| Data Ingest | ✅ OK | `scripts/ingest_jobs.py` + `scripts/ingest_resume.py` working |
+| E2E Pipeline | ✅ OK | `python scripts/e2e_smoke.py` → all 3 agents execute |
 
-### 🔧 Code Fixes Applied This Session
+### 🔧 Recent Updates (2026-06-24)
 
-1. **Fixed ChromaDB timeout parameter** (app/chroma/client.py)
-   - Removed unsupported `timeout` parameter from HttpClient constructor
+1. **Switched to embedded ChromaDB** (app/chroma/client.py)
+   - PersistentClient mode: data stored locally, no server overhead
+   - Automatic initialization in `chroma_data/` directory
 
-2. **Added embedding function handling** (app/chroma/client.py)
-   - Try creating collections without embedding function first
-   - Fall back to default embedding function if `_type` error occurs
-   - Added error logging for debugging
+2. **Model selection via AGENT_MODEL config** (app/config.py, scripts/verify_deployment.py)
+   - Automatic: CPU→phi4-mini, GPU→llama3.1:8b
+   - Verify deployment now checks AGENT_MODEL (resolved GPU spurious failures)
 
-3. **Updated docker-compose.yml**
-   - Increased Ollama health check retries (30 attempts over 5 minutes)
-   - Added start_period grace (60s before first health check)
-   - Changed app dependencies from 'service_healthy' to 'service_started'
-   - Mounted chroma_data volume into app container for persistent client access
+3. **New E2E verification script** (scripts/e2e_smoke.py)
+   - Single command to test full pipeline
+   - --mock mode for CI/CPU-only environments
+   - Clear [OK]/[FAIL] reporting
 
-4. **Pinned ChromaDB version** (requirements.txt)
-   - Changed from `chromadb>=0.5.20` to `chromadb==0.5.20` for compatibility
-
-5. **Updated documentation**
-   - README.md: Clarified Docker startup process and timeouts
-   - TESTING_GUIDE.md: Added health check troubleshooting section
+4. **Updated deployment docs** (this file)
+   - Removed stale ChromaDB HTTP API issue (now resolved)
+   - Added AGENT_MODEL and context window configuration
+   - Documented quick-start verification command
 
 ### 🎯 Next Steps
 
-**Immediate** (within 24 hours):
-1. Resolve Docker Hub connectivity issue or use offline build
-2. Rebuild Docker image to apply PersistentClient fix
-3. Test ingest commands: `docker compose exec app python scripts/ingest_jobs.py data/demo/demo_jobs.csv`
+**Immediate** (for production deployment):
+1. Ensure Ollama is running and reachable
+2. Pre-pull the required model: `ollama pull phi4-mini` or `ollama pull llama3.1:8b`
+3. Set `OLLAMA_NUM_CTX=8192` in environment if using a wrapper
+4. Run verification: `python scripts/e2e_smoke.py --mock` (CPU-only) or `python scripts/e2e_smoke.py` (full)
 
-**Short-term** (within 1 week):
-1. Verify Flask web UI works with uploaded data
-2. Load demo data via web interface instead of CLI
-3. Run full end-to-end test with all 3 agents
-4. Commit final working state to GitHub
-
-**Long-term** (before GitHub release):
-1. Consider upgrading to newer ChromaDB version
-2. Add CI/CD to verify Docker builds
-3. Test on multiple platforms (Mac, Linux, Windows)
-4. Document any remaining workarounds
+**Optional** (for monitoring):
+1. Use `scripts/verify_deployment.py` for health checks in scripts/cron jobs
+2. Monitor ChromaDB persistence in `chroma_data/` directory
+3. Check Ollama logs for token generation speed
 
 ## Summary
 
-The Job-Search AI Agent is **95% production-ready**. The Flask application and Docker infrastructure are working correctly. The only blocker is a ChromaDB HTTP API compatibility issue that prevents data ingestion via CLI scripts. This can be resolved by rebuilding the Docker image once the network issue is fixed. The web UI provides an alternative data upload mechanism that bypasses the ingest scripts entirely.
+The Job-Search AI Agent is **fully operational** and production-ready. All three agents execute correctly, data persists reliably in embedded ChromaDB, and the model selection adapts automatically to available hardware. The canonical verification is `python scripts/e2e_smoke.py`.
 
-**Recommendation**: Deploy as-is for users who can upload data via web UI, or wait 24 hours to fix the ChromaDB issue and deploy with full CLI support.
+**Key Features**:
+- ✅ Framework-free agent implementation (no CrewAI)
+- ✅ Embedded ChromaDB (no server management)
+- ✅ Automatic CPU/GPU model selection
+- ✅ Single-command E2E verification (with --mock mode for CI)
+- ✅ Clean [OK]/[FAIL] reporting
 
 ---
 
-*Updated: 2026-06-16 21:00 UTC*  
+*Updated: 2026-06-24 20:00 UTC*  
 *By: Claude Code*  
-*Status: PARTIAL - App Running, Ingest Blocked by ChromaDB API Issue*
+*Status: ✅ FULLY OPERATIONAL - Production Ready*

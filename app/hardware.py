@@ -1,16 +1,25 @@
 """
 Hardware tier detection and model selection.
 
-Tiers:
-  cpu         — no NVIDIA GPU;     phi4-mini:q4_K_M   (~2.5 GB RAM)
-  gpu_avg     — GPU <  10 GB VRAM; llama3.1:8b        (~4.9 GB VRAM)
-  gpu_modern  — GPU >= 10 GB VRAM; llama3.1:8b        (~4.9 GB VRAM)
+Tiers (models from the iter16 model bake-off — see reports/IMPROVEMENT_LOG.md):
+  cpu         — no NVIDIA GPU (incl. iGPU/Apple);  qwen3:4b    (~3 GB; fast everywhere)
+  gpu_avg     — GPU <  10 GB VRAM;                 qwen3:4b    (~3 GB)
+  gpu_modern  — GPU >= 10 GB VRAM;                 gemma3:12b  (~8 GB)
 
-Both GPU tiers run llama3.1:8b — the bake-off (2026-06) showed it the fastest
-(~2x) and most reliable at the pipeline's structured-output agents, at quality
-within noise of gemma2:9b, and it fits both the 8 GB and 16 GB tiers.
-Requires OLLAMA_NUM_CTX>=8192 (config default) — the ~5.2k-token job_matcher
-prompt is truncated and fails at 4096.
+The bake-off (2026-06, 13 models, switch+stay cells) found the base model is the DOMINANT eval lever:
++0.76-0.79 overall vs the old llama3.1:8b, which ranked near the BOTTOM. Two robust co-winners that
+generalize across both persona cells:
+  - qwen3:4b   — best overall AND smallest (4B); fast on CPU/iGPU/Metal -> default for the small +
+                 non-NVIDIA tiers, where no US model competes at that size. Origin: Alibaba (CN).
+  - gemma3:12b — US (Google), essentially tied with qwen3:4b, for real NVIDIA GPUs (>=10 GB VRAM).
+Notable: scaling BACKFIRES (qwen3 4b>8b>14b>30b-a3b); gpt-oss:20b led on switch but dropped BELOW the
+old model on stay (why both cells are tested). Requires OLLAMA_NUM_CTX>=8192 (config default) — the
+~5.2k-token job_matcher prompt fails at 4096.
+
+US-only deployments: AGENT_MODEL=gemma3:12b everywhere (slower on small hardware), or try the untested
+gemma3:4b for the small tier. US is preferred-not-required; qwen3:4b is the performance/size pick.
+detect_tier only probes nvidia-smi, so Apple-Silicon Macs fall to 'cpu' -> qwen3:4b (still the best
+model, fast on Metal); add a Metal tier if a >=24 GB Mac should run gemma3:12b.
 
 Override via env:
   HARDWARE_TIER=cpu|gpu_avg|gpu_modern   (skips detection)
@@ -25,9 +34,9 @@ import subprocess
 logger = logging.getLogger(__name__)
 
 MODELS = {
-    "cpu":        "phi4-mini:q4_K_M",
-    "gpu_avg":    "llama3.1:8b",
-    "gpu_modern": "llama3.1:8b",
+    "cpu":        "qwen3:4b",
+    "gpu_avg":    "qwen3:4b",
+    "gpu_modern": "gemma3:12b",
 }
 
 _tier: str | None = None  # cached after first detection

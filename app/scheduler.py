@@ -1,6 +1,6 @@
 """
 APScheduler-based weekly job-search pipeline scheduler.
-Runs the full CrewAI pipeline Mon–Fri at 08:00 America/New_York (configurable).
+Runs the full agent pipeline Mon–Fri at 08:00 America/New_York (configurable).
 Sends email summary via SMTP after each run.
 
 Usage (standalone):
@@ -89,9 +89,11 @@ def _run_pipeline() -> None:
     # Run pipeline
     try:
         from app.pipeline.pipeline import SearchRequest, run
+        # #4: the scheduled/email persona is latency-insensitive -> widest search (most options).
         req    = SearchRequest(
             role_description=role_description,
             geo_preference=geo_preference,
+            effort=os.getenv("SCHEDULER_EFFORT", "max"),
         )
         result = run(req)
     except Exception as exc:

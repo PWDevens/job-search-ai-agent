@@ -15,6 +15,13 @@ import os
 import requests
 from typing import Tuple
 
+# Try to import the resolved AGENT_MODEL from config; fall back to env
+try:
+    from app.config import AGENT_MODEL as CONFIG_AGENT_MODEL
+    _config_agent_model = CONFIG_AGENT_MODEL
+except ImportError:
+    _config_agent_model = None
+
 
 def check_ollama_version() -> Tuple[bool, str]:
     """Check Ollama version endpoint"""
@@ -31,8 +38,8 @@ def check_ollama_version() -> Tuple[bool, str]:
 def check_ollama_model() -> Tuple[bool, str]:
     """Check that the configured LLM model is available"""
     try:
-        # Read model name from environment (default: phi4-mini)
-        model_name = os.environ.get("OLLAMA_MODEL", "phi4-mini")
+        # Use resolved AGENT_MODEL from config; fall back to OLLAMA_MODEL env
+        model_name = _config_agent_model or os.environ.get("OLLAMA_MODEL", "phi4-mini")
 
         response = requests.get("http://localhost:11434/api/tags", timeout=5)
         if response.status_code != 200:

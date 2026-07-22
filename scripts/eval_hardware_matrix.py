@@ -15,7 +15,7 @@ Usage:
   python scripts/eval_hardware_matrix.py --label pre          # full baseline -> reports/hardware_eval_matrix_pre.csv
   python scripts/eval_hardware_matrix.py --scenarios 1,2,4    # subset of scenarios
 """
-import argparse, csv, sys, time
+import argparse, csv, os, sys, time, json
 from datetime import datetime
 from pathlib import Path
 
@@ -42,6 +42,7 @@ def scenarios(phi4_8gb_layers: int):
         {"id": 6, "gpu": "GPU",               "model": "gemma4:12b-it-q4_K_M","num_gpu": None,   "num_thread": None, "vram_mode": "full"},  # bake-off: gemma4 12B dense (fails career_strategist)
         {"id": 7, "gpu": "GPU",               "model": "gemma3:12b-it-q4_K_M","num_gpu": None,   "num_thread": None, "vram_mode": "full"},  # bake-off: gemma3 12B dense
         {"id": 8, "gpu": "GPU",               "model": "gemma4:26b-a4b-it-qat","num_gpu": None,  "num_thread": None, "vram_mode": "full"}, # bake-off: gemma4 26B MoE (4B active)
+        {"id": 9, "gpu": "GPU",               "model": "llama3.1:8b","num_gpu": None,            "num_thread": None, "vram_mode": "full"},  # production GPU model (bake-off winner)
     ]
 
 CSV_FIELDS = [
@@ -51,6 +52,7 @@ CSV_FIELDS = [
     "jobs_returned", "recommendations_returned", "blind_spots_returned",
     "avg_job_score", "avg_rec_score", "avg_spot_score", "overall_score", "quality_label",
     "tangible_rec_pct", "avg_company_citations_per_rec", "blind_spot_grounded_pct",
+    "blind_spot_auth_grounded_pct", "rec_gap_closing_pct", "expected_blind_spot_coverage_pct", "pivot_coverage_pct", "rubric_version",
     "validation_resume_coach", "validation_career_strategist", "fallback_used",
     "error_message",
 ]
@@ -68,7 +70,7 @@ def _read_resume(path):
 
 
 def build_rows(smoke: bool, variant: str = "switching"):
-    """(persona_obj_or_demo, dataset, role, geo, resume_text) tuples.
+    """(persona_obj_or_demo, dataset, role, geo, resume_text, variant) tuples.
 
     variant="switching"  -> persona pivots to analytics (existing variant[0])
     variant="stayinfield"-> persona searches its own profession (geo=None, nationwide)
@@ -81,13 +83,14 @@ def build_rows(smoke: bool, variant: str = "switching"):
         else:
             v = p.search_variants[0]
             role, geo = v.role_description, v.geo_preference
-        rows.append((p, "synthetic", role, geo, _read_resume(p.resume_path)))
+        rows.append((p, "synthetic", role, geo, _read_resume(p.resume_path), variant))
     # demo row (uses the demo resume + demo jobs ingested into the same collection)
     rows.append((
         _DemoPersona(), "demo",
         "Data Engineer AI/ML Python Flask ChromaDB federal government contractor",
         "Washington DC",
         _read_resume(ROOT / "data" / "demo" / "demo_resume.txt"),
+        variant,
     ))
     return rows
 
@@ -102,21 +105,37 @@ def submetrics(scores):
     return tangible_pct, avg_cites, grounded_pct
 
 
-def run_row(scn, persona, dataset, role, geo, resume_text):
+def run_row(scn, persona, dataset, role, geo, resume_text, variant="switching"):
     """One pipeline run under one scenario → one CSV-row dict."""
     base.LAST_TIMING.clear()
     t0 = time.monotonic()
     err = None
     try:
-        result = run(SearchRequest(role_description=role, geo_preference=geo, resume_text=resume_text))
+        mode = "switch" if variant == "switching" else "stay"
+        effort = os.getenv("EFFORT", "balanced")  # #4 sweep sets EFFORT per run
+        result = run(SearchRequest(role_description=role, geo_preference=geo,
+                                   resume_text=resume_text, mode=mode, effort=effort))
         d = result.as_dict()
     except Exception as e:
         err = f"{type(e).__name__}: {e}"
         d = {"top_jobs": [], "resume_recs": [], "blind_spots": [], "agent_validation": {}, "raw_agent_output": {}}
     elapsed = round(time.monotonic() - t0, 2)
 
-    scores = ResultEvaluator.evaluate_search_result(d, persona)
+    # ponytail: pass variant to scoring so it uses appropriate targets
+    scores = ResultEvaluator.evaluate_search_result(d, persona, variant)
     tangible_pct, avg_cites, grounded_pct = submetrics(scores)
+
+    # Raw-output persistence (opt-in EVAL_PERSIST_RAW): bank the inputs so ANY future rubric
+    # version re-scores offline for $0 (no pod). Re-score via evaluate_search_result(result, persona, variant).
+    if os.getenv("EVAL_PERSIST_RAW", "").lower() in ("1", "true", "yes"):
+        try:
+            out = os.getenv("EVAL_OUT", "reports/eval_compare.csv")
+            raw_path = (out[:-4] if out.endswith(".csv") else out) + ".raw.jsonl"
+            with open(raw_path, "a", encoding="utf-8") as fh:
+                fh.write(json.dumps({"persona": getattr(persona, "name", "?"), "variant": variant,
+                                     "dataset": dataset, "result": d}, default=str) + "\n")
+        except Exception:
+            pass
 
     av = d.get("agent_validation", {})
     m = SearchMetrics(
@@ -152,6 +171,11 @@ def run_row(scn, persona, dataset, role, geo, resume_text):
         "tangible_rec_pct": tangible_pct,
         "avg_company_citations_per_rec": avg_cites,
         "blind_spot_grounded_pct": grounded_pct,
+        "blind_spot_auth_grounded_pct": scores.get("blind_spot_auth_grounded_pct") if scores.get("blind_spot_auth_grounded_pct") is not None else "",
+        "rec_gap_closing_pct": scores.get("rec_gap_closing_pct") if scores.get("rec_gap_closing_pct") is not None else "",
+        "expected_blind_spot_coverage_pct": scores.get("expected_blind_spot_coverage_pct") if scores.get("expected_blind_spot_coverage_pct") is not None else "",
+        "pivot_coverage_pct": scores.get("pivot_coverage_pct") if scores.get("pivot_coverage_pct") is not None else "",
+        "rubric_version": scores.get("rubric_version", "v1"),
         "validation_resume_coach": m.validation_resume_coach,
         "validation_career_strategist": m.validation_career_strategist,
         "fallback_used": m.fallback_used,
@@ -200,11 +224,11 @@ def main():
             cfg.AGENT_MODEL    = scn["model"]
             cfg.OLLAMA_NUM_GPU = scn["num_gpu"]
             cfg.OLLAMA_NUM_THREAD = scn["num_thread"]
-            for persona, dataset, role, geo, resume in rows_spec:
+            for persona, dataset, role, geo, resume, variant in rows_spec:
                 i += 1
                 who = getattr(persona, "name", "?")
                 print(f"[{i}/{total}] scn{scn['id']} {scn['gpu']} {scn['model']} | {dataset}/{who} ...", flush=True)
-                row = run_row(scn, persona, dataset, role, geo, resume)
+                row = run_row(scn, persona, dataset, role, geo, resume, variant)
                 w.writerow(row); f.flush()
                 tag = row["error_message"] or f"{row['overall_score']} ({row['quality_label']}) {row['execution_time_sec']}s {row['tokens_per_sec']}tok/s"
                 print(f"      -> {tag}")

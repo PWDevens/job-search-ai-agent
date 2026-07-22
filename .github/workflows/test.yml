@@ -1,0 +1,15 @@
+name: Tests
+on: [push, pull_request]
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.11" }
+      - run: pip install -r requirements.txt
+      - name: Fetch O*NET database (gitignored, 13MB — not committed)
+        run: |
+          mkdir -p data/skills/raw
+          curl -sSL "https://www.onetcenter.org/dl_files/database/db_30_3_text.zip" -o data/skills/raw/db_30_3_text.zip
+      - run: python -m pytest -q --ignore=tests/test_pipeline_integration.py

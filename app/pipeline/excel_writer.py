@@ -192,7 +192,7 @@ def merge_new_jobs_to_user_file(
 
     Args:
         user_file_path: Path to the user's uploaded CSV or XLSX on disk.
-        new_jobs:       List of job dicts from the CrewAI / matcher pipeline.
+        new_jobs:       List of job dicts from the agent / matcher pipeline.
 
     Returns:
         Tuple of (count_appended, output_path).

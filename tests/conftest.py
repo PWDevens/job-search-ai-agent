@@ -27,6 +27,25 @@ os.environ.setdefault("SMTP_PASS",      "")
 os.environ.setdefault("SECRET_KEY",     "test-secret-key")
 
 
+class _FakeEmbeddingFunction:
+    """Deterministic bag-of-words embedding for tests — gives lexical cosine similarity
+    (shared tokens -> closer) without loading the bge model. Chroma EmbeddingFunction API."""
+    def __call__(self, input):
+        return [self._vec(t) for t in input]
+
+    @staticmethod
+    def _vec(text, dim=256):
+        import hashlib, math, re
+        v = [0.0] * dim
+        for tok in re.findall(r"[a-z0-9]+", (text or "").lower()):
+            v[int(hashlib.md5(tok.encode()).hexdigest(), 16) % dim] += 1.0
+        norm = math.sqrt(sum(x * x for x in v)) or 1.0
+        return [x / norm for x in v]
+
+    def name(self):
+        return "fake-test-embed"
+
+
 # ─────────────────────────────────────────────────────────────────────────────
 # Retrieval: Mock ChromaDB client and embedding function for tests
 # ─────────────────────────────────────────────────────────────────────────────
@@ -34,17 +53,36 @@ os.environ.setdefault("SECRET_KEY",     "test-secret-key")
 @pytest.fixture(autouse=True)
 def mock_retrieval_client():
     """
-    Auto-use fixture: mock app.retrieval.client._client and _embed_fn.
-    Ensures tests do not try to access real ChromaDB files or embedding models.
+    Auto-use fixture: back app.retrieval.client with a REAL in-memory ChromaDB + a fast
+    deterministic (lexical) embedding. Tests get working ingest/query without touching disk
+    or loading the bge model — so integration tests actually exercise retrieval, while staying
+    fast and isolated (fresh ephemeral client per test).
     """
-    # Mock the module-level client and embedding function
-    mock_client = MagicMock()
-    mock_embed_fn = MagicMock()
+    import chromadb
+    from chromadb.config import Settings
+    import app.retrieval.client as rc
 
-    # Patch both at import time
-    with patch("app.retrieval.client._client", mock_client), \
-         patch("app.retrieval.client._embed_fn", mock_embed_fn):
-        yield {"client": mock_client, "embed_fn": mock_embed_fn}
+    # EphemeralClient shares one in-memory backend per process, so reset for per-test isolation.
+    client = chromadb.EphemeralClient(settings=Settings(anonymized_telemetry=False, allow_reset=True))
+    client.reset()
+    embed_fn = _FakeEmbeddingFunction()
+
+    # Skip the heavy cross-encoder reranker in tests (vector order is fine) without overriding
+    # the RERANK_MODEL config constant — passthrough where it's used.
+    def _passthrough_rerank(query, docs, top_n=None):
+        return docs[:top_n] if top_n else docs
+
+    # Patch the module globals; _init() sees a non-None _client and won't overwrite with PersistentClient.
+    with patch.object(rc, "_client", client), patch.object(rc, "_embed_fn", embed_fn), \
+         patch("app.pipeline.matcher.rerank", _passthrough_rerank), \
+         patch("app.pipeline.pipeline.rerank", _passthrough_rerank):
+        yield client
+
+
+@pytest.fixture
+def chroma_client(mock_retrieval_client):
+    """The in-memory ChromaDB client backing retrieval in tests (alias of the autouse fixture)."""
+    return mock_retrieval_client
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -115,11 +153,9 @@ def mock_llm():
 # Fixtures: Sample data for testing
 # ─────────────────────────────────────────────────────────────────────────────
 
-@pytest.fixture
-def tmp_path_factory():
-    """Temporary directory factory for creating test data."""
-    with tempfile.TemporaryDirectory() as tmpdir:
-        yield Path(tmpdir)
+# NOTE: do NOT define a `tmp_path_factory` fixture here — it shadows pytest's built-in
+# session-scoped factory (returning a plain Path with no .mktemp), which breaks every
+# tmp_path-dependent test ('WindowsPath' has no attribute 'mktemp'). Use the built-ins.
 
 
 @pytest.fixture

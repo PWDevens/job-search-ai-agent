@@ -3,7 +3,7 @@ app/routes.py — Flask Routes
 =============================
 
 GET  /               → Search form (index.html)
-POST /search         → Run CrewAI pipeline, render results, merge into user file
+POST /search         → Run agent pipeline, render results, merge into user file
 POST /ingest         → Upload and ingest jobs CSV/XLSX or resume PDF/TXT
 GET  /health         → Docker liveness probe
 GET  /pipeline       → Download internal pipeline XLSX
@@ -224,6 +224,29 @@ def search():
     else:
         session.pop("uploaded_jobs_path", None)
 
+    # ── 2b. Optional LIVE job discovery from Adzuna (B1: find, don't just rank) ──
+    # Lets the user search by role + location instead of uploading a jobs file.
+    if request.form.get("fetch_live"):
+        try:
+            from app.pipeline.job_search import search_adzuna
+            from app.pipeline.ingest import ingest_jobs
+            import csv as _csv, tempfile
+            live = search_adzuna(role_description[:80], geo_preference or None, n=25)
+            if live:
+                tmp = Path(tempfile.gettempdir()) / "adzuna_live.csv"
+                with open(tmp, "w", newline="", encoding="utf-8") as _f:
+                    w = _csv.DictWriter(_f, fieldnames=["title", "company", "location",
+                                        "description", "salary", "url", "date_posted", "source"])
+                    w.writeheader(); w.writerows(live)
+                n_live = ingest_jobs(str(tmp))
+                tmp.unlink(missing_ok=True)
+                flash(f"🔎 Fetched {n_live} live jobs from Adzuna for '{role_description[:40]}'.", "info")
+            else:
+                flash("No live jobs found for that role/location. Using existing index.", "warning")
+        except Exception as exc:
+            logger.warning("Live Adzuna fetch failed: %s", exc)
+            flash(f"Live job search unavailable ({exc}). Using existing index.", "warning")
+
     # ── 3. Run pipeline ────────────────────────────────────────────────
     top_jobs, resume_recs, blind_spots = [], [], []
     agent_validation = {
@@ -234,11 +257,20 @@ def search():
 
     try:
         from app.pipeline.pipeline import SearchRequest, run
+        mode = "switch" if request.form.get("mode", "stay").lower() == "switch" else "stay"
+        # stay_reason refines the stay path (advancement / comp_culture / displaced / lateral).
+        stay_reason = request.form.get("stay_reason", "").lower() if mode == "stay" else ""
+        effort = request.form.get("effort", "balanced").lower()
+        if effort not in ("quick", "balanced", "thorough", "max"):
+            effort = "balanced"
         req = SearchRequest(
             role_description=role_description,
             geo_preference=geo_preference,
             resume_text=resume_text,
             extra_context=extra_context,
+            mode=mode,
+            stay_reason=stay_reason,
+            effort=effort,
         )
         result = run(req)
         top_jobs    = result.top_jobs
@@ -327,7 +359,7 @@ def ingest():
     """
     Standalone ingestion endpoint.
     Accepts a jobs CSV/XLSX or resume file and loads it into ChromaDB without
-    running the full CrewAI pipeline. Useful for pre-loading data.
+    running the full agent pipeline. Useful for pre-loading data.
     """
     geo_filter = request.form.get("geo_filter", "").strip() or None
     messages   = []

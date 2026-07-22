@@ -37,13 +37,14 @@ class TestAppendJobsToPipeline:
         count = append_jobs_to_pipeline(jobs)
         assert count > 0, "Should append jobs to pipeline"
 
-    def test_append_jobs_to_nonexistent_pipeline(self, tmp_path):
+    def test_append_jobs_to_nonexistent_pipeline(self, tmp_path, monkeypatch):
         """append_jobs_to_pipeline should create pipeline if it doesn't exist."""
-        import os
-        from app.pipeline.excel_writer import append_jobs_to_pipeline
+        import app.pipeline.excel_writer as ew
 
         pipeline_path = tmp_path / "new_pipeline.xlsx"
-        os.environ["PIPELINE_XLSX"] = str(pipeline_path)
+        # PIPELINE_XLSX is import-bound in excel_writer; patch the module attr the fn reads.
+        monkeypatch.setattr(ew, "PIPELINE_XLSX", str(pipeline_path))
+        append_jobs_to_pipeline = ew.append_jobs_to_pipeline
 
         jobs = [
             {

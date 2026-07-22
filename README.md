@@ -1,15 +1,13 @@
 # Job-Search AI Agent
 
-> **A fully local, open-source job-search assistant powered by ChromaDB and local LLMs (Phi-4-mini on CPU, Llama 3.1 8B on GPU, via Ollama). It auto-detects your computer's hardware and picks the best model for it — no setup choices required. No cloud APIs. No data leaving your machine.**
+> **A fully local, open-source job-search assistant powered by ChromaDB and local LLMs (qwen3:4b on most machines, gemma3:12b on a GPU, via Ollama). It auto-detects your computer's hardware and picks the best model for it — no setup choices required. No cloud APIs. No data leaving your machine.**
 
 [![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://python.org)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 [![Docker](https://img.shields.io/badge/docker-compose-2496ED.svg)](docker-compose.yml)
 [![Ollama](https://img.shields.io/badge/Ollama-local%20LLM-orange.svg)](https://ollama.com)
 [![ChromaDB](https://img.shields.io/badge/ChromaDB-0.5+-purple.svg)](https://trychroma.com)
-[![Tests](https://img.shields.io/badge/tests-104%2B-brightgreen.svg)](tests/)
-[![Coverage](https://img.shields.io/badge/coverage-80%2B%25-brightgreen.svg)](tests/)
-[![Grade](https://img.shields.io/badge/grade-A-brightgreen.svg)](#-production-ready)
+[![Tests](https://img.shields.io/badge/tests-129%20passing-brightgreen.svg)](tests/)
 
 ---
 
@@ -51,10 +49,10 @@ The first time, this takes **5–15 minutes** (it's downloading the app and the 
 Paste this and wait — it grabs the AI model that matches your computer:
 
 ```bash
-docker compose exec ollama ollama pull phi4-mini
+docker compose exec ollama ollama pull qwen3:4b
 ```
 
-> **You don't pick the model — the app does.** When it runs, it checks whether you have a graphics card (GPU) and automatically chooses the smartest model your machine can handle. See [How the app picks your AI model](#-how-the-app-picks-your-ai-model) for the details. If you have an NVIDIA GPU, also run one extra download: `docker compose exec ollama ollama pull llama3.1:8b`
+> **You don't pick the model — the app does.** When it runs, it checks whether you have a graphics card (GPU) and automatically chooses the smartest model your machine can handle. See [How the app picks your AI model](#-how-the-app-picks-your-ai-model) for the details. If you have an NVIDIA GPU with ≥10 GB VRAM, also run one extra download: `docker compose exec ollama ollama pull gemma3:12b`
 
 ### Load some example data so you can try it immediately
 ```bash
@@ -76,16 +74,17 @@ Next time, just run `docker compose up -d` again — no re-downloading.
 
 ---
 
-## Production-Status
+## Project Status
 
-**Status:** **UNDER DEVELOPMENT**
+**v1 shipped.** The framework-free 3-agent pipeline, hardware-tiered model selection, ATS full-text
+sourcing, and O*NET grounding are all live on `main` and validated by a persona evaluation harness
+(see *Why these models?* below and `reports/IMPROVEMENT_LOG.md` for the full iteration history).
 
-This application will be thoroughly tested, secured, and documented:
-- **104+ automated tests** 
-- **Zero critical bugs** 
-- **8/8 security controls** 
-- **Comprehensive documentation** 
-- **Performance optimized** 
+- **129 automated tests passing** (`pytest tests/`)
+- **8/8 security controls** (input validation, rate limiting, session isolation, etc. — see *Security Features*)
+- **Evidence-driven**, not vibes: every major design choice (base model, full-text sourcing, O*NET grounding) was settled by A/B testing against a 14-persona eval, including documented negative results
+
+v2 work (bring-your-own-jobs upload mode, apply-priority scoring) is tracked in `.pipeline/v2_specs.md`.
 
 **Quick Links:**
 - [Testing & Debugging Guide](docs/development/testing-guide.md)
@@ -140,7 +139,7 @@ This application will be thoroughly tested, secured, and documented:
 - **Zero external APIs** — everything runs in Docker on your laptop
 - **ChromaDB** (embedded, on-disk) stores job embeddings, resume chunks, and ATS knowledge articles
 - **Local embeddings** via Sentence Transformers (`BAAI/bge-small-en-v1.5`)
-- **Framework-free agents** — plain Python orchestration (`app/pipeline/pipeline.py`), no heavy agent framework, with skill prompts in markdown (`app/agents/skills/`)
+- **Framework-free agents** — plain Python orchestration (`app/pipeline/pipeline.py`), no heavy agent framework, with agent-skill prompts in markdown (`app/agents/agent_skills/`)
 - **Auto hardware detection** picks the best Ollama model for your CPU/GPU
 - **Multi-pass reranker** (1–3 passes) sorts results by relevance
 - **Agent validation** prevents hallucination by grounding outputs in actual job data
@@ -154,7 +153,7 @@ This application will be thoroughly tested, secured, and documented:
 
 ### Prerequisites
 - [Docker Desktop](https://www.docker.com/products/docker-desktop/) (Windows/Mac/Linux)
-- 8 GB RAM recommended (6 GB minimum with Phi-4-mini)
+- 8 GB RAM recommended (6 GB minimum with qwen3:4b)
 - 6 GB free disk space (for Docker images + model files)
 
 ### 1 — Clone and configure
@@ -194,10 +193,10 @@ If Ollama shows "unhealthy", it's still initializing. Wait another 30 seconds.
 The first time you start Docker, the system will automatically download the LLM model:
 
 ```bash
-docker compose exec ollama ollama pull phi4-mini
+docker compose exec ollama ollama pull qwen3:4b
 ```
 
-> **Which model?** The app auto-detects your hardware and picks for you — see [How the app picks your AI model](#-how-the-app-picks-your-ai-model). On a CPU-only machine, `phi4-mini` (above) is all you need. With any NVIDIA GPU, pull `llama3.1:8b` instead: `docker compose exec ollama ollama pull llama3.1:8b`.
+> **Which model?** The app auto-detects your hardware and picks for you — see [How the app picks your AI model](#-how-the-app-picks-your-ai-model). On most machines, `qwen3:4b` (above) is all you need. With a ≥10 GB NVIDIA GPU, pull `gemma3:12b` instead: `docker compose exec ollama ollama pull gemma3:12b`.
 
 **Alternative:** If you already have Ollama models, add to `.env`:
 ```bash
@@ -231,7 +230,7 @@ curl http://localhost:5000/health
 docker compose logs ollama --tail 20
 
 # If no models are loaded, download one:
-docker compose exec ollama ollama pull phi4-mini
+docker compose exec ollama ollama pull qwen3:4b
 ```
 
 **If Flask app won't start:**
@@ -277,7 +276,7 @@ cp .env.example .env
 ```bash
 # Install Ollama: https://ollama.com/download
 ollama serve                          # starts Ollama server (background)
-ollama pull phi4-mini                 # ~2.5 GB; the app auto-selects this on CPU
+ollama pull qwen3:4b                 # ~3 GB; the app auto-selects this on CPU/iGPU
 # Embeddings run locally via Sentence Transformers — no embedding model to pull.
 ```
 
@@ -342,34 +341,35 @@ All settings live in `.env`. Key options:
 
 | Your computer | Tier | Model it uses | What to download |
 |---------------|------|---------------|------------------|
-| No GPU (most laptops) | `cpu` | **phi4-mini** (4-bit) | `ollama pull phi4-mini:q4_K_M` |
-| Any NVIDIA GPU | `gpu_avg` / `gpu_modern` | **llama3.1:8b** | `ollama pull llama3.1:8b` |
+| No GPU / iGPU / Apple Silicon (most laptops) | `cpu` | **qwen3:4b** | `ollama pull qwen3:4b` |
+| NVIDIA GPU < 10 GB VRAM | `gpu_avg` | **qwen3:4b** | `ollama pull qwen3:4b` |
+| NVIDIA GPU ≥ 10 GB VRAM | `gpu_modern` | **gemma3:12b** | `ollama pull gemma3:12b` |
 
-The CPU model is **4-bit quantized** — a smaller, faster version that keeps almost all of the smarts while using far less memory. The GPU model (`llama3.1:8b`, ~4.9 GB) fits both smaller (8 GB) and larger (16 GB+) graphics cards, so there's just one to download.
+`qwen3:4b` is a small (~3 GB) reasoning model that runs fast on almost any machine; `gemma3:12b` (~8 GB) is reserved for real GPUs with headroom.
 
 **Want to override it?** Set these in your `.env` file (most people never need to):
 
 ```bash
 HARDWARE_TIER=gpu_avg        # force a tier: cpu | gpu_avg | gpu_modern
-AGENT_MODEL=llama3.1:8b      # or name an exact Ollama model (wins over tier)
+AGENT_MODEL=gemma3:12b       # or name an exact Ollama model (wins over tier)
 ```
 
 > **Non-technical translation:** Leave it alone and it just works. If you have a graphics card, the assistant runs faster — automatically.
 
-### Why llama3.1:8b for GPU?
+### Why these models?
 
-In June 2026 we ran a **bake-off** — testing several models head-to-head on the same job-search pipeline — to find the best GPU model. The pipeline asks each model to return strictly structured output (JSON), which not every model handles reliably. Results on a cloud GPU (NVIDIA A40):
+In June 2026 we ran a **13-model bake-off** on the full job-search pipeline — same corpus, same test users, varying only the model — measuring answer *quality* (not just speed) across both career-switch and stay-in-field users. The headline: **the base model is the single biggest quality lever**, worth ~**+0.76–0.79 overall** versus the previous default (`llama3.1:8b`, which ranked near the bottom).
 
-| Model | Reliable structured output? | Speed | Notes |
-|-------|------------------------------|-------|-------|
-| gemma2:9b | ✅ Yes | ~120 s/run | The previous default |
-| gemma3:12b | ✅ Yes | ~150 s/run | Slower, no quality gain |
-| gemma4 (12B & 26B-MoE) | ❌ No | — | Returns empty responses under structured output |
-| **llama3.1:8b** | **✅ Yes** | **~67 s/run** | **~2× faster, quality within noise of gemma2, fits every GPU tier** |
+| Model | Origin | Quality | Notes |
+|-------|--------|---------|-------|
+| **qwen3:4b** | Alibaba | **best** | Best overall *and* smallest (4B); fast everywhere → the default |
+| **gemma3:12b** | Google (US) | ~tied for #1 | The pick for real GPUs |
+| gpt-oss:20b | OpenAI (US) | strong but uneven | Great on switchers, regressed on stay-in-field |
+| llama3.1:8b (previous) | Meta | near bottom | The model v1 replaced |
 
-`llama3.1:8b` won on reliability, speed, and hardware fit. It needs a context window of at least 8,192 tokens — the app sets `OLLAMA_NUM_CTX=8192` automatically, because the job-matcher prompt (~5,200 tokens) is silently truncated and breaks at the old 4,096 default.
+Surprises worth knowing: **scaling backfired** (qwen3 4B > 8B > 14B > 30B-MoE — the *small* reasoning model won), and a model that looked great on one user type regressed on the other (which is why both are tested). All models need a context window ≥ 8,192 tokens — the app sets `OLLAMA_NUM_CTX=8192` automatically, because the job-matcher prompt (~5,200 tokens) is silently truncated and breaks at the old 4,096 default.
 
-> **License note:** `llama3.1` is released under [Meta's Llama 3.1 Community License](https://www.llama.com/llama3_1/license/), not MIT. If you redistribute this app, include a "Built with Llama" attribution as that license requires.
+> **License note:** `qwen3` is Apache 2.0; `gemma3` is under [Google's Gemma Terms of Use](https://ai.google.dev/gemma/terms) (permissive, with an acceptable-use policy). Check each model's card before redistributing.
 
 ---
 
@@ -463,7 +463,7 @@ This app uses three layers to compensate for small model limitations:
 ```
 job-search-ai-agent/
 ├── README.md                    # This file
-├── STATUS.md                    # Current project status
+├── .pipeline/                   # Session handoffs, specs, iteration history (dev-facing)
 ├── docs/                        # Guides (deployment, testing, fine-tuning)
 │   ├── SLM_FINETUNING_GUIDE.md
 │   ├── deployment/              # Checklist, report, status, verification
@@ -509,7 +509,7 @@ job-search-ai-agent/
 │   ├── ingest_resume.py         # CLI: ingest resume PDF/TXT
 │   └── pull_models.sh           # Download Ollama models
 │
-├── tests/                        # 104+ tests, 80%+ coverage
+├── tests/                        # 129 tests
 │   ├── conftest.py              # Shared fixtures
 │   ├── test_ingest.py           # Ingestion tests (27 cases)
 │   ├── test_matcher.py          # Matching tests (18 cases)
@@ -575,9 +575,9 @@ docker compose restart chromadb
 ### "Ollama model not found"
 ```bash
 # Pull the model
-docker compose exec ollama ollama pull phi4-mini
+docker compose exec ollama ollama pull qwen3:4b
 # Or for local dev:
-ollama pull phi4-mini
+ollama pull qwen3:4b
 ```
 
 ### "No jobs found" after search
@@ -598,9 +598,9 @@ The app supports PDF, TXT, and DOCX. For scanned PDFs without OCR, convert to se
 This is normal — when agent outputs don't match actual job data, the app falls back to matcher results. See [the Improvements roadmap](docs/development/improvements.md) for how to improve validation in the future.
 
 ### Slow performance on CPU
-- On CPU the app already uses the lightweight `phi4-mini` automatically — this is expected to take ~10–20s per search.
+- On CPU the app already uses the lightweight `qwen3:4b` automatically — this is expected to take ~10–20s per search.
 - Speed it up: set `RERANK_PASSES=1` in `.env` (fewer reranker passes), and/or reduce `TOP_JOBS=10` to cut search time.
-- For real speed, run on a machine with an NVIDIA GPU — the app detects it and switches to `llama3.1:8b` automatically (~2× faster than the CPU model).
+- For real speed, run on a machine with an NVIDIA GPU — with ≥10 GB VRAM the app detects it and switches to `gemma3:12b` automatically.
 
 ### Email not sending
 - Verify `SMTP_USER` and `SMTP_PASS` are set in `.env`
@@ -659,7 +659,7 @@ MIT License — free to use, modify, and distribute. See [LICENSE](LICENSE).
 |------|---------|---------|
 | [ChromaDB](https://trychroma.com) | Local vector database (embedded) | Apache 2.0 |
 | [Ollama](https://ollama.com) | Local LLM server | MIT |
-| [Phi-4-mini](https://ollama.com/library/phi4-mini) (CPU) / [Llama 3.1 8B](https://ollama.com/library/llama3.1) (GPU) | Hardware-tiered SLMs | MIT / Llama 3.1 Community License |
+| [qwen3:4b](https://ollama.com/library/qwen3) (CPU/small GPU) / [gemma3:12b](https://ollama.com/library/gemma3) (GPU ≥10 GB) | Hardware-tiered SLMs | Apache 2.0 / Gemma Terms |
 | [FlashRank](https://github.com/PrithivirajDamodaran/FlashRank) | Local cross-encoder reranker | Apache 2.0 |
 | [Sentence Transformers](https://sbert.net) | Local CPU embeddings | Apache 2.0 |
 | [Flask](https://flask.palletsprojects.com) | Web framework | BSD |
@@ -681,4 +681,4 @@ MIT License — free to use, modify, and distribute. See [LICENSE](LICENSE).
 *Built by [Patrick Devens](https://github.com/PWDevens) · Washington, DC · 2026*  
 *Free tool for job seekers competing in a tough market. Star ⭐ if this helped you.*
 
-**Status:** ✅ Production-In Progress · **Grade:** TBD · **Tests:** 104+ · **Coverage:** 80%+
+**Status:** ✅ v1 shipped · **Tests:** 129 passing
