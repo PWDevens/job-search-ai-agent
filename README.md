@@ -90,7 +90,6 @@ v2 work (bring-your-own-jobs upload mode, apply-priority scoring) is tracked in 
 - [Testing & Debugging Guide](docs/development/testing-guide.md)
 - [Improvement Roadmap](docs/development/improvements.md)
 - [Deployment Checklist](docs/deployment/01-checklist.md)
-- [SLM Fine-Tuning Guide](docs/SLM_FINETUNING_GUIDE.md)
 
 ---
 
@@ -455,7 +454,7 @@ This app uses three layers to compensate for small model limitations:
 
 1. **ATS Knowledge RAG** (built-in): 11 curated articles on ATS parsers, resume formatting, AI screening, skills-based hiring, and more — injected into every agent's context via ChromaDB.
 2. **Grounded job data**: All factual claims (job titles, companies, salaries) come from ChromaDB query results, not model memory — eliminating hallucination for structured facts. Agent outputs are validated to ensure grounding.
-3. **Fine-tuning option**: See [`docs/SLM_FINETUNING_GUIDE.md`](docs/SLM_FINETUNING_GUIDE.md) for a complete QLoRA fine-tuning walkthrough for Phi-4-mini.
+3. **Fine-tuning option**: a QLoRA fine-tuning walkthrough for Phi-4-mini is archived in `.pipeline/archive/` (dev-facing, not tracked in `docs/`).
 
 ---
 
@@ -465,8 +464,7 @@ This app uses three layers to compensate for small model limitations:
 job-search-ai-agent/
 ├── README.md                    # This file
 ├── .pipeline/                   # Session handoffs, specs, iteration history (dev-facing)
-├── docs/                        # Guides (deployment, testing, fine-tuning)
-│   ├── SLM_FINETUNING_GUIDE.md
+├── docs/                        # Guides (deployment, testing)
 │   ├── deployment/              # Checklist, report, status, verification
 │   └── development/             # testing-guide.md, improvements.md
 │
@@ -532,9 +530,6 @@ job-search-ai-agent/
 │   │   └── demo_resume.txt      # Sample resume for testing
 │   ├── uploads/                 # User uploads (per-session)
 │   └── audit.db                 # SQLite audit trail (created at runtime)
-│
-├── docs/
-│   └── SLM_FINETUNING_GUIDE.md  # Phi-4-mini QLoRA walkthrough
 │
 ├── docker-compose.yml           # Service orchestration
 ├── Dockerfile                   # Multi-stage build
@@ -680,7 +675,6 @@ MIT License — free to use, modify, and distribute. See [LICENSE](LICENSE).
 - [Testing & Debugging](docs/development/testing-guide.md) — How to test locally
 - [Improvements Roadmap](docs/development/improvements.md) — Future features
 - [Deployment Checklist](docs/deployment/01-checklist.md) — Pre-deployment verification
-- [SLM Fine-Tuning Guide](docs/SLM_FINETUNING_GUIDE.md) — QLoRA walkthrough
 
 ---
 
