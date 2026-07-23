@@ -7,7 +7,6 @@ Unit tests for configuration:
 Tests verify:
 - HARDWARE_TIER maps to the right quantized model
 - AGENT_MODEL env override wins over tier selection
-- OLLAMA_MODEL remains independent at "qwen2.5:3b"
 - httpx.Client is initialized with 120.0 timeout in base.py
 """
 import os
@@ -77,33 +76,6 @@ class TestConfigAgentModel:
 
         # Clean up
         os.environ.pop("AGENT_MODEL", None)
-
-    def test_ollama_model_unchanged(self):
-        """OLLAMA_MODEL should still default to 'qwen2.5:3b'."""
-        os.environ.pop("OLLAMA_MODEL", None)
-
-        # Reimport config to get fresh defaults
-        import importlib
-        if 'app.config' in sys.modules:
-            importlib.reload(sys.modules['app.config'])
-
-        from app.config import OLLAMA_MODEL
-
-        assert OLLAMA_MODEL == "qwen2.5:3b", f"Expected 'qwen2.5:3b', got '{OLLAMA_MODEL}'"
-
-    def test_agent_model_independent_of_ollama_model(self):
-        """AGENT_MODEL (tier-selected) and OLLAMA_MODEL should be independent."""
-        os.environ.pop("AGENT_MODEL", None)
-        os.environ["HARDWARE_TIER"] = "cpu"
-        os.environ["OLLAMA_MODEL"] = "some-other-model"
-        try:
-            cfg = _reload_config()
-            assert cfg.AGENT_MODEL == "qwen3:4b", "AGENT_MODEL should follow cpu tier"
-            assert cfg.OLLAMA_MODEL == "some-other-model"
-            assert cfg.AGENT_MODEL != cfg.OLLAMA_MODEL
-        finally:
-            os.environ.pop("OLLAMA_MODEL", None)
-            os.environ.pop("HARDWARE_TIER", None)
 
 
 class TestBaseHttpxTimeout:

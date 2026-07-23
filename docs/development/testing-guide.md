@@ -403,7 +403,7 @@ OLLAMA_BASE_URL=http://localhost:11434
 ollama serve
 
 # 5. Pull model
-ollama pull phi4-mini
+ollama pull qwen3:4b
 
 # 6. Run Flask app
 FLASK_DEBUG=true python run.py

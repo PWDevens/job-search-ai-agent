@@ -7,7 +7,7 @@
 [![Docker](https://img.shields.io/badge/docker-compose-2496ED.svg)](docker-compose.yml)
 [![Ollama](https://img.shields.io/badge/Ollama-local%20LLM-orange.svg)](https://ollama.com)
 [![ChromaDB](https://img.shields.io/badge/ChromaDB-0.5+-purple.svg)](https://trychroma.com)
-[![Tests](https://img.shields.io/badge/tests-129%20passing-brightgreen.svg)](tests/)
+[![Tests](https://img.shields.io/badge/tests-127%20passing-brightgreen.svg)](tests/)
 
 ---
 
@@ -80,7 +80,7 @@ Next time, just run `docker compose up -d` again — no re-downloading.
 sourcing, and O*NET grounding are all live on `main` and validated by a persona evaluation harness
 (see *Why these models?* below and `reports/IMPROVEMENT_LOG.md` for the full iteration history).
 
-- **129 automated tests passing** (`pytest tests/`)
+- **127 automated tests passing** (`pytest tests/`)
 - **8/8 security controls** (input validation, rate limiting, session isolation, etc. — see *Security Features*)
 - **Evidence-driven**, not vibes: every major design choice (base model, full-text sourcing, O*NET grounding) was settled by A/B testing against a 14-persona eval, including documented negative results
 
@@ -197,11 +197,6 @@ docker compose exec ollama ollama pull qwen3:4b
 ```
 
 > **Which model?** The app auto-detects your hardware and picks for you — see [How the app picks your AI model](#-how-the-app-picks-your-ai-model). On most machines, `qwen3:4b` (above) is all you need. With a ≥10 GB NVIDIA GPU, pull `gemma3:12b` instead: `docker compose exec ollama ollama pull gemma3:12b`.
-
-**Alternative:** If you already have Ollama models, add to `.env`:
-```bash
-OLLAMA_DATA_PATH=C:/path/to/your/ollama-data
-```
 
 ### 5 — Load demo data
 ```bash
@@ -515,11 +510,11 @@ job-search-ai-agent/
 │   ├── ingest_resume.py         # CLI: ingest resume PDF/TXT
 │   └── pull_models.sh           # Download Ollama models
 │
-├── tests/                        # 129 tests
+├── tests/                        # 127 tests
 │   ├── conftest.py              # Shared fixtures
 │   ├── test_ingest.py           # Ingestion tests (22 cases)
 │   ├── test_matcher.py          # Matching tests (18 cases)
-│   ├── test_config_and_base.py # Hardware tier + config + base tests (12 cases)
+│   ├── test_config_and_base.py # Hardware tier + config + base tests (10 cases)
 │   ├── test_merge_fix.py        # Job merge logic tests (9 cases)
 │   ├── test_run_agent.py        # End-to-end mock pipeline tests (2 cases)
 │   ├── test_audit.py            # Audit logging tests (15 cases)
@@ -692,4 +687,4 @@ MIT License — free to use, modify, and distribute. See [LICENSE](LICENSE).
 *Built by [Patrick Devens](https://github.com/PWDevens) · Washington, DC · 2026*  
 *Free tool for job seekers competing in a tough market. Star ⭐ if this helped you.*
 
-**Status:** ✅ v1 shipped · **Tests:** 129 passing
+**Status:** ✅ v1 shipped · **Tests:** 127 passing

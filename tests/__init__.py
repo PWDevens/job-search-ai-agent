@@ -18,8 +18,8 @@ HOW PYTEST DISCOVERS TESTS (without a framework like unittest):
   3. It runs each one and reports pass / fail
 
 RUNNING THE TEST SUITE:
-  # All tests (no live services required — everything is mocked)
-  LLM_BACKEND=mock EMBED_BACKEND=sentence_transformers pytest tests/ -v
+  # All tests (no live services required — external calls are mocked directly in-test)
+  pytest tests/ -v
 
   # Single file
   pytest tests/test_ingest.py -v
