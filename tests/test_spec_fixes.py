@@ -191,11 +191,10 @@ def test_c3_grounding_ratio():
 
 def test_config_constants():
     """Verify all new config constants are present."""
-    from app.config import GROUNDING_PASS_RATIO, RETRIEVAL_BOOST, PROMPT_FEWSHOT, RERANK_MODEL
+    from app.config import GROUNDING_PASS_RATIO, RETRIEVAL_BOOST, PROMPT_FEWSHOT
     assert GROUNDING_PASS_RATIO == 0.5
     assert RETRIEVAL_BOOST is False
     assert PROMPT_FEWSHOT is False  # opt-in (iter4: gain within measurement noise)
-    assert RERANK_MODEL == "bge-reranker-v2-m3"
     print("[PASS] All config constants present with correct defaults")
 
 

@@ -5,7 +5,10 @@ All secrets belong in .env (never committed).
 import os
 from pathlib import Path
 
+from dotenv import load_dotenv
+
 BASE_DIR = Path(__file__).resolve().parent.parent
+load_dotenv(BASE_DIR / ".env")  # local dev: Docker sets real env vars via env_file instead
 
 # ── Vector store (ChromaDB embedded, on-disk) ────────────────────────────────
 CHROMA_DB_PATH     = os.getenv("CHROMA_DB_PATH", str(BASE_DIR / "data" / "chroma"))
@@ -22,7 +25,6 @@ AGENT_MODEL   = os.getenv("AGENT_MODEL")   or _hw.select_model(HARDWARE_TIER)
 
 # ── Local LLM (Ollama) ────────────────────────────────────────────────────────
 OLLAMA_BASE_URL   = os.getenv("OLLAMA_BASE_URL",  "http://localhost:11434")
-OLLAMA_MODEL      = os.getenv("OLLAMA_MODEL",     "qwen2.5:3b")
 
 # Ollama inference options (override via env — for hardware simulation + reproducible evals)
 def _int_or_none(v):
@@ -104,9 +106,6 @@ GROUNDING_PASS_RATIO = float(os.getenv("GROUNDING_PASS_RATIO", "0.5"))
 RETRIEVAL_BOOST = os.getenv("RETRIEVAL_BOOST", "0") == "1"
 PROMPT_FEWSHOT  = os.getenv("PROMPT_FEWSHOT",  "0") == "1"  # opt-in: +0.061 paired (iter3) but within GPU-fleet noise (iter4); field-diverse examples kept
 
-# ── Reranker model ────────────────────────────────────────────────────────────
-RERANK_MODEL = os.getenv("RERANK_MODEL", "bge-reranker-v2-m3")
-
 # ── Context window sizes (chars) — tunable per hardware/model capacity ────────
 RESUME_SNIPPET_CHARS = int(os.getenv("RESUME_SNIPPET_CHARS", "600"))
 RESUME_MID_CHARS     = int(os.getenv("RESUME_MID_CHARS",     "1500"))
@@ -133,7 +132,7 @@ SCHEDULER_CRON    = os.getenv("SCHEDULER_CRON", "0 8 * * 1-5")    # Mon-Fri 08:0
 
 # ── Flask ─────────────────────────────────────────────────────────────────────
 _SECRET_KEY_ENV = os.getenv("SECRET_KEY")
-if not _SECRET_KEY_ENV or _SECRET_KEY_ENV == "change-me-in-production":
+if not _SECRET_KEY_ENV or _SECRET_KEY_ENV.startswith("change-me"):
     # Generate random SECRET_KEY if not configured (security best practice)
     import secrets
     SECRET_KEY = secrets.token_urlsafe(32)

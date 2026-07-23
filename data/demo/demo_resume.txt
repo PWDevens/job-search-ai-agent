@@ -20,11 +20,12 @@ Databases:      PostgreSQL, SQLite, ChromaDB (vector), Excel/XLSX
 
 PROJECTS
 Job-Search AI (github.com/pwdevens/job-search-ai)
-  Open-source, fully local job-search assistant built with ChromaDB, CrewAI, Flask,
-  and Ollama/Phi-4-mini. Three-agent pipeline: job matcher, resume coach, career
-  strategist. Ingests jobs from CSV/XLSX, embeds locally with nomic-embed-text,
-  ranks top 25 matches, generates 10 resume recommendations and 5 blind-spot analyses.
-  Weekly email scheduler with XLSX pipeline attachment. Docker-compose deployment.
+  Open-source, fully local job-search assistant built with ChromaDB, a framework-free
+  agent pipeline, Flask, and Ollama (qwen3:4b / gemma3:12b, hardware-tiered). Three-agent
+  pipeline: job matcher, resume coach, career strategist. Ingests jobs from CSV/XLSX,
+  embeds locally with Sentence Transformers, ranks top 25 matches, generates 10 resume
+  recommendations and 5 blind-spot analyses. Weekly email scheduler with XLSX pipeline
+  attachment. Docker-compose deployment.
 
 Federal Acquisition Regulation Retrieval Augmented Generation Chatbot (https://github.com/PWDevens/fedacq-rag-chatbot)
   Flask + LlamaIndex + ChromaDB + FAR/DFARS DITA Source.

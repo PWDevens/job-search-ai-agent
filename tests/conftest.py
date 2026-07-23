@@ -33,6 +33,9 @@ class _FakeEmbeddingFunction:
     def __call__(self, input):
         return [self._vec(t) for t in input]
 
+    def embed_query(self, input):
+        return self.__call__(input)
+
     @staticmethod
     def _vec(text, dim=256):
         import hashlib, math, re

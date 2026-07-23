@@ -309,18 +309,18 @@ COMMON MISTAKES:
 
     ("Small LLM (SLM) Performance in Job-Search AI Applications",
      """Small language models (≤7B parameters) have significant capability trade-offs
-when used for reasoning-intensive tasks like resume analysis and career coaching.
+when used for reasoning-intensive tasks like resume analysis and career coaching —
+but base model choice, not just parameter count, is the dominant factor.
 
-CAPABILITY COMPARISON (2025–2026):
-Model              Params  RAM Req  ATS Analysis  Resume Recs  Blind Spots
-------             ------  -------  ------------  -----------  -----------
-GPT-4o (cloud)     ~1T     API      Excellent     Excellent    Excellent
-Llama-3 70B (local) 70B   48 GB+   Very Good     Very Good    Very Good
-Llama-3 8B         8B     6 GB     Good          Good         Fair
-Phi-4-mini         3.8B   3 GB     Fair-Good     Fair         Fair
-Phi-3-mini         3.8B   3 GB     Fair          Fair         Poor
-Mistral 7B         7B     5 GB     Good          Good         Fair
-TinyLlama 1.1B     1.1B   1 GB     Poor          Poor         Poor
+CAPABILITY COMPARISON (from a 13-model local bake-off, June 2026 — see reports/IMPROVEMENT_LOG.md
+iteration 16 for full methodology; scores are relative quality on this app's own eval, not general
+benchmarks):
+Model              Params  VRAM Req  Quality (this app's eval)     Notes
+------             ------  --------  ------------------------      -----
+qwen3:4b           4B      < 10 GB   Best overall, and smallest    Small reasoning model; default
+gemma3:12b         12B     >= 10 GB  ~Tied for best                US-developed (Google); GPU pick
+gpt-oss:20b        20B     24-32 GB  Strong on switch, fades stay  Regresses on stay-in-field users
+llama3.1:8b        8B      16 GB     Near bottom                   The model this app replaced
 
 SPECIFIC WEAKNESSES OF SMALL MODELS IN THIS APP:
 1. Context window: Small models may truncate long job descriptions or resumes.
@@ -333,13 +333,14 @@ SPECIFIC WEAKNESSES OF SMALL MODELS IN THIS APP:
    degrades significantly below 7B params.
    Mitigation: Break tasks into smaller sub-tasks; use RAG to provide answers.
 5. Consistency: SLMs produce variable output across runs.
-   Mitigation: Set temperature=0.1 for structured output tasks.
+   Mitigation: Set temperature=0.1-0.2 for structured output tasks.
 
 RECOMMENDATION:
-For serious job searching, Llama-3 8B (6 GB VRAM / ~8 GB RAM) is the
-minimum practical threshold. Phi-4-mini is excellent for demo/portfolio
-purposes and on severely resource-constrained machines, but augment with
-ATS RAG (as implemented in this app) to compensate for reasoning gaps.
+Scaling up does not reliably improve quality on this task — the bake-off found
+qwen3 4B > 8B > 14B > 30B-MoE, and a much larger model (gpt-oss:20b) that led on one
+user type regressed on another. This app auto-selects qwen3:4b (no GPU / <10GB VRAM)
+or gemma3:12b (>=10GB VRAM) based on detected hardware, and compensates for small-model
+reasoning gaps with ATS RAG and O*NET-grounded requirements (as implemented in this app).
 """),
 
 ]
